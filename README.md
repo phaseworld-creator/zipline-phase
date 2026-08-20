@@ -3,12 +3,12 @@
 
 The next generation ShareX / File upload server
 
-![Stars](https://img.shields.io/github/stars/diced/zipline?logo=github&style=for-the-badge)
-![Version](https://img.shields.io/github/package-json/v/diced/zipline?logo=git&logoColor=white&style=for-the-badge)
-![GitHub last commit (branch)](https://img.shields.io/github/last-commit/diced/zipline/trunk?logo=git&logoColor=white&style=for-the-badge)
+![Stars](https://img.shields.io/github/stars/phaseworld-creator/zipline-phase?logo=github&style=for-the-badge)
+![Version](https://img.shields.io/github/package-json/v/phaseworld-creator/zipline-phase?logo=git&logoColor=white&style=for-the-badge)
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/phaseworld-creator/zipline-phase/trunk?logo=git&logoColor=white&style=for-the-badge)
 [![Discord](https://img.shields.io/discord/729771078196527176?color=%23777ed3&label=discord&logo=discord&logoColor=white&style=for-the-badge)](https://discord.gg/EAhCRfGxCF)
 
-![Build](https://img.shields.io/github/actions/workflow/status/diced/zipline/build.yml?logo=github&style=for-the-badge&branch=trunk)
+![Build](https://img.shields.io/github/actions/workflow/status/phaseworld-creator/zipline-phase/build.yml?logo=github&style=for-the-badge&branch=trunk)
 
 Documentation: [zipline.diced.sh](https://zipline.diced.sh)
 
