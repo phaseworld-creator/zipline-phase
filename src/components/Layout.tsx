@@ -44,7 +44,7 @@ import {
   IconUpload,
   IconUsersGroup,
 } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, NavigateFunction, Outlet, useLoaderData, useLocation, useNavigate } from 'react-router-dom';
 import type { dashboardLoader } from '../client/routes';
 import ConfigProvider from './ConfigProvider';
@@ -168,7 +168,7 @@ const renderLinks = (
   config: SafeConfig,
   navigate: NavigateFunction,
 ) => {
-  const visible = (link: NavLinks) => !link.if || link.if(user as Response['/api/user']['user'], config);
+  const visible = (link: NavLinks) => !link.if || link.if(user, config);
 
   const active = (link: NavLinks): boolean => {
     if (!visible(link)) return false;
@@ -193,7 +193,6 @@ const renderLinks = (
             active={isActive}
             component={Link}
             to={link.href || ''}
-            prefetch='intent'
           />
         );
       } else {
@@ -212,7 +211,7 @@ const renderLinks = (
               navigate(link.href);
             }}
           >
-            {renderLinks(sublinks, pathname, user as Response['/api/user']['user'], config, navigate)}
+            {renderLinks(sublinks, pathname, user, config, navigate)}
           </NavLink>
         );
       }
@@ -230,17 +229,16 @@ export default function Layout() {
   const navigate = useNavigate();
   const logout = useLogout();
 
-  const loaderData = useLoaderData<typeof dashboardLoader>();
+  const loaderData = useLoaderData<typeof dashboardLoader>() as { config: SafeConfig; [key: string]: any };
   const config = loaderData.config;
 
   const { user, mutate } = useLogin();
   const { avatar } = useAvatar();
 
-  const [prev, setPrev] = useState(location.pathname);
-  if (prev !== location.pathname) {
-    setPrev(location.pathname);
+  // Close mobile drawer seamlessly on path change
+  useEffect(() => {
     setOpened(false);
-  }
+  }, [location.pathname]);
 
   const copyToken = () => {
     modals.openConfirmModal({
@@ -273,7 +271,6 @@ export default function Layout() {
   const refreshToken = () => {
     modals.openConfirmModal({
       title: 'Refresh token?',
-
       children:
         'Are you sure you want to refresh your token? Once you refresh/reset your token, you will need to update any scripts or applications that use your token.',
       labels: { confirm: 'Refresh', cancel: 'No, close this popup' },
@@ -301,7 +298,6 @@ export default function Layout() {
     });
   };
 
-  /* ── Phase brand logo mark ── */
   const logoMark = (
     <div
       style={{
@@ -332,7 +328,7 @@ export default function Layout() {
     <AppShell
       navbar={{ breakpoint: 'sm', width: { sm: 210, lg: 240 }, collapsed: { mobile: !opened } }}
       header={{ height: 64 }}
-      footer={{ height: { base: 0.1 } }}
+      footer={{ height: 0.1 }}
       styles={{
         main: {
           background: 'var(--bg, #030712)',
@@ -360,7 +356,7 @@ export default function Layout() {
             color='#94a3b8'
             mr='md'
             hiddenFrom='sm'
-            bdrs='md'
+            style={{ borderRadius: 'var(--mantine-radius-md)' }}
           />
 
           {/* Brand */}
@@ -460,7 +456,6 @@ export default function Layout() {
                   leftSection={<IconSettingsFilled size='1rem' />}
                   component={Link}
                   to='/dashboard/settings'
-                  prefetch='intent'
                   style={{ color: 'var(--text-muted, #94a3b8)' }}
                 >
                   Settings
@@ -471,7 +466,6 @@ export default function Layout() {
                     leftSection={<IconAdjustments size='1rem' />}
                     component={Link}
                     to='/dashboard/admin/settings'
-                    prefetch='intent'
                     style={{ color: 'var(--text-muted, #94a3b8)' }}
                   >
                     Server Settings
@@ -490,7 +484,6 @@ export default function Layout() {
 
       {/* ── Navbar ── */}
       <AppShell.Navbar
-        hidden={!opened}
         zIndex={90}
         style={{
           background: 'rgba(3, 7, 18, 0.7)',
@@ -531,7 +524,7 @@ export default function Layout() {
 
         {/* Nav links */}
         <ScrollArea style={{ flex: 1 }} px={8} py={4}>
-          {renderLinks(navLinks, location.pathname, user as Response['/api/user']['user'], config, navigate)}
+          {renderLinks(navLinks, location.pathname, user, config, navigate)}
         </ScrollArea>
 
         {/* Bottom section */}
