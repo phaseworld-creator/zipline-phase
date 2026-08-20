@@ -1,104 +1,50 @@
-name: 'Push Docker Images'
+name: Build & Publish Docker Image
 
 on:
   push:
-    branches: [v4, trunk]
+    branches: [main]
   workflow_dispatch:
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
-  push:
-    strategy:
-      matrix:
-        arch: [amd64, arm64]
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
-    name: push
-    runs-on: ubuntu-24.04${{ matrix.arch == 'arm64' && '-arm' || '' }}
     steps:
-      - uses: actions/checkout@v7
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Get commit sha
-        id: sha
-        run: |
-          echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-
-      - uses: docker/setup-buildx-action@v4
-      - uses: docker/login-action@v4
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: docker/login-action@v4
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=sha-
 
-      - uses: docker/build-push-action@v7
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
         with:
+          context: .
           push: true
-          platforms: linux/${{ matrix.arch }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          provenance: false
-          build-args: |
-            ZIPLINE_GIT_SHA=${{ steps.sha.outputs.short_sha }}
-          tags: |
-            ghcr.io/diced/zipline:trunk-${{ matrix.arch }}
-            ghcr.io/diced/zipline:trunk-${{ steps.sha.outputs.short_sha }}-${{ matrix.arch }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/zipline:trunk-${{ matrix.arch }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/zipline:trunk-${{ steps.sha.outputs.short_sha }}-${{ matrix.arch }}
-
-  amend-builds:
-    runs-on: ubuntu-24.04
-    needs: push
-    steps:
-      - uses: actions/checkout@v7
-      - name: Get commit sha
-        id: sha
-        run: |
-          echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-
-      - uses: docker/setup-buildx-action@v4
-      - uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: docker/login-action@v4
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: pull images
-        run: |
-          docker pull --platform=linux/amd64 ghcr.io/diced/zipline:trunk-${{ steps.sha.outputs.short_sha }}-amd64
-          docker pull --platform=linux/arm64 ghcr.io/diced/zipline:trunk-${{ steps.sha.outputs.short_sha }}-arm64
-          docker pull --platform=linux/amd64 ${{ secrets.DOCKERHUB_USERNAME }}/zipline:trunk-${{ steps.sha.outputs.short_sha }}-amd64
-          docker pull --platform=linux/arm64 ${{ secrets.DOCKERHUB_USERNAME }}/zipline:trunk-${{ steps.sha.outputs.short_sha }}-arm64
-
-      - name: create manifests
-        run: |
-          docker manifest create ghcr.io/diced/zipline:trunk-${{ steps.sha.outputs.short_sha }} \
-            --amend ghcr.io/diced/zipline:trunk-${{ steps.sha.outputs.short_sha }}-amd64 \
-            --amend ghcr.io/diced/zipline:trunk-${{ steps.sha.outputs.short_sha }}-arm64 && \
-          docker manifest create ghcr.io/diced/zipline:trunk \
-            --amend ghcr.io/diced/zipline:trunk-${{ steps.sha.outputs.short_sha }}-amd64 \
-            --amend ghcr.io/diced/zipline:trunk-${{ steps.sha.outputs.short_sha }}-arm64
-          docker manifest create ghcr.io/diced/zipline:v4 \
-            --amend ghcr.io/diced/zipline:trunk-${{ steps.sha.outputs.short_sha }}-amd64 \
-            --amend ghcr.io/diced/zipline:trunk-${{ steps.sha.outputs.short_sha }}-arm64
-          docker manifest create ${{ secrets.DOCKERHUB_USERNAME }}/zipline:trunk \
-            --amend ${{ secrets.DOCKERHUB_USERNAME }}/zipline:trunk-${{ steps.sha.outputs.short_sha }}-amd64 \
-            --amend ${{ secrets.DOCKERHUB_USERNAME }}/zipline:trunk-${{ steps.sha.outputs.short_sha }}-arm64
-          docker manifest create ${{ secrets.DOCKERHUB_USERNAME }}/zipline:trunk-${{ steps.sha.outputs.short_sha }} \
-            --amend ${{ secrets.DOCKERHUB_USERNAME }}/zipline:trunk-${{ steps.sha.outputs.short_sha }}-amd64 \
-            --amend ${{ secrets.DOCKERHUB_USERNAME }}/zipline:trunk-${{ steps.sha.outputs.short_sha }}-arm64
-
-      - name: push manifests
-        run: |
-          docker manifest push ghcr.io/diced/zipline:trunk-${{ steps.sha.outputs.short_sha }}
-          docker manifest push ghcr.io/diced/zipline:trunk
-          docker manifest push ghcr.io/diced/zipline:v4
-          docker manifest push ${{ secrets.DOCKERHUB_USERNAME }}/zipline:trunk
-          docker manifest push ${{ secrets.DOCKERHUB_USERNAME }}/zipline:trunk-${{ steps.sha.outputs.short_sha }}
