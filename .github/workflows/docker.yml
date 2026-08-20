@@ -2,7 +2,7 @@ name: Build & Publish Docker Image
 
 on:
   push:
-    branches: [main]
+    branches: [main, trunk]
   workflow_dispatch:
 
 env:
