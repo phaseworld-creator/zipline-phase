@@ -1,9 +1,328 @@
+/* ============================================================
+   PhaseWorld Design System — Global CSS
+   Dark Tech / Glassmorphism Aesthetic
+   ============================================================ */
+
+/* ---------- CSS Custom Properties ---------- */
+:root {
+  /* Backgrounds & Surfaces */
+  --bg: #030712;
+  --surface-1: rgba(255, 255, 255, 0.02);
+  --surface-2: rgba(255, 255, 255, 0.04);
+  --surface-3: rgba(255, 255, 255, 0.07);
+
+  /* Borders & Glows */
+  --border: rgba(255, 255, 255, 0.08);
+  --border-glow: rgba(255, 255, 255, 0.22);
+
+  /* Typography */
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-faint: #475569;
+
+  /* Accent — Primary (Violet/Indigo) */
+  --accent-primary: #818cf8;
+  --accent-glow: rgba(129, 140, 248, 0.25);
+
+  /* Accent — Secondary (Rose/Pink) */
+  --accent-secondary: #f43f5e;
+  --accent-secondary-glow: rgba(244, 63, 94, 0.25);
+
+  /* Border Radii */
+  --radius-pill: 9999px;
+  --radius-card: 28px;
+  --radius-inner: 16px;
+}
+
+/* ---------- Base Reset & Typography ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg);
+  color: var(--text-main);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---------- Headings Typography ---------- */
+h1,
+h2,
+h3,
+.ph-heading {
+  font-family: 'Syne', sans-serif;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+}
+
+h4,
+h5,
+h6 {
+  font-family: 'Syne', sans-serif;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+/* ---------- Gradient Text Utility ---------- */
+.gradient-text {
+  background: linear-gradient(135deg, #818cf8 0%, #f43f5e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-soft {
+  background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ---------- Glass Surface ---------- */
+.glass {
+  background: var(--surface-1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+}
+
+.glass-card {
+  background: var(--surface-1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+.glass-card:hover {
+  border-color: var(--border-glow);
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.56);
+  transform: translateY(-2px);
+}
+
+/* ---------- Pill Container ---------- */
+.pill {
+  border-radius: var(--radius-pill);
+  background: var(--surface-1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+}
+
+/* ---------- Pill Badge ---------- */
+.pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, rgba(129, 140, 248, 0.1), rgba(244, 63, 94, 0.1));
+  border: 1px solid rgba(129, 140, 248, 0.2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ---------- Status Dot ---------- */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 10px #34d399;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.2);
+  }
+}
+
+/* ---------- Buttons ---------- */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border-radius: var(--radius-inner);
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  box-shadow: 0 4px 20px var(--accent-glow);
+  text-decoration: none;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.45);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border-radius: var(--radius-inner);
+  background: linear-gradient(135deg, #f43f5e, #e11d48);
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  box-shadow: 0 4px 20px var(--accent-secondary-glow);
+  text-decoration: none;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(244, 63, 94, 0.45);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 26px;
+  border-radius: var(--radius-inner);
+  background: var(--surface-2);
+  color: var(--text-main);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-ghost:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-glow);
+  background: var(--surface-3);
+}
+
+/* ---------- Divider ---------- */
+.ph-divider {
+  width: 1px;
+  background: var(--border);
+  align-self: stretch;
+}
+
+/* ---------- Feature icon wrapper ---------- */
+.feature-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(129, 140, 248, 0.12);
+  color: var(--accent-primary);
+  flex-shrink: 0;
+}
+
+.feature-icon-rose {
+  background: rgba(244, 63, 94, 0.12);
+  color: var(--accent-secondary);
+}
+
+/* ---------- Background FX Layers ---------- */
+#mesh-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+}
+
+/* ---------- Page content wrapper (above canvas layers) ---------- */
+.ph-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* ---------- Container ---------- */
+.ph-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ---------- Card spotlight pseudo-element ---------- */
+.card-spotlight {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-spotlight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    800px circle at var(--mouse-x, -9999px) var(--mouse-y, -9999px),
+    rgba(255, 255, 255, 0.06),
+    transparent 40%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ---------- Mantine overrides — keep existing style cohesion ---------- */
 .mantine-Modal-title {
   line-height: 1;
   padding: 0;
   margin: 0;
   font-weight: 700;
   font-size: var(--mantine-font-size-xl);
+  font-family: 'Syne', sans-serif;
 }
 
 .mantine-Table-th {
@@ -12,4 +331,65 @@
 
 .mantine-datatable {
   border-radius: var(--mantine-radius-default);
+}
+
+/* Glass surface on Mantine Paper when inside a dark theme */
+.mantine-Paper-root {
+  background: var(--surface-1) !important;
+  border-color: var(--border) !important;
+}
+
+/* Glassmorphic AppShell header */
+.mantine-AppShell-header {
+  background: rgba(3, 7, 18, 0.75) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom-color: var(--border) !important;
+}
+
+/* Glassmorphic AppShell navbar */
+.mantine-AppShell-navbar {
+  background: rgba(3, 7, 18, 0.7) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-right-color: var(--border) !important;
+}
+
+/* NavLink active highlight */
+.mantine-NavLink-root[data-active] {
+  background: rgba(129, 140, 248, 0.12) !important;
+  color: var(--accent-primary) !important;
+}
+
+.mantine-NavLink-root[data-active] .mantine-NavLink-label {
+  color: var(--accent-primary) !important;
+}
+
+/* ---------- Scrollbar styling ---------- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-3);
+  border-radius: var(--radius-pill);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(129, 140, 248, 0.3);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2.5rem !important;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr !important;
+  }
 }

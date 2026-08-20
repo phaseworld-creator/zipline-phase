@@ -18,8 +18,6 @@ import {
   Paper,
   ScrollArea,
   Title,
-  useMantineColorScheme,
-  useMantineTheme,
 } from '@mantine/core';
 import { useClipboard } from '@mantine/hooks';
 import { useModals } from '@mantine/modals';
@@ -224,8 +222,6 @@ const renderLinks = (
 };
 
 export default function Layout() {
-  const theme = useMantineTheme();
-  const { colorScheme } = useMantineColorScheme();
   const [opened, setOpened] = useState(false);
   const modals = useModals();
   const clipboard = useClipboard();
@@ -305,43 +301,123 @@ export default function Layout() {
     });
   };
 
+  /* ── Phase brand logo mark ── */
+  const logoMark = (
+    <div
+      style={{
+        width: 32,
+        height: 32,
+        borderRadius: 10,
+        background: 'linear-gradient(135deg, #6366f1, #f43f5e)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: "'Syne', sans-serif",
+        fontWeight: 800,
+        fontSize: 16,
+        color: '#fff',
+        flexShrink: 0,
+        boxShadow: '0 4px 14px rgba(99, 102, 241, 0.4)',
+      }}
+    >
+      {config.website.titleLogo ? (
+        <Avatar src={config.website.titleLogo} alt='Zipline logo' radius='sm' size={28} />
+      ) : (
+        (config.website.title?.trim()[0] ?? 'Z').toUpperCase()
+      )}
+    </div>
+  );
+
   return (
     <AppShell
-      navbar={{ breakpoint: 'sm', width: { sm: 200, lg: 230 }, collapsed: { mobile: !opened } }}
-      header={{ height: 60 }}
+      navbar={{ breakpoint: 'sm', width: { sm: 210, lg: 240 }, collapsed: { mobile: !opened } }}
+      header={{ height: 64 }}
       footer={{ height: { base: 0.1 } }}
+      styles={{
+        main: {
+          background: 'var(--bg, #030712)',
+          minHeight: '100vh',
+        },
+      }}
     >
-      <AppShell.Header px='md'>
-        <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+      {/* ── Header ── */}
+      <AppShell.Header
+        px='md'
+        style={{
+          background: 'rgba(3, 7, 18, 0.75)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', height: '100%', width: '100%' }}>
           <Burger
             opened={opened}
             onClick={() => setOpened((o) => !o)}
             size='sm'
-            color={theme.colors.gray[6]}
-            mr='xl'
+            color='#94a3b8'
+            mr='md'
             hiddenFrom='sm'
             bdrs='md'
           />
 
-          {config.website.titleLogo && (
-            <Avatar src={config.website.titleLogo} alt='Zipline logo' radius='sm' size='md' mr='md' />
-          )}
+          {/* Brand */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {logoMark}
+            <Title
+              visibleFrom='sm'
+              lineClamp={1}
+              style={{
+                fontFamily: "'Syne', sans-serif",
+                fontWeight: 800,
+                fontSize: '1.15rem',
+                letterSpacing: '-0.02em',
+                color: 'var(--text-main, #f8fafc)',
+              }}
+            >
+              {config.website.title.trim()}
+            </Title>
+          </div>
 
-          <Title visibleFrom='sm' lineClamp={1} size={32}>
-            {config.website.title.trim()}
-          </Title>
-
+          {/* Right side: user menu */}
           <div style={{ marginLeft: 'auto' }}>
-            <Menu shadow='md' width={200}>
+            <Menu shadow='md' width={220} offset={10}>
               <Menu.Target>
                 <Button
-                  variant='transparent'
-                  color={colorScheme === 'dark' ? 'white' : 'black'}
+                  variant='subtle'
+                  color='gray'
+                  style={{
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    borderRadius: 'var(--radius-inner, 16px)',
+                    color: 'var(--text-main, #f8fafc)',
+                    fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+                    fontWeight: 600,
+                    fontSize: '0.85rem',
+                    padding: '6px 14px',
+                  }}
                   leftSection={
                     avatar ? (
-                      <Avatar src={avatar} radius='sm' size='sm' alt={user?.username ?? 'User avatar'} />
+                      <Avatar src={avatar} radius='xl' size={24} alt={user?.username ?? 'User avatar'} />
                     ) : (
-                      <IconSettingsFilled size='1rem' />
+                      <div
+                        style={{
+                          width: 24,
+                          height: 24,
+                          borderRadius: '50%',
+                          background: 'linear-gradient(135deg, #6366f1, #f43f5e)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: '#fff',
+                        }}
+                      >
+                        {(user?.username?.[0] ?? 'U').toUpperCase()}
+                      </div>
                     )
                   }
                   rightSection={<IconChevronDown size='0.7rem' />}
@@ -351,25 +427,41 @@ export default function Layout() {
                 </Button>
               </Menu.Target>
 
-              <Menu.Dropdown>
-                <Menu.Label>
+              <Menu.Dropdown
+                style={{
+                  background: 'rgba(3, 7, 18, 0.92)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: 16,
+                }}
+              >
+                <Menu.Label style={{ color: 'var(--text-faint, #475569)', fontSize: '0.75rem' }}>
                   {user?.username}
-                  {isAdministrator(user?.role) ? ' (Administrator)' : ''}
+                  {isAdministrator(user?.role) ? ' · Administrator' : ''}
                 </Menu.Label>
 
-                <Menu.Item leftSection={<IconClipboardCopy size='1rem' />} onClick={copyToken}>
+                <Menu.Item
+                  leftSection={<IconClipboardCopy size='1rem' />}
+                  onClick={copyToken}
+                  style={{ color: 'var(--text-muted, #94a3b8)' }}
+                >
                   Copy token
                 </Menu.Item>
-                <Menu.Item color='red' leftSection={<IconRefreshDot size='1rem' />} onClick={refreshToken}>
+                <Menu.Item
+                  color='red'
+                  leftSection={<IconRefreshDot size='1rem' />}
+                  onClick={refreshToken}
+                >
                   Refresh token
                 </Menu.Item>
-                <Menu.Divider />
+                <Menu.Divider style={{ borderColor: 'rgba(255,255,255,0.08)' }} />
 
                 <Menu.Item
                   leftSection={<IconSettingsFilled size='1rem' />}
                   component={Link}
                   to='/dashboard/settings'
                   prefetch='intent'
+                  style={{ color: 'var(--text-muted, #94a3b8)' }}
                 >
                   Settings
                 </Menu.Item>
@@ -380,12 +472,13 @@ export default function Layout() {
                     component={Link}
                     to='/dashboard/admin/settings'
                     prefetch='intent'
+                    style={{ color: 'var(--text-muted, #94a3b8)' }}
                   >
                     Server Settings
                   </Menu.Item>
                 )}
 
-                <Menu.Divider />
+                <Menu.Divider style={{ borderColor: 'rgba(255,255,255,0.08)' }} />
                 <Menu.Item color='red' leftSection={<IconLogout size='1rem' />} onClick={logout}>
                   Logout
                 </Menu.Item>
@@ -395,22 +488,57 @@ export default function Layout() {
         </div>
       </AppShell.Header>
 
-      <AppShell.Navbar hidden={!opened} zIndex={90}>
-        <Title hiddenFrom='sm' size={24} m='sm' style={{ marginBottom: 20 }}>
-          {config.website.title.trim()}
-        </Title>
-        <Divider hiddenFrom='sm' />
+      {/* ── Navbar ── */}
+      <AppShell.Navbar
+        hidden={!opened}
+        zIndex={90}
+        style={{
+          background: 'rgba(3, 7, 18, 0.7)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderRight: '1px solid rgba(255,255,255,0.08)',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {/* Mobile title */}
+        <Box
+          hiddenFrom='sm'
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: '16px 16px 12px',
+          }}
+        >
+          {logoMark}
+          <span
+            style={{
+              fontFamily: "'Syne', sans-serif",
+              fontWeight: 800,
+              fontSize: '1rem',
+              color: 'var(--text-main, #f8fafc)',
+              letterSpacing: '-0.02em',
+            }}
+          >
+            {config.website.title.trim()}
+          </span>
+        </Box>
+        <Divider
+          hiddenFrom='sm'
+          style={{ borderColor: 'rgba(255,255,255,0.08)', marginBottom: 8 }}
+        />
 
-        <ScrollArea mah='calc(100vh - 200px)'>
+        {/* Nav links */}
+        <ScrollArea style={{ flex: 1 }} px={8} py={4}>
           {renderLinks(navLinks, location.pathname, user as Response['/api/user']['user'], config, navigate)}
         </ScrollArea>
 
-        <div style={{ marginTop: 'auto' }}>
+        {/* Bottom section */}
+        <div style={{ padding: '8px 0' }}>
           <VersionBadge />
-
-          <Divider />
-
-          <ScrollArea mah='auto'>
+          <Divider style={{ borderColor: 'rgba(255,255,255,0.08)', margin: '8px 0' }} />
+          <ScrollArea mah={160} px={8}>
             <Box>
               {config.website.externalLinks.map(({ name, url }, i) => (
                 <NavLink
@@ -421,6 +549,7 @@ export default function Layout() {
                   component={Link}
                   to={url}
                   target='_blank'
+                  style={{ borderRadius: 10, marginBottom: 2 }}
                 />
               ))}
             </Box>
@@ -428,9 +557,21 @@ export default function Layout() {
         </div>
       </AppShell.Navbar>
 
+      {/* ── Main content ── */}
       <AppShell.Main>
         <ConfigProvider data={loaderData}>
-          <Paper withBorder m='md' p='xs' radius='md'>
+          <Paper
+            withBorder
+            m='md'
+            p='md'
+            radius='xl'
+            style={{
+              background: 'rgba(255,255,255,0.02)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              border: '1px solid rgba(255,255,255,0.08)',
+            }}
+          >
             <Outlet />
           </Paper>
         </ConfigProvider>

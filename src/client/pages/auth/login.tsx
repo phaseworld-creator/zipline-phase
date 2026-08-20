@@ -12,15 +12,10 @@ import { useTitle } from '@/lib/client/hooks/useTitle';
 import {
   Anchor,
   Box,
-  Center,
   Divider,
   Group,
-  Image,
   LoadingOverlay,
-  Paper,
-  Stack,
   Text,
-  Title,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { showNotification } from '@mantine/notifications';
@@ -32,11 +27,77 @@ import {
   IconCheck,
   IconCircleKeyFilled,
 } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useSWR from 'swr';
 import GenericError from '../../error/GenericError';
 import { eitherTrue } from '@/lib/primitive';
+
+/* ─────────────────────────────────────────────
+   Particle mesh (reused from landing page)
+───────────────────────────────────────────── */
+function useMeshCanvas(ref: React.RefObject<HTMLCanvasElement | null>) {
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    type Node = { x: number; y: number; vx: number; vy: number };
+    const nodes: Node[] = Array.from({ length: 25 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: (Math.random() - 0.5) * 0.5,
+    }));
+
+    let raf: number;
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const n of nodes) {
+        n.x += n.vx;
+        n.y += n.vy;
+        if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+        if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+      }
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 180) {
+            ctx.strokeStyle = `rgba(129, 140, 248, ${(1 - dist / 180) * 0.25})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+      for (const n of nodes) {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(129, 140, 248, 0.4)';
+        ctx.fill();
+      }
+      raf = requestAnimationFrame(draw);
+    };
+    draw();
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(raf);
+    };
+  }, [ref]);
+}
 
 export default function Login() {
   useTitle('Login');
@@ -44,15 +105,16 @@ export default function Login() {
   const query = new URLSearchParams(location.search);
   const navigate = useNavigate();
   const { user, mutate } = useLogin({
-    swrConfig: {
-      shouldRetryOnError: false,
-    },
+    swrConfig: { shouldRetryOnError: false },
   });
 
   const isHttps = window.location.protocol === 'https:';
   const webClient = JSON.stringify(getWebClient());
 
   const { data: config, error: configError, isLoading: configLoading } = useSWR('/api/server/public');
+
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useMeshCanvas(canvasRef);
 
   const showLocalLogin =
     query.get('local') === 'true' ||
@@ -71,7 +133,6 @@ export default function Login() {
       const provider = Object.keys(config.oauthEnabled).find(
         (x) => config.oauthEnabled[x as keyof typeof config.oauthEnabled] === true,
       );
-
       if (provider) window.location.href = `/api/auth/oauth/${provider.toLowerCase()}`;
     }
   }, [willRedirect, config]);
@@ -100,14 +161,12 @@ export default function Login() {
 
   const handleLoginSubmit = async (values: any, code?: string) => {
     setTotp({ disabled: true, error: '' });
-
     const { data, error } = await fetchApi(
       '/api/auth/login',
       'POST',
       { ...values, code },
       { 'x-zipline-client': webClient },
     );
-
     if (error) {
       if (ApiError.check(error, 1044)) {
         form.setFieldError('username', 'Invalid username');
@@ -130,17 +189,35 @@ export default function Login() {
 
   const handleTotpChange = async (val: string) => {
     setTotp('pin', val);
-
     if (val.length === 6) await handleLoginSubmit(form.values, val);
   };
 
   if (configLoading || !config) return <LoadingOverlay visible />;
   if (configError) return <GenericError title='Error' message='Config load failed' details={configError} />;
 
-  const hasBg = !!config.website.loginBackground;
-
   return (
     <>
+      {/* Background FX */}
+      <canvas ref={canvasRef} id='mesh-canvas' aria-hidden='true' />
+      <div className='grain-overlay' aria-hidden='true' />
+
+      {/* Custom background image if configured */}
+      {config.website.loginBackground && (
+        <div
+          aria-hidden='true'
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 0,
+            backgroundImage: `url(${config.website.loginBackground})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            filter: config.website.loginBackgroundBlur ? 'blur(10px)' : undefined,
+            opacity: 0.25,
+          }}
+        />
+      )}
+
       {willRedirect && !showLocalLogin && <LoadingOverlay visible />}
 
       <TotpModal
@@ -159,60 +236,114 @@ export default function Login() {
         returnHttps={config.returnHttps}
       />
 
+      {/* HTTPS warnings */}
       {isHttps && !config.returnHttps && (
-        <Box pos='absolute' top={10} left='50%' style={{ transform: 'translateX(-50%)' }}>
+        <Box pos='fixed' top={10} left='50%' style={{ transform: 'translateX(-50%)', zIndex: 10 }}>
           <Text size='sm' c='red' ta='center'>
             You are accessing this instance through a <b>secure</b> context but the server is not configured
-            to use HTTPS. Click <Anchor onClick={() => setSecureModal(true)}> here</Anchor> to learn more.
+            to use HTTPS. Click <Anchor onClick={() => setSecureModal(true)}>here</Anchor> to learn more.
           </Text>
         </Box>
       )}
-
       {!isHttps && config.returnHttps && (
-        <Box pos='absolute' top={10} left='50%' style={{ transform: 'translateX(-50%)' }}>
+        <Box pos='fixed' top={10} left='50%' style={{ transform: 'translateX(-50%)', zIndex: 10 }}>
           <Text size='sm' c='red' ta='center'>
-            You are accessing this instance through an <b>insecure</b> context but the server is configured to
-            use HTTPS. This may cause issues when logging in. Click{' '}
-            <Anchor onClick={() => setSecureModal(true)}> here</Anchor> to learn more.
+            You are accessing this instance through an <b>insecure</b> context but the server is configured
+            to use HTTPS. Click <Anchor onClick={() => setSecureModal(true)}>here</Anchor> to learn more.
           </Text>
         </Box>
       )}
 
-      <Center h='100vh'>
-        {hasBg && (
-          <Image
-            src={config.website.loginBackground}
-            pos='absolute'
-            inset={0}
-            w='100%'
-            h='100%'
-            fit='cover'
-            style={{ filter: config.website.loginBackgroundBlur ? 'blur(10px)' : undefined }}
-          />
-        )}
+      {/* Centered login card */}
+      <div
+        className='ph-content'
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px',
+        }}
+      >
+        {/* Back to home */}
+        <div style={{ marginBottom: '32px' }}>
+          <Link
+            to='/'
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              color: 'var(--text-muted)',
+              textDecoration: 'none',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              transition: 'color 0.2s',
+            }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--text-main)')}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--text-muted)')}
+          >
+            ← Back to home
+          </Link>
+        </div>
 
-        <Paper
-          w='350px'
-          p='xl'
-          shadow='xl'
-          withBorder
-          pos='relative'
+        {/* Card */}
+        <div
+          className='glass-card'
           style={{
-            backgroundColor: hasBg ? 'transparent' : undefined,
-            backdropFilter: hasBg ? 'blur(35px)' : undefined,
+            width: '100%',
+            maxWidth: '400px',
+            padding: '40px',
+            background:
+              'linear-gradient(135deg, rgba(129, 140, 248, 0.06) 0%, rgba(3, 7, 18, 0.8) 100%)',
           }}
         >
-          <Title order={1} ta='center' mb='md'>
-            <b>{config.website.title ?? 'Zipline'}</b>
-          </Title>
+          {/* Logo + title */}
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <div
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: 16,
+                background: 'linear-gradient(135deg, #6366f1, #f43f5e)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontFamily: "'Syne', sans-serif",
+                fontWeight: 800,
+                fontSize: 26,
+                color: '#fff',
+                margin: '0 auto 16px',
+                boxShadow: '0 8px 30px rgba(99, 102, 241, 0.35)',
+              }}
+            >
+              Z
+            </div>
+            <h1
+              style={{
+                fontFamily: "'Syne', sans-serif",
+                fontWeight: 800,
+                fontSize: '1.6rem',
+                color: 'var(--text-main)',
+                letterSpacing: '-0.03em',
+                margin: '0 0 6px',
+              }}
+            >
+              {config.website.title ?? 'Zipline'}
+            </h1>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', margin: 0 }}>
+              Sign in to your account
+            </p>
+          </div>
 
-          <Stack>
+          {/* Login form sections */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {showLocalLogin && (
               <LocalLogin
                 form={form}
                 onSubmit={handleLoginSubmit}
                 loading={totp.disabled}
-                hasBackground={hasBg}
+                hasBackground
               />
             )}
 
@@ -225,7 +356,13 @@ export default function Login() {
               config.features.userRegistration,
             ) && (
               <>
-                <Divider label='or' />
+                <Divider
+                  label='or continue with'
+                  labelPosition='center'
+                  styles={{
+                    label: { color: 'var(--text-faint)', fontSize: '0.75rem' },
+                  }}
+                />
 
                 {config.mfa.passkeys && browserSupportsWebAuthn() && (
                   <PasskeyAuthButton onAuthSuccess={mutate} />
@@ -256,18 +393,30 @@ export default function Login() {
                 </Group>
 
                 {config.features.userRegistration && (
-                  <Text ta='center' mt='md'>
+                  <Text ta='center' size='sm' mt='xs' c='dimmed'>
                     Don&apos;t have an account?{' '}
-                    <Anchor component={Link} to='/auth/register' c='blue' fw={500}>
+                    <Anchor component={Link} to='/auth/register' c='violet' fw={600}>
                       Register
                     </Anchor>
                   </Text>
                 )}
               </>
             )}
-          </Stack>
-        </Paper>
-      </Center>
+          </div>
+        </div>
+
+        {/* Footer note */}
+        <p
+          style={{
+            marginTop: '24px',
+            color: 'var(--text-faint)',
+            fontSize: '0.75rem',
+            textAlign: 'center',
+          }}
+        >
+          Zipline — Open source file hosting
+        </p>
+      </div>
     </>
   );
 }

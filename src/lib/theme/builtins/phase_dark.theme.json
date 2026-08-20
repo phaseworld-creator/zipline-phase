@@ -1,0 +1,52 @@
+{
+  "name": "Phase Dark",
+  "id": "builtin:phase_dark",
+  "colorScheme": "dark",
+  "colors": {
+    "violet": [
+      "#f0f0ff",
+      "#e0e0fe",
+      "#c7c8fd",
+      "#a5a8fb",
+      "#818cf8",
+      "#6366f1",
+      "#4f46e5",
+      "#4338ca",
+      "#3730a3",
+      "#312e81"
+    ],
+    "rose": [
+      "#fff1f2",
+      "#ffe4e6",
+      "#fecdd3",
+      "#fda4af",
+      "#fb7185",
+      "#f43f5e",
+      "#e11d48",
+      "#be123c",
+      "#9f1239",
+      "#881337"
+    ],
+    "dark": [
+      "#f8fafc",
+      "#94a3b8",
+      "#475569",
+      "#334155",
+      "#1e293b",
+      "#0f172a",
+      "#0d1220",
+      "#080d18",
+      "#050810",
+      "#030712"
+    ]
+  },
+  "primaryColor": "violet",
+  "mainBackgroundColor": "#030712",
+  "fontFamily": "'Plus Jakarta Sans', system-ui, sans-serif",
+  "headings": {
+    "fontFamily": "'Syne', sans-serif",
+    "fontWeight": "700"
+  },
+  "defaultRadius": "md",
+  "extraCss": ""
+}

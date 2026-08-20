@@ -280,7 +280,7 @@ export const schema = z.object({
       .default(null),
     theme: z.object({
       default: z.string().default('system'),
-      dark: z.string().default('builtin:dark_blue'),
+      dark: z.string().default('builtin:phase_dark'),
       light: z.string().default('builtin:light_blue'),
     }),
     tos: z

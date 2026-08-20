@@ -39,6 +39,7 @@ export const router = createBrowserRouter([
           fourOhFourCatchall,
           {
             children: [
+              { index: true, lazy: () => import('./pages/landing/index') },
               { path: 'auth/login', Component: Login },
               { path: 'auth/register', lazy: () => import('./pages/auth/register') },
               {

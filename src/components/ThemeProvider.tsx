@@ -3,7 +3,7 @@ import { Config } from '@/lib/config/validate';
 import { useSettingsStore } from '@/lib/client/store/settings';
 import { useUserStore } from '@/lib/client/store/user';
 import { ZiplineTheme, findTheme, themeComponents } from '@/lib/theme';
-import dark_blue from '@/lib/theme/builtins/dark_blue.theme.json' with { type: 'json' };
+import phase_dark from '@/lib/theme/builtins/phase_dark.theme.json' with { type: 'json' };
 import { MantineProvider, createTheme } from '@mantine/core';
 import { useColorScheme } from '@mantine/hooks';
 import { createContext, useContext } from 'react';
@@ -55,13 +55,17 @@ export default function ThemeProvider({
     theme =
       systemTheme === 'dark'
         ? (findTheme(user ? preferredDark : (defaultTheme?.dark ?? ''), themes) ??
+          findTheme('builtin:phase_dark', themes) ??
           findTheme('builtin:dark_blue', themes))
         : (findTheme(user ? preferredLight : (defaultTheme?.light ?? ''), themes) ??
           findTheme('builtin:light_blue', themes));
   }
 
   if (!theme) {
-    theme = findTheme('builtin:dark_blue') ?? (dark_blue as unknown as ZiplineTheme); // back up theme if all else fails lol
+    theme =
+      findTheme('builtin:phase_dark', themes) ??
+      findTheme('builtin:dark_blue', themes) ??
+      (phase_dark as unknown as ZiplineTheme);
   }
 
   return (
