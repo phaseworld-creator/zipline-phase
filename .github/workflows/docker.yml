@@ -13,7 +13,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
       packages: write
 
     steps:
@@ -26,25 +26,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Auto-format source files
-        run: |
-          pnpm exec oxfmt src/client/pages/auth/login.tsx src/client/pages/landing/index.tsx src/components/Layout.tsx
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git diff --quiet || git commit -am "style: auto-format new files [skip ci]"
 
       - name: Extract metadata (tags, labels)
         id: meta

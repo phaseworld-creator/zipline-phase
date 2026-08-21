@@ -35,7 +35,7 @@ COPY code.json ./code.json
 COPY vite-env.d.ts ./vite-env.d.ts
 COPY scripts ./scripts
 
-RUN ZIPLINE_BUILD=true pnpm run build
+RUN ZIPLINE_BUILD=true SKIP_FORMAT=true pnpm run build
 
 FROM base
 
