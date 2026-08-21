@@ -59,8 +59,7 @@ export default typedPlugin(
         const filepath = join(dir, filename);
 
         // Remove id/builtin prefix if caller included it; id comes from filename
-        const { ...themeData } = body as any;
-        delete themeData.id;
+        const { id: _id, ...themeData } = body as any;
 
         await writeFile(filepath, JSON.stringify(themeData, null, 2), 'utf-8');
 

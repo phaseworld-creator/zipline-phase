@@ -1,14 +1,13 @@
 import { fetchApi } from '@/lib/fetchApi';
-import { themeComponents, ZiplineTheme } from '@/lib/theme';
 import {
   ActionIcon,
   Badge,
   Box,
   Button,
-  Card,
   Code,
   ColorInput,
   ColorSwatch,
+  createTheme,
   Divider,
   Group,
   MantineProvider,
@@ -19,7 +18,6 @@ import {
   Select,
   SimpleGrid,
   Stack,
-  Switch,
   Table,
   Tabs,
   Text,
@@ -28,7 +26,6 @@ import {
   Title,
   Tooltip,
 } from '@mantine/core';
-import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import {
   IconCheck,
@@ -42,7 +39,6 @@ import {
   IconRefresh,
   IconTrash,
 } from '@tabler/icons-react';
-import { createTheme } from '@mantine/core';
 import { useState } from 'react';
 import useSWR, { mutate as globalMutate } from 'swr';
 
