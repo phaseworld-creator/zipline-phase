@@ -69,50 +69,50 @@ const PRESETS: Preset[] = [
     id: 'nyan',
     label: 'Nyan Cat',
     type: 'gif',
-    mediaUrl: 'https://media.tenor.com/iFGFPNqmXFMAAAAC/nyan-cat.gif',
-    preview: 'https://media.tenor.com/iFGFPNqmXFMAAAAC/nyan-cat.gif',
+    mediaUrl: 'https://phase-cdn.pages.dev/zipline/Nyan-Cat.webp',
+    preview: 'https://phase-cdn.pages.dev/zipline/Nyan-Cat.webp',
   },
   {
     id: 'trollface',
     label: 'Trollface',
     type: 'image',
-    mediaUrl: 'https://upload.wikimedia.org/wikipedia/en/9/9a/Trollface_non-free.png',
-    preview: 'https://upload.wikimedia.org/wikipedia/en/9/9a/Trollface_non-free.png',
+    mediaUrl: 'https://phase-cdn.pages.dev/zipline/TrollFace.png',
+    preview: 'hhttps://phase-cdn.pages.dev/zipline/TrollFace.png',
   },
   {
     id: 'doge',
     label: 'Doge',
     type: 'image',
-    mediaUrl: 'https://upload.wikimedia.org/wikipedia/en/5/5f/Original_Doge_meme.jpg',
-    preview: 'https://upload.wikimedia.org/wikipedia/en/5/5f/Original_Doge_meme.jpg',
+    mediaUrl: 'https://phase-cdn.pages.dev/zipline/Doge.jpg',
+    preview: 'https://phase-cdn.pages.dev/zipline/Doge.jpg',
   },
   {
     id: 'bonk',
     label: 'Bonk',
     type: 'gif',
-    mediaUrl: 'https://media.tenor.com/HbHfHFMCLqIAAAAC/bonk.gif',
-    preview: 'https://media.tenor.com/HbHfHFMCLqIAAAAC/bonk.gif',
+    mediaUrl: 'https://phase-cdn.pages.dev/zipline/Bonk.gif',
+    preview: 'https://phase-cdn.pages.dev/zipline/Bonk.gif',
   },
   {
     id: 'pikachu',
     label: 'Surprised Pikachu',
     type: 'image',
-    mediaUrl: 'https://i.kym-cdn.com/entries/icons/original/000/027/475/Screen_Shot_2018-10-25_at_11.02.15_AM.png',
-    preview: 'https://i.kym-cdn.com/entries/icons/original/000/027/475/Screen_Shot_2018-10-25_at_11.02.15_AM.png',
+    mediaUrl: 'https://phase-cdn.pages.dev/zipline/Surprised-Pikachu.png',
+    preview: 'https://phase-cdn.pages.dev/zipline/Surprised-Pikachu.png',
   },
   {
     id: 'spinning',
     label: 'Spinning Horse',
     type: 'gif',
-    mediaUrl: 'https://media.tenor.com/G7f2t9pS0CkAAAAC/spinning-horse-spin.gif',
-    preview: 'https://media.tenor.com/G7f2t9pS0CkAAAAC/spinning-horse-spin.gif',
+    mediaUrl: 'https://phase-cdn.pages.dev/zipline/Spinning-Horse.gif',
+    preview: 'https://phase-cdn.pages.dev/zipline/Spinning-Horse.gif',
   },
   {
     id: 'shrek',
     label: 'Shrek',
     type: 'image',
-    mediaUrl: 'https://upload.wikimedia.org/wikipedia/en/8/8f/Shrek_2001_theatrical_poster.png',
-    preview: 'https://upload.wikimedia.org/wikipedia/en/8/8f/Shrek_2001_theatrical_poster.png',
+    mediaUrl: 'https://phase-cdn.pages.dev/zipline/Shrek-Disappointed.png',
+    preview: 'https://phase-cdn.pages.dev/zipline/Shrek-Disappointed.png',
   },
 ];
 
@@ -134,8 +134,8 @@ const API_PATH = '/api/troll';
 const SWR_KEY = API_PATH;
 
 function buildTrollUrl(alias: string) {
-  if (typeof window === 'undefined') return `/troll/${alias}`;
-  return `${window.location.protocol}//${window.location.host}/troll/${alias}`;
+  if (typeof window === 'undefined') return `/data/${alias}`;
+  return `${window.location.protocol}//${window.location.host}/data/${alias}`;
 }
 
 /* ─── Component ──────────────────────────────────────────────── */
@@ -352,7 +352,7 @@ export default function DashboardTroll() {
         </Badge>
       </Group>
       <Text c='dimmed' mb='lg'>
-        Create disguised prank links. Share <code>/troll/alias</code> with someone — they see your chosen
+        Create disguised prank links. Share <code>/data/alias</code> with someone — they see your chosen
         media full-screen. Presets or custom URLs, your choice.
       </Text>
 
