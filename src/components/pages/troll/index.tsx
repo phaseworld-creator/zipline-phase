@@ -1,16 +1,16 @@
-import { useTitle } from '@/lib/client/hooks/useTitle';
+import { fetchApi } from '@/lib/fetchApi';
 import {
   ActionIcon,
   Badge,
-  Box,
   Button,
   Card,
   CopyButton,
   Divider,
   Group,
   Image,
+  Loader,
   Modal,
-  ScrollArea,
+  SegmentedControl,
   Select,
   SimpleGrid,
   Stack,
@@ -25,249 +25,322 @@ import { notifications } from '@mantine/notifications';
 import {
   IconCheck,
   IconCopy,
-  IconExternalLink,
   IconGhost2Filled,
   IconLink,
   IconPhoto,
   IconPlayerPlay,
   IconPlus,
+  IconRefresh,
   IconTrash,
 } from '@tabler/icons-react';
 import { useState } from 'react';
+import useSWR, { mutate as globalMutate } from 'swr';
 
-/* ─── Preset media library ─────────────────────────────────── */
-type PresetMedia = {
+/* ─── Types ─────────────────────────────────────────────────── */
+type TrollMediaType = 'image' | 'gif' | 'video' | 'youtube';
+
+type TrollLink = {
+  id: string;
+  alias: string;
+  mediaUrl: string;
+  mediaType: TrollMediaType;
+  label: string;
+  createdAt: string;
+};
+
+/* ─── Preset library ─────────────────────────────────────────── */
+type Preset = {
   id: string;
   label: string;
-  type: 'image' | 'gif' | 'video';
-  url: string;
+  type: TrollMediaType;
+  mediaUrl: string;
   preview: string;
 };
 
-const PRESET_MEDIA: PresetMedia[] = [
+const PRESETS: Preset[] = [
   {
     id: 'rickroll',
     label: 'Rickroll',
-    type: 'video',
-    url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    type: 'youtube',
+    mediaUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     preview: 'https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
   },
   {
     id: 'nyan',
     label: 'Nyan Cat',
     type: 'gif',
-    url: 'https://media.tenor.com/iFGFPNqmXFMAAAAC/nyan-cat.gif',
+    mediaUrl: 'https://media.tenor.com/iFGFPNqmXFMAAAAC/nyan-cat.gif',
     preview: 'https://media.tenor.com/iFGFPNqmXFMAAAAC/nyan-cat.gif',
   },
   {
     id: 'trollface',
     label: 'Trollface',
     type: 'image',
-    url: 'https://upload.wikimedia.org/wikipedia/en/9/9a/Trollface_non-free.png',
+    mediaUrl: 'https://upload.wikimedia.org/wikipedia/en/9/9a/Trollface_non-free.png',
     preview: 'https://upload.wikimedia.org/wikipedia/en/9/9a/Trollface_non-free.png',
   },
   {
     id: 'doge',
     label: 'Doge',
     type: 'image',
-    url: 'https://upload.wikimedia.org/wikipedia/en/5/5f/Original_Doge_meme.jpg',
+    mediaUrl: 'https://upload.wikimedia.org/wikipedia/en/5/5f/Original_Doge_meme.jpg',
     preview: 'https://upload.wikimedia.org/wikipedia/en/5/5f/Original_Doge_meme.jpg',
   },
   {
     id: 'bonk',
     label: 'Bonk',
     type: 'gif',
-    url: 'https://media.tenor.com/HbHfHFMCLqIAAAAC/bonk.gif',
+    mediaUrl: 'https://media.tenor.com/HbHfHFMCLqIAAAAC/bonk.gif',
     preview: 'https://media.tenor.com/HbHfHFMCLqIAAAAC/bonk.gif',
   },
   {
-    id: 'surprised-pikachu',
+    id: 'pikachu',
     label: 'Surprised Pikachu',
     type: 'image',
-    url: 'https://i.kym-cdn.com/entries/icons/original/000/027/475/Screen_Shot_2018-10-25_at_11.02.15_AM.png',
+    mediaUrl: 'https://i.kym-cdn.com/entries/icons/original/000/027/475/Screen_Shot_2018-10-25_at_11.02.15_AM.png',
     preview: 'https://i.kym-cdn.com/entries/icons/original/000/027/475/Screen_Shot_2018-10-25_at_11.02.15_AM.png',
+  },
+  {
+    id: 'spinning',
+    label: 'Spinning Horse',
+    type: 'gif',
+    mediaUrl: 'https://media.tenor.com/G7f2t9pS0CkAAAAC/spinning-horse-spin.gif',
+    preview: 'https://media.tenor.com/G7f2t9pS0CkAAAAC/spinning-horse-spin.gif',
+  },
+  {
+    id: 'shrek',
+    label: 'Shrek',
+    type: 'image',
+    mediaUrl: 'https://upload.wikimedia.org/wikipedia/en/8/8f/Shrek_2001_theatrical_poster.png',
+    preview: 'https://upload.wikimedia.org/wikipedia/en/8/8f/Shrek_2001_theatrical_poster.png',
   },
 ];
 
-/* ─── Troll link type ──────────────────────────────────────── */
-type TrollLink = {
-  id: string;
-  alias: string;
-  targetUrl: string;
-  mediaId: string;
-  createdAt: string;
-};
-
-const TYPE_COLOR: Record<PresetMedia['type'], string> = {
+const TYPE_COLOR: Record<TrollMediaType, string> = {
   image: 'blue',
   gif: 'grape',
-  video: 'red',
+  video: 'orange',
+  youtube: 'red',
 };
 
-const TYPE_ICON: Record<PresetMedia['type'], React.ReactNode> = {
-  image: <IconPhoto size='0.9rem' />,
-  gif: <IconPhoto size='0.9rem' />,
-  video: <IconPlayerPlay size='0.9rem' />,
+const TYPE_ICON: Record<TrollMediaType, React.ReactNode> = {
+  image: <IconPhoto size='0.85rem' />,
+  gif: <IconPhoto size='0.85rem' />,
+  video: <IconPlayerPlay size='0.85rem' />,
+  youtube: <IconPlayerPlay size='0.85rem' />,
 };
 
-function buildTrollUrl(baseUrl: string, alias: string) {
-  const clean = baseUrl.replace(/\/$/, '');
-  return `${clean}/troll/${alias}`;
+const API_PATH = '/api/troll';
+const SWR_KEY = API_PATH;
+
+function buildTrollUrl(alias: string) {
+  if (typeof window === 'undefined') return `/troll/${alias}`;
+  return `${window.location.protocol}//${window.location.host}/troll/${alias}`;
 }
 
+/* ─── Component ──────────────────────────────────────────────── */
 export default function DashboardTroll() {
-  useTitle('Troll');
+  const { data: links, isLoading } = useSWR<TrollLink[]>(SWR_KEY);
 
-  const [links, setLinks] = useState<TrollLink[]>([]);
   const [createOpen, { open: openCreate, close: closeCreate }] = useDisclosure(false);
-  const [previewMedia, setPreviewMedia] = useState<PresetMedia | null>(null);
-  const [previewOpen, { open: openPreview, close: closePreview }] = useDisclosure(false);
+  const [mode, setMode] = useState<'preset' | 'custom'>('preset');
+  const [selectedPreset, setSelectedPreset] = useState<Preset | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const form = useForm({
-    initialValues: { alias: '', targetUrl: '', mediaId: '' },
+    initialValues: {
+      alias: '',
+      label: '',
+      customUrl: '',
+      customType: 'image' as TrollMediaType,
+    },
     validate: {
-      alias: (v) => (v.trim().length < 1 ? 'Alias is required' : null),
-      targetUrl: (v) => {
-        if (!v.trim()) return 'Target URL is required';
+      alias: (v) =>
+        !v.trim()
+          ? 'Alias is required'
+          : !/^[\w-]+$/.test(v.trim())
+            ? 'Only letters, numbers, - and _ allowed'
+            : null,
+      customUrl: (v) => {
+        if (mode !== 'custom') return null;
+        if (!v.trim()) return 'Media URL is required';
         try {
           new URL(v);
           return null;
         } catch {
-          return 'Enter a valid URL (e.g. https://...)';
+          return 'Enter a valid URL';
         }
       },
-      mediaId: (v) => (v ? null : 'Select a preset'),
     },
   });
 
-  const onCreate = (values: typeof form.values) => {
-    if (links.some((l) => l.alias === values.alias.trim())) {
-      form.setFieldError('alias', 'Alias already used');
+  const onClose = () => {
+    closeCreate();
+    form.reset();
+    setSelectedPreset(null);
+    setMode('preset');
+  };
+
+  const onCreate = async (values: typeof form.values) => {
+    if (mode === 'preset' && !selectedPreset) {
+      notifications.show({ message: 'Pick a preset first', color: 'orange' });
       return;
     }
 
-    const newLink: TrollLink = {
-      id: crypto.randomUUID(),
-      alias: values.alias.trim(),
-      targetUrl: values.targetUrl.trim(),
-      mediaId: values.mediaId,
-      createdAt: new Date().toISOString(),
-    };
+    const mediaUrl = mode === 'preset' ? selectedPreset!.mediaUrl : values.customUrl.trim();
+    const mediaType = mode === 'preset' ? selectedPreset!.type : values.customType;
+    const label = values.label.trim() || (mode === 'preset' ? selectedPreset!.label : values.alias.trim());
 
-    setLinks((prev) => [newLink, ...prev]);
+    setSubmitting(true);
+    const { error } = await fetchApi(API_PATH, 'POST', {
+      alias: values.alias.trim(),
+      mediaUrl,
+      mediaType,
+      label,
+    });
+    setSubmitting(false);
+
+    if (error) {
+      notifications.show({ message: error.error || 'Failed to create troll link', color: 'red' });
+      return;
+    }
+
     notifications.show({
-      title: 'Troll link created',
-      message: `/${newLink.alias} is ready to deploy 😈`,
+      title: 'Troll link created 😈',
+      message: `/${values.alias.trim()} is ready to deploy`,
       color: 'grape',
       icon: <IconGhost2Filled size='1rem' />,
     });
-    form.reset();
-    closeCreate();
+
+    globalMutate(SWR_KEY);
+    onClose();
   };
 
-  const onDelete = (id: string) => {
-    setLinks((prev) => prev.filter((l) => l.id !== id));
+  const onDelete = async (alias: string) => {
+    const res = await fetch(`${API_PATH}/${encodeURIComponent(alias)}`, { method: 'DELETE' });
+    if (!res.ok) {
+      const text = await res.text();
+      notifications.show({ message: text || 'Failed to delete', color: 'red' });
+      return;
+    }
     notifications.show({ message: 'Troll link deleted', color: 'red', icon: <IconTrash size='1rem' /> });
+    globalMutate(SWR_KEY);
   };
-
-  const openMediaPreview = (media: PresetMedia) => {
-    setPreviewMedia(media);
-    openPreview();
-  };
-
-  const instanceBase =
-    typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}` : '';
 
   return (
     <>
       {/* ── Create modal ── */}
-      <Modal opened={createOpen} onClose={closeCreate} title='Create troll link' size='lg'>
+      <Modal opened={createOpen} onClose={onClose} title='Create troll link' size='lg'>
         <form onSubmit={form.onSubmit(onCreate)}>
           <Stack gap='sm'>
             <TextInput
               label='Alias'
-              description='The short path people will visit, e.g. "prank1"'
-              placeholder='prank1'
+              description='The path visitors hit — e.g. "watch73h" → your-domain/troll/watch73h'
+              placeholder='watch73h'
               leftSection={<IconLink size='1rem' />}
               {...form.getInputProps('alias')}
             />
 
             <TextInput
-              label='Target URL'
-              description='The real URL shown in the browser bar / embedded (e.g. cdn.phaseworld.top/watch?id=73h)'
-              placeholder='https://cdn.phaseworld.top/watch?id=73h'
-              leftSection={<IconExternalLink size='1rem' />}
-              {...form.getInputProps('targetUrl')}
+              label='Label (optional)'
+              description='Friendly name shown in the admin list'
+              placeholder='My prank'
+              {...form.getInputProps('label')}
             />
 
-            <Select
-              label='Preset media'
-              description='What actually loads when someone visits the troll link'
-              placeholder='Pick a preset…'
-              data={PRESET_MEDIA.map((m) => ({ value: m.id, label: `${m.label} (${m.type})` }))}
-              {...form.getInputProps('mediaId')}
+            <Divider label='Media source' labelPosition='center' />
+
+            <SegmentedControl
+              fullWidth
+              value={mode}
+              onChange={(v) => setMode(v as 'preset' | 'custom')}
+              data={[
+                { label: 'Use a preset', value: 'preset' },
+                { label: 'Custom URL', value: 'custom' },
+              ]}
             />
 
-            {form.values.mediaId && (() => {
-              const m = PRESET_MEDIA.find((p) => p.id === form.values.mediaId);
-              if (!m) return null;
-              return (
-                <Box>
-                  <Text size='xs' c='dimmed' mb={4}>
-                    Preview
+            {mode === 'preset' ? (
+              <>
+                <Text size='xs' c='dimmed'>
+                  Click a preset to select it
+                </Text>
+                <SimpleGrid cols={4} spacing='xs'>
+                  {PRESETS.map((p) => (
+                    <Card
+                      key={p.id}
+                      withBorder
+                      padding='xs'
+                      radius='md'
+                      style={{
+                        cursor: 'pointer',
+                        outline: selectedPreset?.id === p.id ? '2px solid var(--mantine-color-grape-5)' : undefined,
+                      }}
+                      onClick={() => setSelectedPreset(p)}
+                    >
+                      <Card.Section>
+                        <Image src={p.preview} h={60} fit='cover' />
+                      </Card.Section>
+                      <Text size='xs' fw={600} ta='center' mt={4} lineClamp={1}>
+                        {p.label}
+                      </Text>
+                      <Badge color={TYPE_COLOR[p.type]} variant='dot' size='xs' mx='auto' mt={2}>
+                        {p.type}
+                      </Badge>
+                    </Card>
+                  ))}
+                </SimpleGrid>
+                {selectedPreset && (
+                  <Text size='xs' c='grape' fw={600}>
+                    ✓ Selected: {selectedPreset.label}
                   </Text>
+                )}
+              </>
+            ) : (
+              <>
+                <TextInput
+                  label='Media URL'
+                  description='Direct link to the image, gif, video, or a YouTube watch URL'
+                  placeholder='https://example.com/funny.gif'
+                  {...form.getInputProps('customUrl')}
+                />
+                <Select
+                  label='Media type'
+                  description='How to render the URL on the troll page'
+                  data={[
+                    { value: 'image', label: 'Image (png, jpg, webp…)' },
+                    { value: 'gif', label: 'GIF (animated image)' },
+                    { value: 'video', label: 'Video (mp4, webm…)' },
+                    { value: 'youtube', label: 'YouTube (watch?v= URL)' },
+                  ]}
+                  {...form.getInputProps('customType')}
+                />
+                {form.values.customUrl && (
                   <Image
-                    src={m.preview}
-                    h={160}
+                    src={form.values.customUrl}
+                    h={120}
                     fit='contain'
                     radius='md'
                     style={{ background: 'rgba(0,0,0,0.2)' }}
+                    fallbackSrc='data:image/svg+xml,<svg/>'
                   />
-                </Box>
-              );
-            })()}
+                )}
+              </>
+            )}
 
             <Button
               type='submit'
               variant='gradient'
               gradient={{ from: 'grape', to: 'pink' }}
               leftSection={<IconPlus size='1rem' />}
+              loading={submitting}
               fullWidth
+              mt='xs'
             >
               Create troll link
             </Button>
           </Stack>
         </form>
-      </Modal>
-
-      {/* ── Media preview modal ── */}
-      <Modal
-        opened={previewOpen}
-        onClose={closePreview}
-        title={previewMedia?.label ?? 'Preview'}
-        size='lg'
-        centered
-      >
-        {previewMedia && (
-          <Stack gap='sm'>
-            <Badge color={TYPE_COLOR[previewMedia.type]} variant='light' size='sm'>
-              {previewMedia.type}
-            </Badge>
-            {previewMedia.type === 'video' ? (
-              <Box
-                component='iframe'
-                src={`https://www.youtube.com/embed/${previewMedia.url.split('v=')[1]}`}
-                style={{ width: '100%', height: 300, border: 'none', borderRadius: 12 }}
-                allowFullScreen
-              />
-            ) : (
-              <Image src={previewMedia.url} fit='contain' h={300} radius='md' />
-            )}
-            <Text size='xs' c='dimmed' style={{ wordBreak: 'break-all' }}>
-              {previewMedia.url}
-            </Text>
-          </Stack>
-        )}
       </Modal>
 
       {/* ── Page header ── */}
@@ -278,58 +351,35 @@ export default function DashboardTroll() {
           Admin only
         </Badge>
       </Group>
-      <Text c='dimmed' mb='md'>
-        Create disguised links that show a fake URL but load a preset prank media instead.
+      <Text c='dimmed' mb='lg'>
+        Create disguised prank links. Share <code>/troll/alias</code> with someone — they see your chosen
+        media full-screen. Presets or custom URLs, your choice.
       </Text>
 
-      {/* ── Preset library ── */}
-      <Title order={3} mb='xs'>
-        Preset library
-      </Title>
-      <ScrollArea>
-        <SimpleGrid cols={{ base: 2, sm: 3, lg: 6 }} spacing='sm' mb='xl'>
-          {PRESET_MEDIA.map((m) => (
-            <Card
-              key={m.id}
-              withBorder
-              padding='xs'
-              radius='md'
-              style={{ cursor: 'pointer' }}
-              onClick={() => openMediaPreview(m)}
-            >
-              <Card.Section>
-                <Image src={m.preview} h={90} fit='cover' />
-              </Card.Section>
-              <Group gap={4} mt={6} wrap='nowrap'>
-                <Badge color={TYPE_COLOR[m.type]} variant='dot' size='xs' leftSection={TYPE_ICON[m.type]}>
-                  {m.type}
-                </Badge>
-                <Text size='xs' fw={600} lineClamp={1}>
-                  {m.label}
-                </Text>
-              </Group>
-            </Card>
-          ))}
-        </SimpleGrid>
-      </ScrollArea>
-
-      <Divider mb='md' />
-
-      {/* ── Active troll links ── */}
+      {/* ── Active links ── */}
       <Group justify='space-between' mb='sm'>
         <Title order={3}>Active troll links</Title>
-        <Button
-          variant='gradient'
-          gradient={{ from: 'grape', to: 'pink' }}
-          leftSection={<IconPlus size='1rem' />}
-          size='sm'
-          onClick={openCreate}
-        >
-          New troll link
-        </Button>
+        <Group gap='xs'>
+          <ActionIcon variant='subtle' onClick={() => globalMutate(SWR_KEY)} title='Refresh'>
+            <IconRefresh size='1rem' />
+          </ActionIcon>
+          <Button
+            variant='gradient'
+            gradient={{ from: 'grape', to: 'pink' }}
+            leftSection={<IconPlus size='1rem' />}
+            size='sm'
+            onClick={openCreate}
+          >
+            New troll link
+          </Button>
+        </Group>
       </Group>
 
-      {links.length === 0 ? (
+      {isLoading ? (
+        <Group justify='center' py='xl'>
+          <Loader color='grape' />
+        </Group>
+      ) : !links || links.length === 0 ? (
         <Card withBorder radius='md' p='xl' ta='center'>
           <IconGhost2Filled size='2.5rem' style={{ color: 'var(--mantine-color-grape-4)', marginBottom: 8 }} />
           <Text c='dimmed'>No troll links yet. Create one above 😈</Text>
@@ -337,41 +387,55 @@ export default function DashboardTroll() {
       ) : (
         <Stack gap='sm'>
           {links.map((link) => {
-            const media = PRESET_MEDIA.find((m) => m.id === link.mediaId);
-            const trollUrl = buildTrollUrl(instanceBase, link.alias);
+            const trollUrl = buildTrollUrl(link.alias);
+            const isImageLike = link.mediaType === 'image' || link.mediaType === 'gif';
+            const previewSrc = isImageLike ? link.mediaUrl : undefined;
 
             return (
               <Card key={link.id} withBorder radius='md' p='sm'>
-                <Group justify='space-between' wrap='nowrap'>
+                <Group justify='space-between' wrap='nowrap' gap='md'>
                   {/* Thumbnail */}
-                  {media && (
+                  {previewSrc ? (
                     <Image
-                      src={media.preview}
-                      w={56}
-                      h={56}
+                      src={previewSrc}
+                      w={52}
+                      h={52}
                       fit='cover'
                       radius='md'
                       style={{ flexShrink: 0 }}
                     />
+                  ) : (
+                    <div
+                      style={{
+                        width: 52,
+                        height: 52,
+                        borderRadius: 8,
+                        background: 'rgba(129,140,248,0.12)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {TYPE_ICON[link.mediaType]}
+                    </div>
                   )}
 
                   {/* Info */}
                   <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
                     <Group gap='xs' wrap='nowrap'>
                       <Text fw={700} size='sm' lineClamp={1}>
-                        /{link.alias}
+                        {link.label}
                       </Text>
-                      {media && (
-                        <Badge color={TYPE_COLOR[media.type]} variant='light' size='xs'>
-                          {media.label}
-                        </Badge>
-                      )}
+                      <Badge color={TYPE_COLOR[link.mediaType]} variant='light' size='xs'>
+                        {link.mediaType}
+                      </Badge>
                     </Group>
-                    <Text size='xs' c='dimmed' lineClamp={1}>
-                      Disguised as: {link.targetUrl}
+                    <Text size='xs' c='dimmed' lineClamp={1} ff='monospace'>
+                      /troll/{link.alias}
                     </Text>
-                    <Text size='xs' c='dimmed' lineClamp={1}>
-                      Troll URL: {trollUrl}
+                    <Text size='xs' c='dimmed' lineClamp={1} style={{ opacity: 0.6 }}>
+                      {link.mediaUrl}
                     </Text>
                   </Stack>
 
@@ -380,27 +444,26 @@ export default function DashboardTroll() {
                     <CopyButton value={trollUrl} timeout={2000}>
                       {({ copied, copy }) => (
                         <Tooltip label={copied ? 'Copied!' : 'Copy troll URL'}>
-                          <ActionIcon
-                            variant='light'
-                            color={copied ? 'teal' : 'grape'}
-                            onClick={copy}
-                          >
+                          <ActionIcon variant='light' color={copied ? 'teal' : 'grape'} onClick={copy}>
                             {copied ? <IconCheck size='1rem' /> : <IconCopy size='1rem' />}
                           </ActionIcon>
                         </Tooltip>
                       )}
                     </CopyButton>
-                    <CopyButton value={link.targetUrl} timeout={2000}>
-                      {({ copied, copy }) => (
-                        <Tooltip label={copied ? 'Copied!' : 'Copy fake URL'}>
-                          <ActionIcon variant='light' color={copied ? 'teal' : 'blue'} onClick={copy}>
-                            {copied ? <IconCheck size='1rem' /> : <IconLink size='1rem' />}
-                          </ActionIcon>
-                        </Tooltip>
-                      )}
-                    </CopyButton>
+                    <Tooltip label='Open in new tab'>
+                      <ActionIcon
+                        variant='light'
+                        color='blue'
+                        component='a'
+                        href={trollUrl}
+                        target='_blank'
+                        rel='noreferrer'
+                      >
+                        <IconLink size='1rem' />
+                      </ActionIcon>
+                    </Tooltip>
                     <Tooltip label='Delete'>
-                      <ActionIcon variant='light' color='red' onClick={() => onDelete(link.id)}>
+                      <ActionIcon variant='light' color='red' onClick={() => onDelete(link.alias)}>
                         <IconTrash size='1rem' />
                       </ActionIcon>
                     </Tooltip>
