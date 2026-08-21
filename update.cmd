@@ -5,7 +5,6 @@ echo    GitHub Auto-Updater Script
 echo ==========================================
 echo.
 
-:: Check if a custom commit message was provided as an argument
 if "%~1"=="" (
     set "commitMsg=Auto-update: %date% %time%"
 ) else (
