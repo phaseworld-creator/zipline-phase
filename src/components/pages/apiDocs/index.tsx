@@ -450,7 +450,7 @@ function EndpointBlock({ ep }: { ep: ApiEndpoint }) {
               <Text size='xs' fw={700} tt='uppercase' c='dimmed' mb={6}>
                 Path Parameters
               </Text>
-              <Table withBorder withColumnBorders fz='sm'>
+              <Table striped highlightOnHover fz='sm'>
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>Name</Table.Th>
@@ -481,7 +481,7 @@ function EndpointBlock({ ep }: { ep: ApiEndpoint }) {
               <Text size='xs' fw={700} tt='uppercase' c='dimmed' mb={6}>
                 Request Body (JSON)
               </Text>
-              <Table withBorder withColumnBorders fz='sm'>
+              <Table striped highlightOnHover fz='sm'>
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>Field</Table.Th>
