@@ -44,7 +44,7 @@ import {
   IconUpload,
   IconUsersGroup,
 } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, NavigateFunction, Outlet, useLoaderData, useLocation, useNavigate } from 'react-router-dom';
 import type { dashboardLoader } from '../client/routes';
 import ConfigProvider from './ConfigProvider';
