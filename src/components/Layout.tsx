@@ -24,6 +24,7 @@ import { useModals } from '@mantine/modals';
 import { showNotification } from '@mantine/notifications';
 import {
   IconAdjustments,
+  IconApi,
   IconChevronDown,
   IconChevronRight,
   IconClipboardCopy,
@@ -163,6 +164,12 @@ const navLinks: NavLinks[] = [
         icon: <IconGhost2Filled size='1rem' />,
         active: (path: string) => path === '/dashboard/admin/troll',
         href: '/dashboard/admin/troll',
+      },
+      {
+        label: 'API Reference',
+        icon: <IconApi size='1rem' />,
+        active: (path: string) => path === '/dashboard/admin/api-docs',
+        href: '/dashboard/admin/api-docs',
       },
     ],
   },

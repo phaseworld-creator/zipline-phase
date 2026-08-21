@@ -5,6 +5,7 @@ import { isAdministrator } from '@/lib/role';
 import { SimpleGrid, Title } from '@mantine/core';
 import {
   IconAdjustments,
+  IconApi,
   IconGhost2Filled,
   IconGraph,
   IconStopwatch,
@@ -61,6 +62,13 @@ export default function DashboardAdminHome() {
       description: 'Disguised prank links with preset media',
       href: '/dashboard/admin/troll',
       icon: IconGhost2Filled,
+      show: true,
+    },
+    {
+      label: 'API Reference',
+      description: 'Browse and test all API endpoints',
+      href: '/dashboard/admin/api-docs',
+      icon: IconApi,
       show: true,
     },
   ];
