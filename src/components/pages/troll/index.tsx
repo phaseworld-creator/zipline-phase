@@ -206,7 +206,7 @@ export default function DashboardTroll() {
     }
 
     notifications.show({
-      title: 'Troll link created 😈',
+      title: 'Troll link created',
       message: `/${values.alias.trim()} is ready to deploy`,
       color: 'grape',
       icon: <IconGhost2Filled size='1rem' />,
@@ -235,7 +235,7 @@ export default function DashboardTroll() {
           <Stack gap='sm'>
             <TextInput
               label='Alias'
-              description='The path visitors hit — e.g. "watch73h" → your-domain/troll/watch73h'
+              description='The path visitors hit — e.g. "watch73h" → your-domain/data/watch73h'
               placeholder='watch73h'
               leftSection={<IconLink size='1rem' />}
               {...form.getInputProps('alias')}
@@ -382,7 +382,7 @@ export default function DashboardTroll() {
       ) : !links || links.length === 0 ? (
         <Card withBorder radius='md' p='xl' ta='center'>
           <IconGhost2Filled size='2.5rem' style={{ color: 'var(--mantine-color-grape-4)', marginBottom: 8 }} />
-          <Text c='dimmed'>No troll links yet. Create one above 😈</Text>
+          <Text c='dimmed'>No troll links yet. Create one above</Text>
         </Card>
       ) : (
         <Stack gap='sm'>
@@ -432,7 +432,7 @@ export default function DashboardTroll() {
                       </Badge>
                     </Group>
                     <Text size='xs' c='dimmed' lineClamp={1} ff='monospace'>
-                      /troll/{link.alias}
+                      /data/{link.alias}
                     </Text>
                     <Text size='xs' c='dimmed' lineClamp={1} style={{ opacity: 0.6 }}>
                       {link.mediaUrl}
