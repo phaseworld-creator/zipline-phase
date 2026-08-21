@@ -25,6 +25,7 @@ import { showNotification } from '@mantine/notifications';
 import {
   IconAdjustments,
   IconApi,
+  IconBrush,
   IconChevronDown,
   IconChevronRight,
   IconClipboardCopy,
@@ -170,6 +171,12 @@ const navLinks: NavLinks[] = [
         icon: <IconApi size='1rem' />,
         active: (path: string) => path === '/dashboard/admin/api-docs',
         href: '/dashboard/admin/api-docs',
+      },
+      {
+        label: 'Theme Maker',
+        icon: <IconBrush size='1rem' />,
+        active: (path: string) => path === '/dashboard/admin/theme-maker',
+        href: '/dashboard/admin/theme-maker',
       },
     ],
   },

@@ -6,6 +6,7 @@ import { SimpleGrid, Title } from '@mantine/core';
 import {
   IconAdjustments,
   IconApi,
+  IconBrush,
   IconGhost2Filled,
   IconGraph,
   IconStopwatch,
@@ -69,6 +70,13 @@ export default function DashboardAdminHome() {
       description: 'Browse and test all API endpoints',
       href: '/dashboard/admin/api-docs',
       icon: IconApi,
+      show: true,
+    },
+    {
+      label: 'Theme Maker',
+      description: 'Design custom themes with live preview',
+      href: '/dashboard/admin/theme-maker',
+      icon: IconBrush,
       show: true,
     },
   ];
