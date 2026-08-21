@@ -147,7 +147,7 @@ export default function DashboardTroll() {
     }
 
     const newLink: TrollLink = {
-      id: Math.random().toString(36).slice(2),
+      id: crypto.randomUUID(),
       alias: values.alias.trim(),
       targetUrl: values.targetUrl.trim(),
       mediaId: values.mediaId,
