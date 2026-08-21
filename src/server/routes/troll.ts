@@ -65,7 +65,7 @@ function buildTrollHtml(link: ReturnType<typeof trollStore.get>): string {
 </html>`;
 }
 
-export const PATH = '/troll/:alias';
+export const PATH = '/data/:alias';
 export default typedPlugin(
   async (server) => {
     server.get<{ Params: { alias: string } }>(PATH, async (req, res) => {
