@@ -441,12 +441,6 @@ function Form({ user, setUser }: { user: User; setUser: (u: User) => void }) {
   );
 }
 
-const alignIcons: Record<string, React.ReactNode> = {
-  left: <IconAlignLeft size='1rem' />,
-  center: <IconAlignCenter size='1rem' />,
-  right: <IconAlignRight size='1rem' />,
-};
-
 export default function SettingsFileView() {
   const [user, setUser] = useUserStore(useShallow((state) => [state.user, state.setUser]));
 
