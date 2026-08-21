@@ -1,9 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
-/* ─────────────────────────────────────────────
-   Particle mesh canvas
-───────────────────────────────────────────── */
 function useMeshCanvas(ref: React.RefObject<HTMLCanvasElement | null>) {
   useEffect(() => {
     const canvas = ref.current;
@@ -30,14 +27,12 @@ function useMeshCanvas(ref: React.RefObject<HTMLCanvasElement | null>) {
     let raf: number;
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
       for (const n of nodes) {
         n.x += n.vx;
         n.y += n.vy;
         if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
         if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
       }
-
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
           const dx = nodes[i].x - nodes[j].x;
@@ -54,14 +49,12 @@ function useMeshCanvas(ref: React.RefObject<HTMLCanvasElement | null>) {
           }
         }
       }
-
       for (const n of nodes) {
         ctx.beginPath();
         ctx.arc(n.x, n.y, 2, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(129, 140, 248, 0.5)';
         ctx.fill();
       }
-
       raf = requestAnimationFrame(draw);
     };
     draw();
@@ -73,9 +66,6 @@ function useMeshCanvas(ref: React.RefObject<HTMLCanvasElement | null>) {
   }, [ref]);
 }
 
-/* ─────────────────────────────────────────────
-   3D card tilt + spotlight
-───────────────────────────────────────────── */
 function useCardTilt(containerRef: React.RefObject<HTMLDivElement | null>) {
   useEffect(() => {
     const container = containerRef.current;
@@ -84,7 +74,7 @@ function useCardTilt(containerRef: React.RefObject<HTMLDivElement | null>) {
     const cards = container.querySelectorAll<HTMLElement>('.card-spotlight');
 
     const onMove = (e: MouseEvent) => {
-      const card = (e.currentTarget as HTMLElement);
+      const card = e.currentTarget as HTMLElement;
       const rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
@@ -92,7 +82,6 @@ function useCardTilt(containerRef: React.RefObject<HTMLDivElement | null>) {
       const cy = rect.height / 2;
       const rotX = ((y - cy) / cy) * -8;
       const rotY = ((x - cx) / cx) * 8;
-
       card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-2px)`;
       card.style.setProperty('--mouse-x', `${x}px`);
       card.style.setProperty('--mouse-y', `${y}px`);
@@ -119,9 +108,6 @@ function useCardTilt(containerRef: React.RefObject<HTMLDivElement | null>) {
   }, [containerRef]);
 }
 
-/* ─────────────────────────────────────────────
-   Landing page
-───────────────────────────────────────────── */
 export function Component() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
@@ -129,7 +115,6 @@ export function Component() {
   useMeshCanvas(canvasRef);
   useCardTilt(cardsRef);
 
-  // Init Lucide icons after mount
   useEffect(() => {
     if (typeof window !== 'undefined' && (window as any).lucide) {
       (window as any).lucide.createIcons();
@@ -138,16 +123,13 @@ export function Component() {
 
   return (
     <>
-      {/* Background FX */}
       <canvas ref={canvasRef} id='mesh-canvas' aria-hidden='true' />
       <div className='grain-overlay' aria-hidden='true' />
 
       <div className='ph-content' style={{ minHeight: '100vh', overflowX: 'hidden' }}>
         {/* ── Navigation ── */}
         <nav style={{ padding: '24px 24px 0' }}>
-          <div
-            className='ph-container'
-          >
+          <div className='ph-container'>
             <div
               className='pill'
               style={{
@@ -158,7 +140,6 @@ export function Component() {
                 marginBottom: '60px',
               }}
             >
-              {/* Logo */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div
                   style={{
@@ -190,14 +171,7 @@ export function Component() {
                 </span>
               </div>
 
-              {/* Nav links */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '28px',
-                }}
-              >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
                 <a
                   href='https://zipline.diced.sh/docs'
                   target='_blank'
@@ -230,15 +204,10 @@ export function Component() {
                 >
                   GitHub
                 </a>
-
-                {/* Status dot */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span className='status-dot' />
-                  <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 500 }}>
-                    Live
-                  </span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 500 }}>Live</span>
                 </div>
-
                 <Link to='/auth/login' className='btn-primary' style={{ padding: '9px 20px', fontSize: '0.85rem' }}>
                   Sign in
                 </Link>
@@ -251,14 +220,8 @@ export function Component() {
         <header>
           <div className='ph-container'>
             <div
-              style={{
-                maxWidth: 780,
-                margin: '0 auto',
-                textAlign: 'center',
-                padding: '20px 0 64px',
-              }}
+              style={{ maxWidth: 780, margin: '0 auto', textAlign: 'center', padding: '20px 0 64px' }}
             >
-              {/* Pill badge */}
               <div style={{ marginBottom: '24px' }}>
                 <span className='pill-badge'>
                   <i data-lucide='zap' style={{ width: 12, height: 12 }} />
@@ -266,7 +229,6 @@ export function Component() {
                 </span>
               </div>
 
-              {/* H1 */}
               <h1
                 style={{
                   fontFamily: "'Syne', sans-serif",
@@ -274,7 +236,6 @@ export function Component() {
                   fontSize: 'clamp(2.8rem, 7vw, 4.5rem)',
                   lineHeight: 1.08,
                   letterSpacing: '-0.03em',
-                  marginBottom: '24px',
                   margin: '0 0 24px',
                 }}
               >
@@ -307,11 +268,11 @@ export function Component() {
                     backgroundClip: 'text',
                   }}
                 >
-                  {' '}on your own terms.
+                  {' '}
+                  on your own terms.
                 </span>
               </h1>
 
-              {/* Subtitle */}
               <p
                 style={{
                   color: 'var(--text-muted)',
@@ -322,12 +283,19 @@ export function Component() {
                   fontWeight: 400,
                 }}
               >
-                Zipline is a self-hosted file sharing & URL shortener platform. Upload, shorten, and
-                manage your content with a powerful dashboard built for speed.
+                Zipline is a self-hosted file sharing & URL shortener platform. Upload, shorten, and manage
+                your content with a powerful dashboard built for speed.
               </p>
 
-              {/* CTA buttons */}
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '52px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '12px',
+                  justifyContent: 'center',
+                  flexWrap: 'wrap',
+                  marginBottom: '52px',
+                }}
+              >
                 <Link to='/auth/login' className='btn-primary'>
                   <i data-lucide='log-in' style={{ width: 16, height: 16 }} />
                   Go to Dashboard
@@ -343,16 +311,7 @@ export function Component() {
                 </a>
               </div>
 
-              {/* Metrics bar */}
-              <div
-                className='pill'
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0',
-                  padding: '14px 32px',
-                }}
-              >
+              <div className='pill' style={{ display: 'inline-flex', alignItems: 'center', padding: '14px 32px' }}>
                 {[
                   { value: '10k+', label: 'Users' },
                   { value: '100%', label: 'Open Source' },
@@ -373,12 +332,7 @@ export function Component() {
                         {stat.value}
                       </div>
                       <div
-                        style={{
-                          fontSize: '0.75rem',
-                          color: 'var(--text-muted)',
-                          fontWeight: 500,
-                          marginTop: 2,
-                        }}
+                        style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500, marginTop: 2 }}
                       >
                         {stat.label}
                       </div>
@@ -394,7 +348,6 @@ export function Component() {
         {/* ── Feature Cards ── */}
         <main>
           <div className='ph-container' style={{ paddingBottom: '80px' }}>
-            {/* Section header */}
             <div style={{ textAlign: 'center', marginBottom: '48px' }}>
               <span className='pill-badge' style={{ marginBottom: '16px', display: 'inline-flex' }}>
                 <i data-lucide='sparkles' style={{ width: 12, height: 12 }} />
@@ -417,23 +370,17 @@ export function Component() {
               </p>
             </div>
 
-            {/* Cards grid */}
             <div
               ref={cardsRef}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(2, 1fr)',
-                gap: '24px',
-              }}
+              style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px' }}
               className='grid-2'
             >
-              {/* Card 1 — File Uploads */}
+              {/* Card 1 — Uploads */}
               <article
                 className='glass-card card-spotlight'
                 style={{
                   padding: '40px',
-                  background:
-                    'linear-gradient(135deg, rgba(129, 140, 248, 0.05) 0%, var(--surface-1) 100%)',
+                  background: 'linear-gradient(135deg, rgba(129, 140, 248, 0.05) 0%, var(--surface-1) 100%)',
                 }}
               >
                 <div className='feature-icon' style={{ marginBottom: '20px' }}>
@@ -452,18 +399,32 @@ export function Component() {
                   Drag & Drop Uploads
                 </h3>
                 <p style={{ color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: '24px', fontSize: '0.9rem' }}>
-                  Upload any file type instantly with drag & drop, chunked uploads for large files, and
-                  custom expiry times per upload.
+                  Upload any file type instantly with drag & drop, chunked uploads for large files, and custom
+                  expiry times per upload.
                 </p>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {['Chunked large file support', 'Custom expiration per file', 'Password-protected files'].map((f) => (
-                    <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                      <span className='feature-icon' style={{ width: 22, height: 22, borderRadius: '50%', flexShrink: 0 }}>
-                        <i data-lucide='check' style={{ width: 12, height: 12 }} />
-                      </span>
-                      {f}
-                    </li>
-                  ))}
+                  {['Chunked large file support', 'Custom expiration per file', 'Password-protected files'].map(
+                    (f) => (
+                      <li
+                        key={f}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          fontSize: '0.875rem',
+                          color: 'var(--text-muted)',
+                        }}
+                      >
+                        <span
+                          className='feature-icon'
+                          style={{ width: 22, height: 22, borderRadius: '50%', flexShrink: 0 }}
+                        >
+                          <i data-lucide='check' style={{ width: 12, height: 12 }} />
+                        </span>
+                        {f}
+                      </li>
+                    ),
+                  )}
                 </ul>
               </article>
 
@@ -472,8 +433,7 @@ export function Component() {
                 className='glass-card card-spotlight'
                 style={{
                   padding: '40px',
-                  background:
-                    'linear-gradient(135deg, rgba(244, 63, 94, 0.05) 0%, var(--surface-1) 100%)',
+                  background: 'linear-gradient(135deg, rgba(244, 63, 94, 0.05) 0%, var(--surface-1) 100%)',
                 }}
               >
                 <div className='feature-icon feature-icon-rose' style={{ marginBottom: '20px' }}>
@@ -492,13 +452,25 @@ export function Component() {
                   URL Shortener
                 </h3>
                 <p style={{ color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: '24px', fontSize: '0.9rem' }}>
-                  Turn any long URL into a short, shareable link. Track clicks, set vanity slugs, and
-                  manage all your links from one place.
+                  Turn any long URL into a short, shareable link. Track clicks, set vanity slugs, and manage all
+                  your links from one place.
                 </p>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {['Vanity / custom slugs', 'Click tracking', 'Enable or disable links'].map((f) => (
-                    <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                      <span className='feature-icon feature-icon-rose' style={{ width: 22, height: 22, borderRadius: '50%', flexShrink: 0 }}>
+                    <li
+                      key={f}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        fontSize: '0.875rem',
+                        color: 'var(--text-muted)',
+                      }}
+                    >
+                      <span
+                        className='feature-icon feature-icon-rose'
+                        style={{ width: 22, height: 22, borderRadius: '50%', flexShrink: 0 }}
+                      >
                         <i data-lucide='check' style={{ width: 12, height: 12 }} />
                       </span>
                       {f}
@@ -512,8 +484,7 @@ export function Component() {
                 className='glass-card card-spotlight'
                 style={{
                   padding: '40px',
-                  background:
-                    'linear-gradient(135deg, rgba(244, 63, 94, 0.05) 0%, var(--surface-1) 100%)',
+                  background: 'linear-gradient(135deg, rgba(244, 63, 94, 0.05) 0%, var(--surface-1) 100%)',
                 }}
               >
                 <div className='feature-icon feature-icon-rose' style={{ marginBottom: '20px' }}>
@@ -532,13 +503,25 @@ export function Component() {
                   Multi-user & Roles
                 </h3>
                 <p style={{ color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: '24px', fontSize: '0.9rem' }}>
-                  Invite friends or teammates with per-user quotas, role-based access control, and
-                  invite codes to keep your instance secure.
+                  Invite friends or teammates with per-user quotas, role-based access control, and invite codes to
+                  keep your instance secure.
                 </p>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {['Per-user storage quotas', 'Admin & superadmin roles', 'Invite-only registration'].map((f) => (
-                    <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                      <span className='feature-icon feature-icon-rose' style={{ width: 22, height: 22, borderRadius: '50%', flexShrink: 0 }}>
+                    <li
+                      key={f}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        fontSize: '0.875rem',
+                        color: 'var(--text-muted)',
+                      }}
+                    >
+                      <span
+                        className='feature-icon feature-icon-rose'
+                        style={{ width: 22, height: 22, borderRadius: '50%', flexShrink: 0 }}
+                      >
                         <i data-lucide='check' style={{ width: 12, height: 12 }} />
                       </span>
                       {f}
@@ -552,8 +535,7 @@ export function Component() {
                 className='glass-card card-spotlight'
                 style={{
                   padding: '40px',
-                  background:
-                    'linear-gradient(135deg, rgba(129, 140, 248, 0.05) 0%, var(--surface-1) 100%)',
+                  background: 'linear-gradient(135deg, rgba(129, 140, 248, 0.05) 0%, var(--surface-1) 100%)',
                 }}
               >
                 <div className='feature-icon' style={{ marginBottom: '20px' }}>
@@ -577,8 +559,20 @@ export function Component() {
                 </p>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {['S3-compatible providers', 'Local disk storage', 'On-the-fly thumbnail generation'].map((f) => (
-                    <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                      <span className='feature-icon' style={{ width: 22, height: 22, borderRadius: '50%', flexShrink: 0 }}>
+                    <li
+                      key={f}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        fontSize: '0.875rem',
+                        color: 'var(--text-muted)',
+                      }}
+                    >
+                      <span
+                        className='feature-icon'
+                        style={{ width: 22, height: 22, borderRadius: '50%', flexShrink: 0 }}
+                      >
                         <i data-lucide='check' style={{ width: 12, height: 12 }} />
                       </span>
                       {f}
@@ -587,7 +581,7 @@ export function Component() {
                 </ul>
               </article>
 
-              {/* Card 5 — OAuth & Security (full-width) */}
+              {/* Card 5 — Security (full-width) */}
               <article
                 className='glass-card card-spotlight'
                 style={{
@@ -618,8 +612,8 @@ export function Component() {
                     Secure by default
                   </h3>
                   <p style={{ color: 'var(--text-muted)', lineHeight: 1.7, fontSize: '0.9rem' }}>
-                    OAuth2 login via Discord, GitHub, and Google. Passkey / WebAuthn support,
-                    TOTP two-factor authentication, and per-token access control keep your instance locked down.
+                    OAuth2 login via Discord, GitHub, and Google. Passkey / WebAuthn support, TOTP two-factor
+                    authentication, and per-token access control keep your instance locked down.
                   </p>
                 </div>
                 <ul
@@ -632,40 +626,35 @@ export function Component() {
                     gap: '12px',
                   }}
                 >
-                  {[
-                    'Discord OAuth2',
-                    'GitHub OAuth2',
-                    'Google OAuth2',
-                    'Passkeys / WebAuthn',
-                    'TOTP 2FA',
-                    'Per-token scopes',
-                  ].map((f) => (
-                    <li
-                      key={f}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        fontSize: '0.85rem',
-                        color: 'var(--text-muted)',
-                        background: 'var(--surface-2)',
-                        padding: '10px 14px',
-                        borderRadius: 'var(--radius-inner)',
-                        border: '1px solid var(--border)',
-                      }}
-                    >
-                      <span
+                  {['Discord OAuth2', 'GitHub OAuth2', 'Google OAuth2', 'Passkeys / WebAuthn', 'TOTP 2FA', 'Per-token scopes'].map(
+                    (f) => (
+                      <li
+                        key={f}
                         style={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: '50%',
-                          background: 'linear-gradient(135deg, #818cf8, #f43f5e)',
-                          flexShrink: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          fontSize: '0.85rem',
+                          color: 'var(--text-muted)',
+                          background: 'var(--surface-2)',
+                          padding: '10px 14px',
+                          borderRadius: 'var(--radius-inner)',
+                          border: '1px solid var(--border)',
                         }}
-                      />
-                      {f}
-                    </li>
-                  ))}
+                      >
+                        <span
+                          style={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: '50%',
+                            background: 'linear-gradient(135deg, #818cf8, #f43f5e)',
+                            flexShrink: 0,
+                          }}
+                        />
+                        {f}
+                      </li>
+                    ),
+                  )}
                 </ul>
               </article>
             </div>
@@ -703,17 +692,11 @@ export function Component() {
                   Z
                 </div>
                 <span
-                  style={{
-                    fontFamily: "'Syne', sans-serif",
-                    fontWeight: 700,
-                    fontSize: '0.95rem',
-                    color: 'var(--text-muted)',
-                  }}
+                  style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-muted)' }}
                 >
                   Zipline — Open source file hosting
                 </span>
               </div>
-
               <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                 <a
                   href='https://zipline.diced.sh/docs'
@@ -737,9 +720,7 @@ export function Component() {
                 >
                   Login
                 </Link>
-                <span style={{ color: 'var(--text-faint)', fontSize: '0.8rem' }}>
-                  MIT License
-                </span>
+                <span style={{ color: 'var(--text-faint)', fontSize: '0.8rem' }}>MIT License</span>
               </div>
             </div>
           </div>

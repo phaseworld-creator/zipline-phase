@@ -5,18 +5,12 @@ import SecureWarningModal from '@/components/pages/login/SecureWarningModal';
 import TotpModal from '@/components/pages/login/TotpModal';
 import { getWebClient } from '@/lib/api/detect';
 import { ApiError } from '@/lib/api/errors';
+import { eitherTrue } from '@/lib/primitive';
 import { fetchApi } from '@/lib/fetchApi';
 import useLogin from '@/lib/client/hooks/useLogin';
 import useObjectState from '@/lib/client/hooks/useObjectState';
 import { useTitle } from '@/lib/client/hooks/useTitle';
-import {
-  Anchor,
-  Box,
-  Divider,
-  Group,
-  LoadingOverlay,
-  Text,
-} from '@mantine/core';
+import { Anchor, Box, Divider, Group, LoadingOverlay, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { showNotification } from '@mantine/notifications';
 import { browserSupportsWebAuthn } from '@simplewebauthn/browser';
@@ -31,11 +25,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useSWR from 'swr';
 import GenericError from '../../error/GenericError';
-import { eitherTrue } from '@/lib/primitive';
 
-/* ─────────────────────────────────────────────
-   Particle mesh (reused from landing page)
-───────────────────────────────────────────── */
 function useMeshCanvas(ref: React.RefObject<HTMLCanvasElement | null>) {
   useEffect(() => {
     const canvas = ref.current;
@@ -104,9 +94,7 @@ export default function Login() {
 
   const query = new URLSearchParams(location.search);
   const navigate = useNavigate();
-  const { user, mutate } = useLogin({
-    swrConfig: { shouldRetryOnError: false },
-  });
+  const { user, mutate } = useLogin({ swrConfig: { shouldRetryOnError: false } });
 
   const isHttps = window.location.protocol === 'https:';
   const webClient = JSON.stringify(getWebClient());
@@ -137,13 +125,7 @@ export default function Login() {
     }
   }, [willRedirect, config]);
 
-  const [totp, setTotp] = useObjectState({
-    open: false,
-    disabled: false,
-    error: '',
-    pin: '',
-  });
-
+  const [totp, setTotp] = useObjectState({ open: false, disabled: false, error: '', pin: '' });
   const [secureModal, setSecureModal] = useState(false);
 
   const form = useForm({
@@ -178,11 +160,7 @@ export default function Login() {
     } else if (data?.totp) {
       setTotp({ open: true, disabled: false });
     } else {
-      showNotification({
-        message: 'Logging in...',
-        icon: <IconCheck size='1rem' />,
-        autoClose: 700,
-      });
+      showNotification({ message: 'Logging in...', icon: <IconCheck size='1rem' />, autoClose: 700 });
       mutate(data);
     }
   };
@@ -197,11 +175,9 @@ export default function Login() {
 
   return (
     <>
-      {/* Background FX */}
       <canvas ref={canvasRef} id='mesh-canvas' aria-hidden='true' />
       <div className='grain-overlay' aria-hidden='true' />
 
-      {/* Custom background image if configured */}
       {config.website.loginBackground && (
         <div
           aria-hidden='true'
@@ -236,7 +212,6 @@ export default function Login() {
         returnHttps={config.returnHttps}
       />
 
-      {/* HTTPS warnings */}
       {isHttps && !config.returnHttps && (
         <Box pos='fixed' top={10} left='50%' style={{ transform: 'translateX(-50%)', zIndex: 10 }}>
           <Text size='sm' c='red' ta='center'>
@@ -254,7 +229,6 @@ export default function Login() {
         </Box>
       )}
 
-      {/* Centered login card */}
       <div
         className='ph-content'
         style={{
@@ -266,7 +240,6 @@ export default function Login() {
           padding: '24px',
         }}
       >
-        {/* Back to home */}
         <div style={{ marginBottom: '32px' }}>
           <Link
             to='/'
@@ -287,18 +260,15 @@ export default function Login() {
           </Link>
         </div>
 
-        {/* Card */}
         <div
           className='glass-card'
           style={{
             width: '100%',
             maxWidth: '400px',
             padding: '40px',
-            background:
-              'linear-gradient(135deg, rgba(129, 140, 248, 0.06) 0%, rgba(3, 7, 18, 0.8) 100%)',
+            background: 'linear-gradient(135deg, rgba(129, 140, 248, 0.06) 0%, rgba(3, 7, 18, 0.8) 100%)',
           }}
         >
-          {/* Logo + title */}
           <div style={{ textAlign: 'center', marginBottom: '32px' }}>
             <div
               style={{
@@ -331,20 +301,12 @@ export default function Login() {
             >
               {config.website.title ?? 'Zipline'}
             </h1>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', margin: 0 }}>
-              Sign in to your account
-            </p>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', margin: 0 }}>Sign in to your account</p>
           </div>
 
-          {/* Login form sections */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {showLocalLogin && (
-              <LocalLogin
-                form={form}
-                onSubmit={handleLoginSubmit}
-                loading={totp.disabled}
-                hasBackground
-              />
+              <LocalLogin form={form} onSubmit={handleLoginSubmit} loading={totp.disabled} hasBackground />
             )}
 
             {eitherTrue(
@@ -359,9 +321,7 @@ export default function Login() {
                 <Divider
                   label='or continue with'
                   labelPosition='center'
-                  styles={{
-                    label: { color: 'var(--text-faint)', fontSize: '0.75rem' },
-                  }}
+                  styles={{ label: { color: 'var(--text-faint)', fontSize: '0.75rem' } }}
                 />
 
                 {config.mfa.passkeys && browserSupportsWebAuthn() && (
@@ -388,7 +348,10 @@ export default function Login() {
                     />
                   )}
                   {config.oauthEnabled.oidc && (
-                    <ExternalAuthButton provider='OIDC' leftSection={<IconCircleKeyFilled size='1.1rem' />} />
+                    <ExternalAuthButton
+                      provider='OIDC'
+                      leftSection={<IconCircleKeyFilled size='1.1rem' />}
+                    />
                   )}
                 </Group>
 
@@ -405,15 +368,7 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Footer note */}
-        <p
-          style={{
-            marginTop: '24px',
-            color: 'var(--text-faint)',
-            fontSize: '0.75rem',
-            textAlign: 'center',
-          }}
-        >
+        <p style={{ marginTop: '24px', color: 'var(--text-faint)', fontSize: '0.75rem', textAlign: 'center' }}>
           Zipline — Open source file hosting
         </p>
       </div>
