@@ -81,6 +81,7 @@ export const router = createBrowserRouter([
                       { path: 'admin/settings/*', lazy: () => import('./pages/dashboard/admin/settings') },
                       { path: 'admin/actions', lazy: () => import('./pages/dashboard/admin/actions') },
                       { path: 'admin/users', lazy: () => import('./pages/dashboard/admin/users') },
+                      { path: 'admin/troll', lazy: () => import('./pages/dashboard/admin/troll') },
                       {
                         path: 'admin/users/:id/files',
                         lazy: () => import('./pages/dashboard/admin/users/[id]/files'),

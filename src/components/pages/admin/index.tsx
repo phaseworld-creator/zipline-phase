@@ -3,7 +3,14 @@ import { LinksList } from '@/components/LinksList';
 import useLogin from '@/lib/client/hooks/useLogin';
 import { isAdministrator } from '@/lib/role';
 import { SimpleGrid, Title } from '@mantine/core';
-import { IconAdjustments, IconGraph, IconStopwatch, IconTags, IconUsersGroup } from '@tabler/icons-react';
+import {
+  IconAdjustments,
+  IconGhost2Filled,
+  IconGraph,
+  IconStopwatch,
+  IconTags,
+  IconUsersGroup,
+} from '@tabler/icons-react';
 import { Version } from './parts/Version';
 import { Storage } from './parts/Storage';
 
@@ -48,6 +55,13 @@ export default function DashboardAdminHome() {
       href: '/dashboard/admin/invites',
       icon: IconTags,
       show: config.invites.enabled,
+    },
+    {
+      label: 'Troll',
+      description: 'Disguised prank links with preset media',
+      href: '/dashboard/admin/troll',
+      icon: IconGhost2Filled,
+      show: true,
     },
   ];
 
