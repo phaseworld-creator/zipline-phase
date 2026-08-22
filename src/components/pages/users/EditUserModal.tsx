@@ -56,7 +56,7 @@ export default function EditUserModal({
     initialValues: {
       username: user?.username || '',
       password: '',
-      role: (user?.role === 'ADMIN' ? 'ADMIN' : 'USER') || 'USER',
+      role: user?.role === 'ADMIN' ? 'ADMIN' : 'USER',
       avatar: null,
       fileType: derivedFileType,
       maxFiles: user?.quota?.maxFiles ?? 0,
