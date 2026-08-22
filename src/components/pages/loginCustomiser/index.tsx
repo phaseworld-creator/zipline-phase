@@ -15,7 +15,7 @@ import {
   Title,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconCheck, IconDeviceFloppy, IconLogin, IconPhoto } from '@tabler/icons-react';
+import { IconDeviceFloppy, IconLogin, IconPhoto } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 
 /* ─── Live preview ──────────────────────────────────────────── */
