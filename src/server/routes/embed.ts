@@ -13,8 +13,9 @@ export type EmbedData = {
 
 function decodeEmbedData(raw: string): EmbedData | null {
   try {
-    // re-add stripped padding
-    const padded = raw + '=='.slice(0, (4 - (raw.length % 4)) % 4);
+    // Convert base64url back to standard base64, then re-add stripped padding
+    const b64 = raw.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = b64 + '=='.slice(0, (4 - (b64.length % 4)) % 4);
     const json = Buffer.from(padded, 'base64').toString('utf-8');
     return JSON.parse(json) as EmbedData;
   } catch {

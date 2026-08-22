@@ -28,12 +28,16 @@ type EmbedData = {
   authorIconUrl?: string;
 };
 
-/** Encode to base64url without padding = signs */
+/** Encode to base64url without padding = signs — UTF-8 safe */
 function encodeEmbedData(data: EmbedData): string {
   const json = JSON.stringify(
     Object.fromEntries(Object.entries(data).filter(([, v]) => v && String(v).trim() !== '')),
   );
-  return btoa(json).replace(/=/g, '');
+  // encodeURIComponent handles non-ASCII, then convert to base64url
+  const utf8 = encodeURIComponent(json).replace(/%([0-9A-F]{2})/g, (_, p1) =>
+    String.fromCharCode(parseInt(p1, 16)),
+  );
+  return btoa(utf8).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
 function buildEmbedUrl(data: EmbedData): string {
