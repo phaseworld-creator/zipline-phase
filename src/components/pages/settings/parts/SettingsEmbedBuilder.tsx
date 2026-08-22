@@ -28,12 +28,29 @@ type EmbedData = {
   authorIconUrl?: string;
 };
 
-/** Encode to base64url without padding = signs — UTF-8 safe */
+// Short-key mapping to shrink the base64 payload
+// t=title, d=description, c=color, s=siteName, i=imageUrl, u=url, a=authorName, x=authorIconUrl
+type ShortEmbed = {
+  t?: string; d?: string; c?: string; s?: string;
+  i?: string; u?: string; a?: string; x?: string;
+};
+
+function toShort(data: EmbedData): ShortEmbed {
+  const o: ShortEmbed = {};
+  if (data.title?.trim())         o.t = data.title.trim();
+  if (data.description?.trim())   o.d = data.description.trim();
+  if (data.color?.trim())         o.c = data.color.trim();
+  if (data.siteName?.trim())      o.s = data.siteName.trim();
+  if (data.imageUrl?.trim())      o.i = data.imageUrl.trim();
+  if (data.url?.trim())           o.u = data.url.trim();
+  if (data.authorName?.trim())    o.a = data.authorName.trim();
+  if (data.authorIconUrl?.trim()) o.x = data.authorIconUrl.trim();
+  return o;
+}
+
+/** Encode to base64url without padding — UTF-8 safe, short keys */
 function encodeEmbedData(data: EmbedData): string {
-  const json = JSON.stringify(
-    Object.fromEntries(Object.entries(data).filter(([, v]) => v && String(v).trim() !== '')),
-  );
-  // encodeURIComponent handles non-ASCII, then convert to base64url
+  const json = JSON.stringify(toShort(data));
   const utf8 = encodeURIComponent(json).replace(/%([0-9A-F]{2})/g, (_, p1) =>
     String.fromCharCode(parseInt(p1, 16)),
   );

@@ -13,11 +13,27 @@ export type EmbedData = {
 
 function decodeEmbedData(raw: string): EmbedData | null {
   try {
-    // Convert base64url back to standard base64, then re-add stripped padding
     const b64 = raw.replace(/-/g, '+').replace(/_/g, '/');
     const padded = b64 + '=='.slice(0, (4 - (b64.length % 4)) % 4);
     const json = Buffer.from(padded, 'base64').toString('utf-8');
-    return JSON.parse(json) as EmbedData;
+    const parsed = JSON.parse(json);
+
+    // Expand short keys (new format) or pass through full keys (legacy)
+    const isShort = 't' in parsed || 'd' in parsed || 's' in parsed ||
+                    'i' in parsed || 'u' in parsed || 'a' in parsed || 'x' in parsed;
+    if (isShort) {
+      return {
+        title:         parsed.t,
+        description:   parsed.d,
+        color:         parsed.c,
+        siteName:      parsed.s,
+        imageUrl:      parsed.i,
+        url:           parsed.u,
+        authorName:    parsed.a,
+        authorIconUrl: parsed.x,
+      };
+    }
+    return parsed as EmbedData;
   } catch {
     return null;
   }
