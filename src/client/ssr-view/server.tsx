@@ -185,7 +185,7 @@ export async function render(
           parseString(template, {
             file: file as unknown as File,
             user: user as User,
-            ...(metrics ?? {}),
+            ...metrics,
           }) ?? '',
         )
       : null;
