@@ -17,7 +17,6 @@ import { parserMetrics } from '@/lib/parser/metrics';
 import { createZiplineSsr } from '@/lib/ssr/createZiplineSsr';
 import { stripHtml } from '@/lib/stripHtml';
 import type { ZiplineTheme } from '@/lib/theme';
-import { readThemes } from '@/lib/theme/file';
 import { FastifyRequest } from 'fastify';
 import { renderToString } from 'react-dom/server';
 import { createStaticHandler, createStaticRouter, StaticRouterProvider } from 'react-router-dom';
@@ -41,6 +40,7 @@ export const getFile = async (id: string) =>
 
 export async function render(
   {
+    themes,
     defaultTheme,
     req,
   }: {
@@ -66,6 +66,7 @@ export async function render(
     where: { id: file.userId },
     select: {
       ...userSelect,
+      view: true,
       oauthProviders: false,
       passkeys: false,
       sessions: false,
@@ -92,7 +93,6 @@ export async function render(
   }
 
   const code = await isCode(file.name);
-  const themes = await readThemes();
   const metrics = await parserMetrics(user.id);
   const config = { website: { theme: zConfig.website.theme } };
 
@@ -171,9 +171,8 @@ export async function render(
   const safeOriginalName = stripHtml(file.originalName || '');
   const safeType = stripHtml(file.type || '');
 
-  const viewEnabled = !!user.view?.enabled;
-  const showRichOg = viewEnabled && !!user.view.embed;
-  const showMediaOg = viewEnabled && (!!user.view.embed || !!user.view.embedMediaOnly);
+  const showRichOg = !!user.view?.embed;
+  const showMediaOg = !!user.view?.embed || !!user.view?.embedMediaOnly;
   const pageUrl = `${host}${url.split('?')[0]}`;
 
   const resolveField = (template: string | null | undefined) =>
@@ -181,13 +180,12 @@ export async function render(
       ? stripHtml(
           parseString(template, {
             file: file as unknown as File,
-            user: user as User,
+            user: user as unknown as User,
             ...metrics,
           }) ?? '',
         )
       : null;
 
-  // Fallbacks so Discord always has something to show
   const ogTitle = showRichOg
     ? (resolveField(user.view?.embedTitle) || safeOriginalName || safeFilename)
     : (safeOriginalName || safeFilename);
@@ -197,12 +195,10 @@ export async function render(
   const ogColor = showRichOg ? resolveField(user.view?.embedColor) : null;
 
   const richMeta = [
-    // Always emit og:title when embed or media-only is on — Discord requires it
     showMediaOg ? `<meta property="og:title" content="${ogTitle}" />` : '',
     ogDescription ? `<meta property="og:description" content="${ogDescription}" />` : '',
     ogSiteName ? `<meta property="og:site_name" content="${ogSiteName}" />` : '',
     ogColor ? `<meta name="theme-color" content="${ogColor}" />` : '',
-    // Twitter summary card fallback so non-image files still get a card
     showMediaOg ? `<meta name="twitter:card" content="summary_large_image" />` : '',
     showMediaOg ? `<meta property="og:url" content="${pageUrl}" />` : '',
   ]
@@ -253,7 +249,6 @@ export async function render(
 
   const docTitle = `<title>${file.originalName ? safeOriginalName : safeFilename}</title>`;
 
-  // Always emit meta when embed or media-only is enabled
   const headMeta = showMediaOg
     ? [docTitle, richMeta, imageOg, videoOg, audioOg, otherOg].filter(Boolean).join('\n')
     : docTitle;
