@@ -5,11 +5,16 @@ import { fetchApi } from '@/lib/fetchApi';
 import { useUserStore } from '@/lib/client/store/user';
 import {
   ActionIcon,
+  Avatar,
+  Box,
   Button,
   CopyButton,
+  FileButton,
+  Group,
   Paper,
   PasswordInput,
   ScrollArea,
+  Stack,
   Text,
   TextInput,
   Title,
@@ -23,10 +28,12 @@ import {
   IconCopy,
   IconDeviceFloppy,
   IconKey,
+  IconPhoto,
+  IconTrash,
   IconUser,
   IconUserCancel,
 } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { mutate } from 'swr';
 import useSWR from 'swr';
 import { useShallow } from 'zustand/shallow';
@@ -52,6 +59,56 @@ export default function SettingsUser() {
 
 function Form({ user, setUser, token }: { user: User; setUser: (u: User) => void; token: string }) {
   const [tokenShown, setTokenShown] = useState(false);
+  const resetRef = useRef<() => void>(null);
+
+  // Fetch the current avatar separately (not in default userSelect)
+  const { data: currentAvatar, mutate: mutateAvatar } = useSWR<string>('/api/user/avatar');
+
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarSaving, setAvatarSaving] = useState(false);
+
+  const handleAvatarFile = (file: File | null) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      setAvatarPreview(dataUrl);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const saveAvatar = async () => {
+    if (!avatarPreview) return;
+    setAvatarSaving(true);
+    const { data, error } = await fetchApi<Response['/api/user']>('/api/user', 'PATCH', {
+      avatar: avatarPreview,
+    });
+    setAvatarSaving(false);
+
+    if (error) {
+      notifications.show({ title: 'Failed to save avatar', message: error.error, color: 'red' });
+      return;
+    }
+
+    if (data?.user) setUser(data.user);
+    setAvatarPreview(null);
+    resetRef.current?.();
+    mutateAvatar();
+    notifications.show({ message: 'Avatar updated', color: 'green', icon: <IconCheck size='1rem' /> });
+  };
+
+  const removeAvatar = async () => {
+    const { data, error } = await fetchApi<Response['/api/user']>('/api/user', 'PATCH', { avatar: null });
+    if (error) {
+      notifications.show({ title: 'Failed to remove avatar', message: error.error, color: 'red' });
+      return;
+    }
+    if (data?.user) setUser(data.user);
+    setAvatarPreview(null);
+    resetRef.current?.();
+    mutateAvatar();
+    notifications.show({ message: 'Avatar removed', color: 'orange', icon: <IconTrash size='1rem' /> });
+  };
 
   const form = useForm({
     initialValues: {
@@ -119,6 +176,58 @@ function Form({ user, setUser, token }: { user: User; setUser: (u: User) => void
       <Text c='dimmed' size='sm' mb='sm'>
         {user.id}
       </Text>
+
+      {/* ── Avatar ── */}
+      <Box mb='md'>
+        <Text size='sm' fw={600} mb='xs'>Profile Picture</Text>
+        <Group gap='md' align='flex-end'>
+          <Avatar
+            src={avatarPreview ?? currentAvatar ?? null}
+            size={72}
+            radius='xl'
+            style={{ border: '2px solid var(--mantine-color-default-border)' }}
+          >
+            <IconUser size='2rem' />
+          </Avatar>
+          <Stack gap='xs'>
+            <FileButton resetRef={resetRef} onChange={handleAvatarFile} accept='image/*'>
+              {(props) => (
+                <Button
+                  {...props}
+                  size='xs'
+                  variant='light'
+                  leftSection={<IconPhoto size='0.85rem' />}
+                >
+                  Choose image
+                </Button>
+              )}
+            </FileButton>
+            {avatarPreview && (
+              <Button
+                size='xs'
+                variant='filled'
+                color='green'
+                leftSection={<IconDeviceFloppy size='0.85rem' />}
+                loading={avatarSaving}
+                onClick={saveAvatar}
+              >
+                Save avatar
+              </Button>
+            )}
+            {(currentAvatar || avatarPreview) && !avatarSaving && (
+              <Button
+                size='xs'
+                variant='subtle'
+                color='red'
+                leftSection={<IconTrash size='0.85rem' />}
+                onClick={removeAvatar}
+              >
+                Remove
+              </Button>
+            )}
+          </Stack>
+        </Group>
+      </Box>
 
       <form onSubmit={form.onSubmit(onSubmit)}>
         <TextInput

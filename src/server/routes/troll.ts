@@ -71,6 +71,7 @@ export default typedPlugin(
     server.get<{ Params: { alias: string } }>(PATH, async (req, res) => {
       const link = trollStore.get(req.params.alias);
       if (!link) return res.callNotFound();
+      trollStore.incrementViews(req.params.alias);
       return res.type('text/html').send(buildTrollHtml(link));
     });
   },

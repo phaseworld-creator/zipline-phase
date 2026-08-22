@@ -5,6 +5,7 @@ import { lazy } from 'react';
 
 const SettingsAvatar = lazy(() => import('./parts/SettingsAvatar'));
 const SettingsDashboard = lazy(() => import('./parts/SettingsDashboard'));
+const SettingsEmbedBuilder = lazy(() => import('./parts/SettingsEmbedBuilder'));
 const SettingsFileView = lazy(() => import('./parts/SettingsFileView'));
 const SettingsGenerators = lazy(() => import('./parts/SettingsGenerators'));
 const SettingsMfa = lazy(() => import('./parts/SettingsMfa'));
@@ -45,6 +46,7 @@ export default function DashboardSettings() {
 
         <SettingsExports />
         <SettingsGenerators />
+        <SettingsEmbedBuilder />
       </SimpleGrid>
     </>
   );

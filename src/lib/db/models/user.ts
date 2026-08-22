@@ -116,7 +116,7 @@ export const userSchema = z.object({
   username: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
-  role: z.enum(['USER', 'ADMIN', 'SUPERADMIN']),
+  role: z.enum(['USER', 'ADMIN', 'SUPERADMIN', 'OWNER']),
   view: userViewSchema,
 
   sessions: z.array(userSessionSchema),

@@ -98,7 +98,7 @@ export default typedPlugin(
         preHandler: [userMiddleware, administratorMiddleware],
       },
       async (req, res) => {
-        if (req.user.role !== 'SUPERADMIN') throw new ApiError(3015);
+        if (req.user.role !== 'SUPERADMIN' && req.user.role !== 'OWNER') throw new ApiError(3015);
 
         const settings = await prisma.zipline.findFirst({
           omit: {
@@ -130,7 +130,7 @@ export default typedPlugin(
         ...secondlyRatelimit(1),
       },
       async (req, res) => {
-        if (req.user.role !== 'SUPERADMIN') throw new ApiError(3015);
+        if (req.user.role !== 'SUPERADMIN' && req.user.role !== 'OWNER') throw new ApiError(3015);
 
         const settings = await prisma.zipline.findFirst();
         if (!settings) throw new ApiError(4010);

@@ -79,7 +79,7 @@ export default typedPlugin(
             data: {
               username,
               password: hashed,
-              role: 'SUPERADMIN',
+              role: 'OWNER',
               token,
             },
             select: userSelect,

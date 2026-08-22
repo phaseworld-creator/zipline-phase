@@ -73,7 +73,7 @@ export default function DashboardServerActions() {
   const user = useUserStore((state) => state.user);
   const [activeAction, setActiveAction] = useState<ServerActionId | null>(null);
 
-  const actions = ACTIONS.filter((action) => !action.superAdminOnly || user?.role === 'SUPERADMIN');
+  const actions = ACTIONS.filter((action) => !action.superAdminOnly || user?.role === 'SUPERADMIN' || user?.role === 'OWNER');
   const links = actions.map(({ id, label, description, icon }) => ({
     label,
     description,

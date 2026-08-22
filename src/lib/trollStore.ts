@@ -1,8 +1,3 @@
-/* ─────────────────────────────────────────────────────────────────
-   Troll link store — persisted to <dataDir>/troll-links.json
-   so links survive server restarts.
-───────────────────────────────────────────────────────────────── */
-
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 
@@ -11,15 +6,13 @@ export type TrollMediaType = 'image' | 'gif' | 'video' | 'youtube';
 export type TrollLink = {
   id: string;
   alias: string;
-  /** Media URL that actually loads (image src, gif src, YouTube embed URL, video src) */
   mediaUrl: string;
   mediaType: TrollMediaType;
-  /** Optional label shown in admin UI */
   label: string;
   createdAt: string;
+  views: number;
 };
 
-// Store file lives alongside other Zipline data files
 const DATA_DIR = resolve('./data');
 const STORE_FILE = resolve(DATA_DIR, 'troll-links.json');
 
@@ -29,7 +22,10 @@ function loadFromDisk(): Map<string, TrollLink> {
     const raw = readFileSync(STORE_FILE, 'utf-8');
     const arr: TrollLink[] = JSON.parse(raw);
     const map = new Map<string, TrollLink>();
-    for (const link of arr) map.set(link.alias, link);
+    for (const link of arr) {
+      // back-compat: existing links without views field default to 0
+      map.set(link.alias, { views: 0, ...link });
+    }
     return map;
   } catch {
     return new Map();
@@ -45,7 +41,6 @@ function saveToDisk(map: Map<string, TrollLink>): void {
   }
 }
 
-// Load on startup
 const store = loadFromDisk();
 
 export const trollStore = {
@@ -60,7 +55,7 @@ export const trollStore = {
   },
 
   add(link: TrollLink): void {
-    store.set(link.alias, link);
+    store.set(link.alias, { views: 0, ...link });
     saveToDisk(store);
   },
 
@@ -72,5 +67,13 @@ export const trollStore = {
 
   hasAlias(alias: string): boolean {
     return store.has(alias);
+  },
+
+  incrementViews(alias: string): void {
+    const link = store.get(alias);
+    if (!link) return;
+    link.views = (link.views ?? 0) + 1;
+    store.set(alias, link);
+    saveToDisk(store);
   },
 };

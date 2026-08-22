@@ -46,6 +46,7 @@ type TrollLink = {
   mediaType: TrollMediaType;
   label: string;
   createdAt: string;
+  views: number;
 };
 
 /* ─── Preset library ─────────────────────────────────────────── */
@@ -429,6 +430,9 @@ export default function DashboardTroll() {
                       </Text>
                       <Badge color={TYPE_COLOR[link.mediaType]} variant='light' size='xs'>
                         {link.mediaType}
+                      </Badge>
+                      <Badge color='gray' variant='outline' size='xs'>
+                        👁 {link.views ?? 0}
                       </Badge>
                     </Group>
                     <Text size='xs' c='dimmed' lineClamp={1} ff='monospace'>

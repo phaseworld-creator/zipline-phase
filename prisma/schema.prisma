@@ -243,6 +243,7 @@ enum Role {
   USER
   ADMIN
   SUPERADMIN
+  OWNER
 }
 
 model OAuthProvider {

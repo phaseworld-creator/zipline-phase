@@ -48,7 +48,7 @@ export default typedPlugin(
         ...secondlyRatelimit(5),
       },
       async (req, res) => {
-        if (req.user.role !== 'SUPERADMIN') throw new ApiError(3015);
+        if (req.user.role !== 'SUPERADMIN' && req.user.role !== 'OWNER') throw new ApiError(3015);
 
         const { export3 } = req.body;
 
