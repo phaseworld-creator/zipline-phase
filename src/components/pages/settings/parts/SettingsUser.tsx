@@ -69,12 +69,32 @@ function Form({ user, setUser, token }: { user: User; setUser: (u: User) => void
 
   const handleAvatarFile = (file: File | null) => {
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const dataUrl = e.target?.result as string;
+
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    img.onload = () => {
+      // Resize to max 256×256, then encode as JPEG at 80% — keeps payload < 100KB
+      const MAX = 256;
+      let { width, height } = img;
+      if (width > height) {
+        if (width > MAX) { height = Math.round((height * MAX) / width); width = MAX; }
+      } else {
+        if (height > MAX) { width = Math.round((width * MAX) / height); height = MAX; }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext('2d')!.drawImage(img, 0, 0, width, height);
+
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+      URL.revokeObjectURL(objectUrl);
       setAvatarPreview(dataUrl);
     };
-    reader.readAsDataURL(file);
+
+    img.onerror = () => URL.revokeObjectURL(objectUrl);
+    img.src = objectUrl;
   };
 
   const saveAvatar = async () => {
