@@ -4,7 +4,6 @@ import '@mantine/dates/styles.css';
 import '@mantine/dropzone/styles.css';
 import '@mantine/notifications/styles.css';
 import 'mantine-datatable/styles.css';
-
 import { verifyAccessToken } from '@/lib/accessToken';
 import { isCode } from '@/lib/code';
 import { config as zConfig } from '@/lib/config';
@@ -56,24 +55,33 @@ export async function render(
   const { config: libConfig, reloadSettings } = await import('@/lib/config');
   if (!libConfig) await reloadSettings();
 
-  const file = await getFile(id);
-  if (!file || !file.userId) return { html: 'Not Found', meta: '', status: 404 };
+  // Strip query-string that may have leaked into the param
+  const cleanId = id.split('?')[0];
+
+  const file = await getFile(cleanId);
+  // Only 404 if file genuinely doesn't exist — userId can be null for anonymous uploads
+  if (!file) {
+    console.error(`[view] 404 — no file found for id="${cleanId}"`);
+    return { html: 'Not Found', meta: '', status: 404 };
+  }
 
   if (file.maxViews && file.views >= file.maxViews) return { html: 'Gone', meta: '', status: 410 };
   if (file.deletesAt && file.deletesAt <= new Date()) return { html: 'Expired', meta: '', status: 410 };
 
-  const user = await prisma.user.findFirst({
-    where: { id: file.userId },
-    select: {
-      ...userSelect,
-      oauthProviders: false,
-      passkeys: false,
-      sessions: false,
-      totpEnabled: false,
-      quota: false,
-    },
-  });
-  if (!user) return { html: 'Not Found', meta: '', status: 404 };
+  // userId is nullable (anonymous uploads have no owner)
+  const user = file.userId
+    ? await prisma.user.findFirst({
+        where: { id: file.userId },
+        select: {
+          ...userSelect,
+          oauthProviders: false,
+          passkeys: false,
+          sessions: false,
+          totpEnabled: false,
+          quota: false,
+        },
+      })
+    : null;
 
   let host = req.headers.host || 'localhost';
   const proto = req.headers['x-forwarded-proto'];
@@ -92,7 +100,7 @@ export async function render(
   }
 
   const code = await isCode(file.name);
-  const metrics = await parserMetrics(user.id);
+  const metrics = user ? await parserMetrics(user.id) : null;
   const config = { website: { theme: zConfig.website.theme } };
 
   const token = req.query.token;
@@ -102,7 +110,6 @@ export async function render(
   delete (file as any).password;
 
   if (hasPassword) {
-    console.log('File is password protected');
     if (!valid) {
       const data = {
         file: { id: file.id, name: file.name, type: file.type },
@@ -124,9 +131,8 @@ export async function render(
         }),
       );
 
-      if (context instanceof Response) {
-        return context;
-      }
+      if (context instanceof Response) return context;
+
       const router = createStaticRouter(routes, context);
       const html = renderToString(<StaticRouterProvider context={context} router={router} />);
 
@@ -159,9 +165,7 @@ export async function render(
     }),
   );
 
-  if (context instanceof Response) {
-    return context;
-  }
+  if (context instanceof Response) return context;
 
   const router = createStaticRouter(routes, context);
   const html = renderToString(<StaticRouterProvider context={context} router={router} />);
@@ -170,80 +174,67 @@ export async function render(
   const safeOriginalName = stripHtml(file.originalName || '');
   const safeType = stripHtml(file.type || '');
 
-  const showRichOg = !!user.view?.embed;
-  const showMediaOg = !!user.view?.embed || !!user.view?.embedMediaOnly;
+  // user can be null for anonymous uploads — no embed in that case
+  const showRichOg = !!user?.view?.embed;
+  const showMediaOg = !!user?.view?.embed || !!user?.view?.embedMediaOnly;
   const pageUrl = `${host}${url.split('?')[0]}`;
 
   const resolveField = (template: string | null | undefined) =>
-    template
+    template && user
       ? stripHtml(
           parseString(template, {
             file: file as unknown as File,
             user: user as User,
-            ...metrics,
+            ...(metrics ?? {}),
           }) ?? '',
         )
       : null;
 
-  // Fallbacks so Discord always has something to show
   const ogTitle = showRichOg
-    ? (resolveField(user.view?.embedTitle) || safeOriginalName || safeFilename)
+    ? (resolveField(user?.view?.embedTitle) || safeOriginalName || safeFilename)
     : (safeOriginalName || safeFilename);
 
-  const ogDescription = showRichOg ? resolveField(user.view?.embedDescription) : null;
-  const ogSiteName = showRichOg ? resolveField(user.view?.embedSiteName) : null;
-  const ogColor = showRichOg ? resolveField(user.view?.embedColor) : null;
+  const ogDescription = showRichOg ? resolveField(user?.view?.embedDescription) : null;
+  const ogSiteName   = showRichOg ? resolveField(user?.view?.embedSiteName)    : null;
+  const ogColor      = showRichOg ? resolveField(user?.view?.embedColor)       : null;
 
   const richMeta = [
-    // Always emit og:title when embed or media-only is on — Discord requires it
     showMediaOg ? `<meta property="og:title" content="${ogTitle}" />` : '',
     ogDescription ? `<meta property="og:description" content="${ogDescription}" />` : '',
-    ogSiteName ? `<meta property="og:site_name" content="${ogSiteName}" />` : '',
-    ogColor ? `<meta name="theme-color" content="${ogColor}" />` : '',
-    // Twitter summary card fallback so non-image files still get a card
+    ogSiteName    ? `<meta property="og:site_name"    content="${ogSiteName}" />`    : '',
+    ogColor       ? `<meta name="theme-color"          content="${ogColor}" />`       : '',
     showMediaOg ? `<meta name="twitter:card" content="summary_large_image" />` : '',
-    showMediaOg ? `<meta property="og:url" content="${pageUrl}" />` : '',
-  ]
-    .filter(Boolean)
-    .join('\n  ');
+    showMediaOg ? `<meta property="og:url"  content="${pageUrl}" />`            : '',
+  ].filter(Boolean).join('\n  ');
 
-  const imageOg =
-    showMediaOg && file.type?.startsWith('image')
-      ? `
-    <meta property="og:type" content="image" />
+  const imageOg = showMediaOg && file.type?.startsWith('image') ? `
+    <meta property="og:type"  content="image" />
     <meta property="og:image" itemProp="image" content="${host}/raw/${safeFilename}" />
-    <meta property="twitter:image" content="${host}/raw/${safeFilename}" />
-  `
-      : '';
+    <meta property="twitter:image"             content="${host}/raw/${safeFilename}" />
+  ` : '';
 
-  const videoOg =
-    showMediaOg && file.type?.startsWith('video')
-      ? `
+  const videoOg = showMediaOg && file.type?.startsWith('video') ? `
     ${file.thumbnail ? `<meta property="og:image" content="${host}/raw/${file.thumbnail.path}" />` : ''}
-    <meta property="og:type" content="video.other" />
-    <meta property="og:video:url" content="${host}/raw/${safeFilename}" />
-    <meta property="og:video:secure_url" content="${host}/raw/${safeFilename}" />
-    <meta property="og:video:type" content="${safeType}" />
-    <meta property="og:video:width" content="1920" />
-    <meta property="og:video:height" content="1080" />
-  `
-      : '';
+    <meta property="og:type"              content="video.other" />
+    <meta property="og:video:url"         content="${host}/raw/${safeFilename}" />
+    <meta property="og:video:secure_url"  content="${host}/raw/${safeFilename}" />
+    <meta property="og:video:type"        content="${safeType}" />
+    <meta property="og:video:width"       content="1920" />
+    <meta property="og:video:height"      content="1080" />
+  ` : '';
 
-  const audioOg =
-    showMediaOg && file.type?.startsWith('audio')
-      ? `
-    <meta name="twitter:card" content="player" />
-    <meta name="twitter:player" content="${host}/raw/${safeFilename}" />
-    <meta name="twitter:player:stream" content="${host}/raw/${safeFilename}" />
-    <meta name="twitter:player:stream:content_type" content="${safeType}" />
-    <meta name="twitter:player:width" content="720" />
-    <meta name="twitter:player:height" content="480" />
-    <meta property="og:type" content="music.song" />
-    <meta property="og:audio" content="${host}/raw/${safeFilename}" />
+  const audioOg = showMediaOg && file.type?.startsWith('audio') ? `
+    <meta name="twitter:card"                        content="player" />
+    <meta name="twitter:player"                      content="${host}/raw/${safeFilename}" />
+    <meta name="twitter:player:stream"               content="${host}/raw/${safeFilename}" />
+    <meta name="twitter:player:stream:content_type"  content="${safeType}" />
+    <meta name="twitter:player:width"                content="720" />
+    <meta name="twitter:player:height"               content="480" />
+    <meta property="og:type"          content="music.song" />
+    <meta property="og:audio"         content="${host}/raw/${safeFilename}" />
     <meta property="og:audio:secure_url" content="${host}/raw/${safeFilename}" />
-    <meta property="og:audio:type" content="${safeType}" />
-  `
-      : '';
+    <meta property="og:audio:type"    content="${safeType}" />
+  ` : '';
 
   const otherOg = showMediaOg && !file.type?.startsWith('video') && !file.type?.startsWith('image') && !file.type?.startsWith('audio')
     ? `<meta property="og:type" content="website" />`
@@ -251,7 +242,6 @@ export async function render(
 
   const docTitle = `<title>${file.originalName ? safeOriginalName : safeFilename}</title>`;
 
-  // Always emit meta when embed or media-only is enabled
   const headMeta = showMediaOg
     ? [docTitle, richMeta, imageOg, videoOg, audioOg, otherOg].filter(Boolean).join('\n')
     : docTitle;
