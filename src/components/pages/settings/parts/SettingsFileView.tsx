@@ -329,8 +329,7 @@ function Form({ user, setUser }: { user: User; setUser: (u: User) => void }) {
 
           <Switch
             label='Enable Embed'
-            description='Enable the following embed properties. These properties take advantage of OpenGraph tags. View routes will need to be enabled for this to work.'
-            disabled={!form.values.enabled}
+            description='Add OpenGraph meta tags to file view pages so Discord and other apps show a rich embed preview.'
             my='xs'
             {...form.getInputProps('embed', { type: 'checkbox' })}
             onChange={(event) => {
@@ -343,8 +342,8 @@ function Form({ user, setUser }: { user: User; setUser: (u: User) => void }) {
 
           <Switch
             label='Media-only link preview'
-            description='When embeds are off, still add OpenGraph image/video tags so Discord and similar apps unfurl the media only (no custom title, description, or site name). The URL you paste stays in the message as plain text.'
-            disabled={!form.values.enabled || form.values.embed}
+            description='When full embed is off, still add OpenGraph image/video tags so Discord shows the media inline. No custom title, description, or site name.'
+            disabled={form.values.embed}
             my='xs'
             {...form.getInputProps('embedMediaOnly', { type: 'checkbox' })}
           />
@@ -356,34 +355,34 @@ function Form({ user, setUser }: { user: User; setUser: (u: User) => void }) {
                 label='Embed Site Name'
                 description='Shown above the title (top of the embed)'
                 placeholder='Zipline • {user.username}'
-                disabled={!form.values.embed || !form.values.enabled}
+                disabled={!form.values.embed}
                 {...form.getInputProps('embedSiteName')}
               />
               <TextInput
                 label='Embed Title'
                 description='Bold link line — the main clickable heading'
                 placeholder='{file.name}'
-                disabled={!form.values.embed || !form.values.enabled}
+                disabled={!form.values.embed}
                 {...form.getInputProps('embedTitle')}
               />
               <TextInput
                 label='Embed Description'
                 description='Body text below the title'
                 placeholder='Size: {file.size::bytes} • Views: {file.views}'
-                disabled={!form.values.embed || !form.values.enabled}
+                disabled={!form.values.embed}
                 {...form.getInputProps('embedDescription')}
               />
               <ColorInput
                 label='Embed Color'
                 description='Left border color of the embed card'
-                disabled={!form.values.embed || !form.values.enabled}
+                disabled={!form.values.embed}
                 {...form.getInputProps('embedColor')}
               />
             </Stack>
 
             <Box
               style={{
-                opacity: form.values.embed && form.values.enabled ? 1 : 0.35,
+                opacity: form.values.embed ? 1 : 0.35,
                 transition: 'opacity 0.2s',
               }}
             >
