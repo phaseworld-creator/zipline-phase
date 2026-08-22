@@ -13,9 +13,11 @@ The next generation ShareX / File upload server
 Documentation: [zipline.diced.sh](https://zipline.diced.sh)
 
 </div>
+
 > [!WARNING]
 > That Fork that will not be updated mutch bc it mostly for fun but if you liked it star it :3
-> And the Troll is not saved if updated (be fixed lol)
+And the Troll is not saved if updated (be fixed lol)
+> 
 ## Features
 
 - Setup Quickly: [Get Started with Docker](https://zipline.diced.sh/docs/get-started/docker)
