@@ -176,43 +176,35 @@ export async function render(
   const showMediaOg = viewEnabled && (!!user.view.embed || !!user.view.embedMediaOnly);
   const pageUrl = `${host}${url.split('?')[0]}`;
 
+  const resolveField = (template: string | null | undefined) =>
+    template
+      ? stripHtml(
+          parseString(template, {
+            file: file as unknown as File,
+            user: user as User,
+            ...metrics,
+          }) ?? '',
+        )
+      : null;
+
+  // Fallbacks so Discord always has something to show
+  const ogTitle = showRichOg
+    ? (resolveField(user.view?.embedTitle) || safeOriginalName || safeFilename)
+    : (safeOriginalName || safeFilename);
+
+  const ogDescription = showRichOg ? resolveField(user.view?.embedDescription) : null;
+  const ogSiteName = showRichOg ? resolveField(user.view?.embedSiteName) : null;
+  const ogColor = showRichOg ? resolveField(user.view?.embedColor) : null;
+
   const richMeta = [
-    showRichOg && user?.view?.embedTitle
-      ? `<meta property="og:title" content="${stripHtml(
-          parseString(user.view.embedTitle, {
-            file: file as unknown as File,
-            user: user as User,
-            ...metrics,
-          }) ?? '',
-        )}" />`
-      : '',
-    showRichOg && user?.view?.embedDescription
-      ? `<meta property="og:description" content="${stripHtml(
-          parseString(user.view.embedDescription, {
-            file: file as unknown as File,
-            user: user as User,
-            ...metrics,
-          }) ?? '',
-        )}" />`
-      : '',
-    showRichOg && user?.view?.embedSiteName
-      ? `<meta property="og:site_name" content="${stripHtml(
-          parseString(user.view.embedSiteName, {
-            file: file as unknown as File,
-            user: user as User,
-            ...metrics,
-          }) ?? '',
-        )}" />`
-      : '',
-    showRichOg && user?.view?.embedColor
-      ? `<meta property="theme-color" content="${stripHtml(
-          parseString(user.view.embedColor, {
-            file: file as unknown as File,
-            user: user as User,
-            ...metrics,
-          }) ?? '',
-        )}" />`
-      : '',
+    // Always emit og:title when embed or media-only is on — Discord requires it
+    showMediaOg ? `<meta property="og:title" content="${ogTitle}" />` : '',
+    ogDescription ? `<meta property="og:description" content="${ogDescription}" />` : '',
+    ogSiteName ? `<meta property="og:site_name" content="${ogSiteName}" />` : '',
+    ogColor ? `<meta name="theme-color" content="${ogColor}" />` : '',
+    // Twitter summary card fallback so non-image files still get a card
+    showMediaOg ? `<meta name="twitter:card" content="summary_large_image" />` : '',
+    showMediaOg ? `<meta property="og:url" content="${pageUrl}" />` : '',
   ]
     .filter(Boolean)
     .join('\n  ');
@@ -222,10 +214,7 @@ export async function render(
       ? `
     <meta property="og:type" content="image" />
     <meta property="og:image" itemProp="image" content="${host}/raw/${safeFilename}" />
-    <meta property="og:url" content="${pageUrl}" />
-    <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:image" content="${host}/raw/${safeFilename}" />
-    ${showRichOg ? `<meta property="twitter:title" content="${safeFilename}" />` : ''}
   `
       : '';
 
@@ -234,8 +223,9 @@ export async function render(
       ? `
     ${file.thumbnail ? `<meta property="og:image" content="${host}/raw/${file.thumbnail.path}" />` : ''}
     <meta property="og:type" content="video.other" />
-    <meta property="og:url" content="${pageUrl}" />
     <meta property="og:video:url" content="${host}/raw/${safeFilename}" />
+    <meta property="og:video:secure_url" content="${host}/raw/${safeFilename}" />
+    <meta property="og:video:type" content="${safeType}" />
     <meta property="og:video:width" content="1920" />
     <meta property="og:video:height" content="1080" />
   `
@@ -248,31 +238,25 @@ export async function render(
     <meta name="twitter:player" content="${host}/raw/${safeFilename}" />
     <meta name="twitter:player:stream" content="${host}/raw/${safeFilename}" />
     <meta name="twitter:player:stream:content_type" content="${safeType}" />
-    ${showRichOg ? `<meta name="twitter:title" content="${safeFilename}" />` : ''}
     <meta name="twitter:player:width" content="720" />
     <meta name="twitter:player:height" content="480" />
-
     <meta property="og:type" content="music.song" />
-    <meta property="og:url" content="${pageUrl}" />
     <meta property="og:audio" content="${host}/raw/${safeFilename}" />
     <meta property="og:audio:secure_url" content="${host}/raw/${safeFilename}" />
     <meta property="og:audio:type" content="${safeType}" />
   `
       : '';
 
-  const otherOg =
-    showRichOg && !file.type?.startsWith('video') && !file.type?.startsWith('image')
-      ? `
-    <meta property="og:url" content="${pageUrl}" />
-  `
-      : '';
+  const otherOg = showMediaOg && !file.type?.startsWith('video') && !file.type?.startsWith('image') && !file.type?.startsWith('audio')
+    ? `<meta property="og:type" content="website" />`
+    : '';
 
   const docTitle = `<title>${file.originalName ? safeOriginalName : safeFilename}</title>`;
 
-  const includeHead = showRichOg || showMediaOg;
-  const headMeta = includeHead
-    ? [richMeta, imageOg, videoOg, audioOg, otherOg, docTitle].filter(Boolean).join('\n')
-    : '';
+  // Always emit meta when embed or media-only is enabled
+  const headMeta = showMediaOg
+    ? [docTitle, richMeta, imageOg, videoOg, audioOg, otherOg].filter(Boolean).join('\n')
+    : docTitle;
 
   return {
     html,
