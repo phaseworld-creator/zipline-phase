@@ -2,8 +2,6 @@
   <img src="https://raw.githubusercontent.com/diced/zipline/trunk/public/zipline_small.png"/>
 
 The next generation ShareX / File upload server
-> [!WARNING]
-> That a Fork that will not be updated mutch bc it mostly for fun but if you liked it star it :3
 
 ![Stars](https://img.shields.io/github/stars/phaseworld-creator/zipline-phase?logo=github&style=for-the-badge)
 ![Version](https://img.shields.io/github/package-json/v/phaseworld-creator/zipline-phase?logo=git&logoColor=white&style=for-the-badge)
@@ -15,7 +13,9 @@ The next generation ShareX / File upload server
 Documentation: [zipline.diced.sh](https://zipline.diced.sh)
 
 </div>
-
+> [!WARNING]
+> That Fork that will not be updated mutch bc it mostly for fun but if you liked it star it :3
+> And the Troll is not saved if updated (be fixed lol)
 ## Features
 
 - Setup Quickly: [Get Started with Docker](https://zipline.diced.sh/docs/get-started/docker)
