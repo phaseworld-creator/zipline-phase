@@ -78,64 +78,67 @@ function DiscordPreview({ data }: { data: EmbedData }) {
         maxWidth: 440,
       }}
     >
-      {/* message row */}
-      <Group gap='xs' mb={8} align='flex-start'>
-        <Box
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg,#6366f1,#f43f5e)',
-            flexShrink: 0,
-          }}
-        />
-        <Box>
-          <Text style={{ color: '#fff', fontSize: 15, fontWeight: 500 }}>You</Text>
+      {/* fake Discord message chrome */}
+      <Group gap='xs' mb={6} align='flex-start'>
+        <Box style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,#6366f1,#f43f5e)', flexShrink: 0 }} />
+        <Box style={{ flex: 1 }}>
+          <Text style={{ color: '#fff', fontSize: 14, fontWeight: 500, marginBottom: 4 }}>You</Text>
+
+          {/* embed card */}
           <Box
             style={{
               background: '#2b2d3a',
               borderLeft: `4px solid ${color}`,
               borderRadius: 4,
-              padding: '10px 14px',
-              marginTop: 4,
-              maxWidth: 380,
+              padding: '8px 12px',
+              maxWidth: 400,
             }}
           >
             {data.siteName && (
-              <Text style={{ fontSize: 12, color: '#b0b3c1', marginBottom: 2 }}>{data.siteName}</Text>
+              <Text style={{ fontSize: 12, fontWeight: 600, color: '#b9bbbe', marginBottom: 4 }}>
+                {data.siteName}
+              </Text>
             )}
+
             {data.authorName && (
-              <Group gap={6} mb={4}>
+              <Group gap={6} mb={6} align='center'>
                 {data.authorIconUrl && (
                   <Box
                     component='img'
                     src={data.authorIconUrl}
-                    style={{ width: 20, height: 20, borderRadius: '50%' }}
+                    style={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0 }}
+                    onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
                   />
                 )}
                 <Text style={{ fontSize: 13, fontWeight: 600, color: '#e0e0f0' }}>{data.authorName}</Text>
               </Group>
             )}
+
             {data.title && (
-              <Text style={{ fontSize: 15, fontWeight: 700, color: '#7289da', marginBottom: 4 }}>
+              <Text style={{ fontSize: 15, fontWeight: 700, color: '#7289da', marginBottom: 4, wordBreak: 'break-word' }}>
                 {data.title}
               </Text>
             )}
+
             {data.description && (
-              <Text style={{ fontSize: 14, color: '#b0b3c1', lineHeight: 1.5, marginBottom: 6 }}>
+              <Text style={{ fontSize: 14, color: '#b9bbbe', lineHeight: 1.375, marginBottom: 4, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                 {data.description}
               </Text>
             )}
+
             {data.imageUrl && (
               <Box
                 component='img'
                 src={data.imageUrl}
-                style={{ width: '100%', borderRadius: 4, marginTop: 4 }}
+                style={{ display: 'block', maxWidth: '100%', maxHeight: 200, borderRadius: 4, marginTop: 8, objectFit: 'contain' }}
                 onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
               />
             )}
+
             {data.url && (
-              <Text style={{ fontSize: 12, color: '#72757e', marginTop: 6 }}>{data.url}</Text>
+              <Text style={{ fontSize: 12, color: '#72757e', marginTop: 8, wordBreak: 'break-all' }}>
+                {data.url}
+              </Text>
             )}
           </Box>
         </Box>

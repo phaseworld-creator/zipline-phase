@@ -48,6 +48,15 @@ function buildEmbedHtml(d: EmbedData, pageUrl: string): string {
                     `<meta property="og:type"         content="website" />`,
   ].filter(Boolean).join('\n    ');
 
+  // Build inner card HTML pieces
+  const siteNameHtml   = d.siteName    ? `<div class="site-name">${esc(d.siteName)}</div>` : '';
+  const authorIconHtml = d.authorIconUrl ? `<img class="author-icon" src="${esc(d.authorIconUrl)}" alt="" />` : '';
+  const authorHtml     = d.authorName  ? `<div class="author">${authorIconHtml}<span class="author-name">${esc(d.authorName)}</span></div>` : '';
+  const titleHtml      = d.title       ? `<div class="embed-title">${esc(d.title)}</div>` : '';
+  const descHtml       = d.description ? `<div class="embed-desc">${esc(d.description)}</div>` : '';
+  const imageHtml      = d.imageUrl    ? `<img class="embed-image" src="${esc(d.imageUrl)}" alt="" />` : '';
+  const footerHtml     = d.url         ? `<div class="embed-footer">${esc(d.url)}</div>` : '';
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,39 +65,39 @@ function buildEmbedHtml(d: EmbedData, pageUrl: string): string {
   <title>${esc(d.title) || 'Embed'}</title>
   ${ogMeta}
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      width: 100%; min-height: 100vh;
-      background: #1e1e2e;
-      display: flex; align-items: center; justify-content: center;
-      font-family: "gg sans", "Noto Sans", system-ui, sans-serif;
-      padding: 24px;
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html,body{
+      width:100%;min-height:100vh;
+      background:#1e1e2e;
+      display:flex;align-items:center;justify-content:center;
+      font-family:"gg sans","Noto Sans",system-ui,sans-serif;
+      padding:16px;
     }
-    .card {
-      max-width: 480px; width: 100%;
-      background: #2b2d3a;
-      border-left: 4px solid ${color};
-      border-radius: 4px;
-      padding: 12px 16px;
+    .card{
+      max-width:432px;width:100%;
+      background:#2b2d3a;
+      border-left:4px solid ${color};
+      border-radius:4px;
+      padding:8px 12px 8px 12px;
     }
-    .site-name { font-size: 12px; color: #b0b3c1; margin-bottom: 4px; }
-    .author { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-    .author img { width: 24px; height: 24px; border-radius: 50%; }
-    .author-name { font-size: 14px; font-weight: 600; color: #e0e0f0; }
-    .title { font-size: 15px; font-weight: 600; color: #7289da; margin-bottom: 6px; }
-    .description { font-size: 14px; color: #b0b3c1; line-height: 1.5; margin-bottom: 8px; }
-    .image img { width: 100%; border-radius: 4px; margin-top: 8px; }
-    .footer { font-size: 12px; color: #72757e; margin-top: 8px; }
+    .site-name{font-size:12px;font-weight:600;color:#b9bbbe;margin-bottom:4px}
+    .author{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+    .author-icon{width:20px;height:20px;border-radius:50%;flex-shrink:0}
+    .author-name{font-size:13px;font-weight:600;color:#e0e0f0}
+    .embed-title{font-size:15px;font-weight:700;color:#7289da;margin-bottom:4px;word-break:break-word}
+    .embed-desc{font-size:14px;color:#b9bbbe;line-height:1.375;margin-bottom:4px;white-space:pre-wrap;word-break:break-word}
+    .embed-image{display:block;max-width:100%;max-height:280px;border-radius:4px;margin-top:8px;object-fit:contain}
+    .embed-footer{font-size:12px;color:#72757e;margin-top:8px;word-break:break-all}
   </style>
 </head>
 <body>
   <div class="card">
-    ${d.siteName    ? `<div class="site-name">${esc(d.siteName)}</div>` : ''}
-    ${d.authorName  ? `<div class="author">${d.authorIconUrl ? `<img src="${esc(d.authorIconUrl)}" alt="" />` : ''}<span class="author-name">${esc(d.authorName)}</span></div>` : ''}
-    ${d.title       ? `<div class="title">${esc(d.title)}</div>`             : ''}
-    ${d.description ? `<div class="description">${esc(d.description)}</div>` : ''}
-    ${d.imageUrl    ? `<div class="image"><img src="${esc(d.imageUrl)}" alt="" /></div>` : ''}
-    ${d.url         ? `<div class="footer">${esc(d.url)}</div>` : ''}
+    ${siteNameHtml}
+    ${authorHtml}
+    ${titleHtml}
+    ${descHtml}
+    ${imageHtml}
+    ${footerHtml}
   </div>
 </body>
 </html>`;
