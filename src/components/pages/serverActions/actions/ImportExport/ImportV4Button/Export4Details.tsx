@@ -71,7 +71,7 @@ export default function Export4Details({ export4 }: { export4: Export4 }) {
       <Table.Td>{user.id}</Table.Td>
       <Table.Td>{user.username}</Table.Td>
       <Table.Td>{user.password ? <IconCheck size='1rem' /> : <IconX size='1rem' />}</Table.Td>
-      <Table.Td>{{ USER: 'User', ADMIN: 'Admin', SUPERADMIN: 'Super Admin' }[user.role]}</Table.Td>
+      <Table.Td>{{ USER: 'User', ADMIN: 'Admin', SUPERADMIN: 'Super Admin', OWNER: 'Owner' }[user.role]}</Table.Td>
       <Table.Td>
         {findOauthProviders(export4, user.id)
           .map((x) => x.provider.toLowerCase())

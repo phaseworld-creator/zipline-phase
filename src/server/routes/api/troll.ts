@@ -50,6 +50,7 @@ export default typedPlugin(
           mediaType,
           label: label || alias,
           createdAt: new Date().toISOString(),
+          views: 0,
         };
 
         trollStore.add(link);

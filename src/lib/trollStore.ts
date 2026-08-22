@@ -24,7 +24,7 @@ function loadFromDisk(): Map<string, TrollLink> {
     const map = new Map<string, TrollLink>();
     for (const link of arr) {
       // back-compat: existing links without views field default to 0
-      map.set(link.alias, { views: 0, ...link });
+      map.set(link.alias, { ...link, views: link.views ?? 0 });
     }
     return map;
   } catch {
@@ -55,7 +55,7 @@ export const trollStore = {
   },
 
   add(link: TrollLink): void {
-    store.set(link.alias, { views: 0, ...link });
+    store.set(link.alias, { ...link, views: link.views ?? 0 });
     saveToDisk(store);
   },
 
