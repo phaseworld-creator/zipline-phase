@@ -66,7 +66,6 @@ export async function render(
     where: { id: file.userId },
     select: {
       ...userSelect,
-      view: true,
       oauthProviders: false,
       passkeys: false,
       sessions: false,
@@ -180,12 +179,13 @@ export async function render(
       ? stripHtml(
           parseString(template, {
             file: file as unknown as File,
-            user: user as unknown as User,
+            user: user as User,
             ...metrics,
           }) ?? '',
         )
       : null;
 
+  // Fallbacks so Discord always has something to show
   const ogTitle = showRichOg
     ? (resolveField(user.view?.embedTitle) || safeOriginalName || safeFilename)
     : (safeOriginalName || safeFilename);
@@ -195,10 +195,12 @@ export async function render(
   const ogColor = showRichOg ? resolveField(user.view?.embedColor) : null;
 
   const richMeta = [
+    // Always emit og:title when embed or media-only is on — Discord requires it
     showMediaOg ? `<meta property="og:title" content="${ogTitle}" />` : '',
     ogDescription ? `<meta property="og:description" content="${ogDescription}" />` : '',
     ogSiteName ? `<meta property="og:site_name" content="${ogSiteName}" />` : '',
     ogColor ? `<meta name="theme-color" content="${ogColor}" />` : '',
+    // Twitter summary card fallback so non-image files still get a card
     showMediaOg ? `<meta name="twitter:card" content="summary_large_image" />` : '',
     showMediaOg ? `<meta property="og:url" content="${pageUrl}" />` : '',
   ]
@@ -249,6 +251,7 @@ export async function render(
 
   const docTitle = `<title>${file.originalName ? safeOriginalName : safeFilename}</title>`;
 
+  // Always emit meta when embed or media-only is enabled
   const headMeta = showMediaOg
     ? [docTitle, richMeta, imageOg, videoOg, audioOg, otherOg].filter(Boolean).join('\n')
     : docTitle;

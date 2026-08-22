@@ -8,8 +8,22 @@ import { config } from '@/lib/config';
 import fastifyStatic from '@fastify/static';
 import { renderHtml } from '@/lib/ssr/renderHtml';
 import { readThemes } from '@/lib/theme/file';
+import type { ZiplineTheme } from '@/lib/theme';
 import { ZIPLINE_SSR_INSERT, ZIPLINE_SSR_META } from '@/lib/ssr/constants';
 import { log } from '@/lib/logger';
+
+// Cache themes in memory — reloaded only when explicitly invalidated.
+// Avoids a filesystem scan on every /view/:id request.
+let themesCache: ZiplineTheme[] | null = null;
+
+async function getThemes(): Promise<ZiplineTheme[]> {
+  if (!themesCache) themesCache = await readThemes();
+  return themesCache;
+}
+
+export function invalidateThemesCache() {
+  themesCache = null;
+}
 
 const MODE = process.env.NODE_ENV || 'development';
 const logger = log('server').c('plugin').c('vite');
@@ -75,7 +89,7 @@ async function vitePlugin(fastify: FastifyInstance) {
 
       const { html, meta, status, redirect } = await render(
         {
-          themes: await readThemes(),
+          themes: await getThemes(),
           defaultTheme: config.website.theme,
           req: this.request,
         },

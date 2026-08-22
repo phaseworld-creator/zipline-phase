@@ -28,11 +28,11 @@ export function downloadFile(file: File) {
 }
 
 export function copyFile(file: File, clipboard: ReturnType<typeof useClipboard>, raw: boolean = false) {
+  // Always build the URL from the current domain — file.url is the upload-time stored URL
+  // which may be stale if the domain or route has changed since upload.
   const url = raw
     ? getDomain(`/raw/${file.name}`)
-    : file.url
-      ? getDomain(file.url)
-      : getDomain(`/view/${file.name}`);
+    : getDomain(`/view/${file.name}`);
 
   copyLink(url, clipboard);
 }

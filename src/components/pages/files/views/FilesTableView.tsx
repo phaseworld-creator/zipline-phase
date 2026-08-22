@@ -436,7 +436,7 @@ export default function FileTable({
                 <Button
                   variant='outline'
                   leftSection={<IconCopy size='1rem' />}
-                  onClick={() => bulkCopyLinks(selectedFiles.map((x) => x.url!))}
+                  onClick={() => bulkCopyLinks(selectedFiles.map((x) => `/view/${x.name}`))}
                 >
                   Copy file links
                 </Button>
@@ -534,11 +534,11 @@ export default function FileTable({
                   </Tooltip>
 
                   <Tooltip label='View file in new tab'>
-                    <Link to={`/view/${file.name}`} target='_blank'>
+                    <a href={`/view/${file.name}`} target='_blank' rel='noopener noreferrer'>
                       <ActionIcon color='blue'>
                         <IconExternalLink size='1rem' />
                       </ActionIcon>
-                    </Link>
+                    </a>
                   </Tooltip>
 
                   <Tooltip label='Copy file link to clipboard'>

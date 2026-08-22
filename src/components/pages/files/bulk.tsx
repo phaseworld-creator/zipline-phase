@@ -141,7 +141,20 @@ export async function bulkFavorite(ids: string[], favorite: boolean) {
 export async function bulkCopyLinks(urls: string[]) {
   const links = urls.map((url) => getDomain(url)).join('\n');
 
-  await navigator.clipboard.writeText(links);
+  try {
+    await navigator.clipboard.writeText(links);
+  } catch {
+    // Fallback for non-secure contexts or denied permissions
+    const ta = document.createElement('textarea');
+    ta.value = links;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
 
   notifications.show({
     title: 'Copied links to clipboard',
