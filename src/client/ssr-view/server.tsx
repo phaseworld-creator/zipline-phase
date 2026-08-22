@@ -37,6 +37,15 @@ export const getFile = async (id: string) =>
     }),
   );
 
+// Check if any embed template string uses a metrics variable
+function needsMetrics(view: Record<string, any> | null | undefined): boolean {
+  if (!view) return false;
+  const templates = [view.embedTitle, view.embedDescription, view.embedSiteName, view.content];
+  return templates.some(
+    (t) => typeof t === 'string' && /\{(metricsUser|metricsZipline|file\.views|url\.views)/.test(t),
+  );
+}
+
 export async function render(
   {
     themes,
@@ -59,7 +68,6 @@ export async function render(
   const cleanId = id.split('?')[0];
 
   const file = await getFile(cleanId);
-  // Only 404 if file genuinely doesn't exist — userId can be null for anonymous uploads
   if (!file) {
     console.error(`[view] 404 — no file found for id="${cleanId}"`);
     return { html: 'Not Found', meta: '', status: 404 };
@@ -99,48 +107,50 @@ export async function render(
     host = proto === 'https' || zConfig.core.returnHttpsUrls ? `https://${host}` : `http://${host}`;
   }
 
-  const code = await isCode(file.name);
-  const metrics = user ? await parserMetrics(user.id) : null;
-  const config = { website: { theme: zConfig.website.theme } };
+  // Run isCode + parserMetrics in parallel — only fetch metrics if a template actually uses them
+  const wantsMetrics = needsMetrics(user?.view as Record<string, any> | null);
+  const [code, metrics] = await Promise.all([
+    isCode(file.name),
+    wantsMetrics && user ? parserMetrics(user.id) : Promise.resolve(null),
+  ]);
 
+  const config = { website: { theme: zConfig.website.theme } };
   const token = req.query.token;
   const valid = token && file.password ? verifyAccessToken(token, 'file', file.id) : false;
   const hasPassword = !!file.password;
 
   delete (file as any).password;
 
-  if (hasPassword) {
-    if (!valid) {
-      const data = {
-        file: { id: file.id, name: file.name, type: file.type },
-        password: true,
-        code,
-        user,
-        host,
-        themes,
-        metrics,
-        config,
-      };
+  if (hasPassword && !valid) {
+    const data = {
+      file: { id: file.id, name: file.name, type: file.type },
+      password: true,
+      code,
+      user,
+      host,
+      themes,
+      metrics,
+      config,
+    };
 
-      const routes = createRoutes(themes, defaultTheme);
-      const { query } = createStaticHandler(routes);
-      const context = await query(
-        new Request('http://client' + url, {
-          method: 'GET',
-          headers: new Headers({ accept: 'text/html' }),
-        }),
-      );
+    const routes = createRoutes(themes, defaultTheme);
+    const { query } = createStaticHandler(routes);
+    const context = await query(
+      new Request('http://client' + url, {
+        method: 'GET',
+        headers: new Headers({ accept: 'text/html' }),
+      }),
+    );
 
-      if (context instanceof Response) return context;
+    if (context instanceof Response) return context;
 
-      const router = createStaticRouter(routes, context);
-      const html = renderToString(<StaticRouterProvider context={context} router={router} />);
+    const router = createStaticRouter(routes, context);
+    const html = renderToString(<StaticRouterProvider context={context} router={router} />);
 
-      return {
-        html,
-        meta: `<title>Password Protected</title>\n${createZiplineSsr(data)}`,
-      };
-    }
+    return {
+      html,
+      meta: `<title>Password Protected</title>\n${createZiplineSsr(data)}`,
+    };
   }
 
   const data = {
@@ -174,7 +184,6 @@ export async function render(
   const safeOriginalName = stripHtml(file.originalName || '');
   const safeType = stripHtml(file.type || '');
 
-  // user can be null for anonymous uploads — no embed in that case
   const showRichOg = !!user?.view?.embed;
   const showMediaOg = !!user?.view?.embed || !!user?.view?.embedMediaOnly;
   const pageUrl = `${host}${url.split('?')[0]}`;
@@ -195,8 +204,8 @@ export async function render(
     : (safeOriginalName || safeFilename);
 
   const ogDescription = showRichOg ? resolveField(user?.view?.embedDescription) : null;
-  const ogSiteName   = showRichOg ? resolveField(user?.view?.embedSiteName)    : null;
-  const ogColor      = showRichOg ? resolveField(user?.view?.embedColor)       : null;
+  const ogSiteName = showRichOg ? resolveField(user?.view?.embedSiteName) : null;
+  const ogColor    = showRichOg ? resolveField(user?.view?.embedColor)    : null;
 
   const richMeta = [
     showMediaOg ? `<meta property="og:title" content="${ogTitle}" />` : '',
@@ -215,30 +224,34 @@ export async function render(
 
   const videoOg = showMediaOg && file.type?.startsWith('video') ? `
     ${file.thumbnail ? `<meta property="og:image" content="${host}/raw/${file.thumbnail.path}" />` : ''}
-    <meta property="og:type"              content="video.other" />
-    <meta property="og:video:url"         content="${host}/raw/${safeFilename}" />
-    <meta property="og:video:secure_url"  content="${host}/raw/${safeFilename}" />
-    <meta property="og:video:type"        content="${safeType}" />
-    <meta property="og:video:width"       content="1920" />
-    <meta property="og:video:height"      content="1080" />
+    <meta property="og:type"             content="video.other" />
+    <meta property="og:video:url"        content="${host}/raw/${safeFilename}" />
+    <meta property="og:video:secure_url" content="${host}/raw/${safeFilename}" />
+    <meta property="og:video:type"       content="${safeType}" />
+    <meta property="og:video:width"      content="1920" />
+    <meta property="og:video:height"     content="1080" />
   ` : '';
 
   const audioOg = showMediaOg && file.type?.startsWith('audio') ? `
-    <meta name="twitter:card"                        content="player" />
-    <meta name="twitter:player"                      content="${host}/raw/${safeFilename}" />
-    <meta name="twitter:player:stream"               content="${host}/raw/${safeFilename}" />
-    <meta name="twitter:player:stream:content_type"  content="${safeType}" />
-    <meta name="twitter:player:width"                content="720" />
-    <meta name="twitter:player:height"               content="480" />
-    <meta property="og:type"          content="music.song" />
-    <meta property="og:audio"         content="${host}/raw/${safeFilename}" />
+    <meta name="twitter:card"                       content="player" />
+    <meta name="twitter:player"                     content="${host}/raw/${safeFilename}" />
+    <meta name="twitter:player:stream"              content="${host}/raw/${safeFilename}" />
+    <meta name="twitter:player:stream:content_type" content="${safeType}" />
+    <meta name="twitter:player:width"               content="720" />
+    <meta name="twitter:player:height"              content="480" />
+    <meta property="og:type"             content="music.song" />
+    <meta property="og:audio"            content="${host}/raw/${safeFilename}" />
     <meta property="og:audio:secure_url" content="${host}/raw/${safeFilename}" />
-    <meta property="og:audio:type"    content="${safeType}" />
+    <meta property="og:audio:type"       content="${safeType}" />
   ` : '';
 
-  const otherOg = showMediaOg && !file.type?.startsWith('video') && !file.type?.startsWith('image') && !file.type?.startsWith('audio')
-    ? `<meta property="og:type" content="website" />`
-    : '';
+  const otherOg =
+    showMediaOg &&
+    !file.type?.startsWith('video') &&
+    !file.type?.startsWith('image') &&
+    !file.type?.startsWith('audio')
+      ? `<meta property="og:type" content="website" />`
+      : '';
 
   const docTitle = `<title>${file.originalName ? safeOriginalName : safeFilename}</title>`;
 

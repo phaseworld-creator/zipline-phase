@@ -7,9 +7,18 @@ export type CodeMeta = {
   mime: string;
 };
 
-export async function isCode(file: string) {
-  const codeMeta: CodeMeta[] = JSON.parse(await readFile('./code.json', 'utf8'));
-  const ext = extname(file).slice(1);
+// Cache the parsed code.json in memory — it never changes at runtime
+let codeMetaCache: CodeMeta[] | null = null;
 
+async function getCodeMeta(): Promise<CodeMeta[]> {
+  if (!codeMetaCache) {
+    codeMetaCache = JSON.parse(await readFile('./code.json', 'utf8'));
+  }
+  return codeMetaCache!;
+}
+
+export async function isCode(file: string) {
+  const codeMeta = await getCodeMeta();
+  const ext = extname(file).slice(1);
   return codeMeta.some((meta) => meta.ext === ext);
 }

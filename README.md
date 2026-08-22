@@ -15,5 +15,12 @@ Documentation: [zipline.diced.sh](https://zipline.diced.sh)
 > DONT USE ghcr.io/phaseworld-creator/zipline-phase:latest
 > SOME UPDATE BREAK IT SO DONT USE IT IT FOR THE SAKE OF YOU'RE ZIPLINE
 
+> [!INFO]
+> May take up a time to start 
+> Use the Verison Listed
+linux/amd64
+`NO STABLE VERSION FOR AMD64`
+linux/arm64
+`NO STABLE VERSION FRO ARM64`
 
 <- [Go Part 2](README2.md) (just the main zipline readme stuff in here)
