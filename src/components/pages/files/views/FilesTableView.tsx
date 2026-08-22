@@ -42,7 +42,6 @@ import {
 import { DataTable } from 'mantine-datatable';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { lazy, useEffect, useMemo, useReducer, useState } from 'react';
-import { Link } from 'react-router-dom';
 import useSWR from 'swr';
 import { useShallow } from 'zustand/shallow';
 import { DashboardFilesModals, DashboardFilesModalsUpdate } from '..';
