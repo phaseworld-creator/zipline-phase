@@ -14,12 +14,14 @@ export async function registerRoutes(server: FastifyInstance, mode: string) {
     return res.redirect('/raw/' + req.params.id, 301);
   });
 
-  server.get<{ Params: { id: string } }>('/view/:id', async (_req, res) => {
-    return res.ssr('view');
-  });
-
+  // /view/url/:id MUST be registered before /view/:id — Fastify matches in order
+  // and /view/:id would capture "url" as the :id param otherwise.
   server.get<{ Params: { id: string } }>('/view/url/:id', async (_req, res) => {
     return res.ssr('view-url');
+  });
+
+  server.get<{ Params: { id: string } }>('/view/:id', async (_req, res) => {
+    return res.ssr('view');
   });
 
   if (config.files.route === '/' && config.urls.route === '/') {

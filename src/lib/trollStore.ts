@@ -1,8 +1,10 @@
 /* ─────────────────────────────────────────────────────────────────
-   In-memory troll link store.
-   Persists for the lifetime of the server process.
-   No database migration needed.
+   Troll link store — persisted to <dataDir>/troll-links.json
+   so links survive server restarts.
 ───────────────────────────────────────────────────────────────── */
+
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { resolve } from 'path';
 
 export type TrollMediaType = 'image' | 'gif' | 'video' | 'youtube';
 
@@ -17,7 +19,34 @@ export type TrollLink = {
   createdAt: string;
 };
 
-const store = new Map<string, TrollLink>();
+// Store file lives alongside other Zipline data files
+const DATA_DIR = resolve('./data');
+const STORE_FILE = resolve(DATA_DIR, 'troll-links.json');
+
+function loadFromDisk(): Map<string, TrollLink> {
+  try {
+    if (!existsSync(STORE_FILE)) return new Map();
+    const raw = readFileSync(STORE_FILE, 'utf-8');
+    const arr: TrollLink[] = JSON.parse(raw);
+    const map = new Map<string, TrollLink>();
+    for (const link of arr) map.set(link.alias, link);
+    return map;
+  } catch {
+    return new Map();
+  }
+}
+
+function saveToDisk(map: Map<string, TrollLink>): void {
+  try {
+    if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
+    writeFileSync(STORE_FILE, JSON.stringify(Array.from(map.values()), null, 2), 'utf-8');
+  } catch (err) {
+    console.error('[trollStore] failed to persist:', err);
+  }
+}
+
+// Load on startup
+const store = loadFromDisk();
 
 export const trollStore = {
   all(): TrollLink[] {
@@ -32,10 +61,13 @@ export const trollStore = {
 
   add(link: TrollLink): void {
     store.set(link.alias, link);
+    saveToDisk(store);
   },
 
   remove(alias: string): boolean {
-    return store.delete(alias);
+    const deleted = store.delete(alias);
+    if (deleted) saveToDisk(store);
+    return deleted;
   },
 
   hasAlias(alias: string): boolean {

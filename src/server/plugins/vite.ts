@@ -100,11 +100,9 @@ async function vitePlugin(fastify: FastifyInstance) {
         return this.redirect(redirect, status);
       }
 
-      if (status && [404, 410].includes(status)) return this.callNotFound();
-
-      const finalHtml = template.replace(ZIPLINE_SSR_META, meta!).replace(ZIPLINE_SSR_INSERT, html);
-
-      return this.type('text/html').send(finalHtml);
+      // Render a proper HTML page even for 404/410 — don't return raw Fastify JSON
+      const finalHtml = template.replace(ZIPLINE_SSR_META, meta || '').replace(ZIPLINE_SSR_INSERT, html || '');
+      return this.status(status && [404, 410].includes(status) ? status : 200).type('text/html').send(finalHtml);
     } catch (err) {
       if (MODE === 'development' && fastify.vite) fastify.vite.ssrFixStacktrace(err as Error);
       console.error(err);
