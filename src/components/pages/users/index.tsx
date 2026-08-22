@@ -34,7 +34,7 @@ export default function DashboardUsers() {
   const form = useForm<{
     username: string;
     password: string;
-    role: 'USER' | 'ADMIN' | 'SUPERADMIN';
+    role: 'USER' | 'ADMIN';
     avatar: File | null;
   }>({
     initialValues: {

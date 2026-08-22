@@ -19,7 +19,7 @@ export async function setUser(property: string, value: string, { id }: { id: str
   if (property === 'password') {
     parsed = await hashPassword(value);
   } else if (property === 'role') {
-    const valid = ['USER', 'ADMIN', 'SUPERADMIN', 'OWNER'];
+    const valid = ['USER', 'ADMIN'];
     if (!valid.includes(value.toUpperCase())) return console.error('Invalid role:', value);
     parsed = value.toUpperCase();
   }

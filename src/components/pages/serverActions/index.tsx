@@ -21,7 +21,7 @@ type ServerAction = {
   description: string;
   icon: TablerIcon;
   Modal: ComponentType<{ opened: boolean; onClose: () => void }>;
-  superAdminOnly: boolean;
+  adminOnly: boolean;
 };
 
 const ACTIONS = [
@@ -31,7 +31,7 @@ const ACTIONS = [
     description: 'Allows you to import or export server data and configurations.',
     icon: IconDatabasePlus,
     Modal: ImportExportModal,
-    superAdminOnly: true,
+    adminOnly: true,
   },
   {
     id: 'clear-temporary-files',
@@ -39,7 +39,7 @@ const ACTIONS = [
     description: 'Removes all temporary files from the temporary directory.',
     icon: IconTrashFilled,
     Modal: ClearTemporaryFilesModal,
-    superAdminOnly: false,
+    adminOnly: false,
   },
   {
     id: 'clear-zero-byte-files',
@@ -47,7 +47,7 @@ const ACTIONS = [
     description: 'Deletes all files with zero bytes from the database and/or storage.',
     icon: IconTrashFilled,
     Modal: ClearZeroByteFilesModal,
-    superAdminOnly: false,
+    adminOnly: false,
   },
   {
     id: 'requery-file-sizes',
@@ -55,7 +55,7 @@ const ACTIONS = [
     description: 'Recalculates and updates the sizes of all files in the database.',
     icon: IconPlayerPlayFilled,
     Modal: RequeryFileSizesModal,
-    superAdminOnly: false,
+    adminOnly: false,
   },
   {
     id: 'generate-thumbnails',
@@ -63,7 +63,7 @@ const ACTIONS = [
     description: 'Creates thumbnails for all image and video files that lack them.',
     icon: IconVideoPlusFilled,
     Modal: GenerateThumbnailsModal,
-    superAdminOnly: false,
+    adminOnly: false,
   },
 ] satisfies ServerAction[];
 
@@ -73,7 +73,7 @@ export default function DashboardServerActions() {
   const user = useUserStore((state) => state.user);
   const [activeAction, setActiveAction] = useState<ServerActionId | null>(null);
 
-  const actions = ACTIONS.filter((action) => !action.superAdminOnly || user?.role === 'SUPERADMIN' || user?.role === 'OWNER');
+  const actions = ACTIONS.filter((action) => !action.adminOnly || user?.role === 'ADMIN');
   const links = actions.map(({ id, label, description, icon }) => ({
     label,
     description,

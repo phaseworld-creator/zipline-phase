@@ -48,7 +48,7 @@ export default typedPlugin(
         ...secondlyRatelimit(5),
       },
       async (req, res) => {
-        if (req.user.role !== 'SUPERADMIN' && req.user.role !== 'OWNER') throw new ApiError(3015);
+        if (req.user.role !== 'ADMIN') throw new ApiError(3015);
 
         const { export3 } = req.body;
 
@@ -69,7 +69,7 @@ export default typedPlugin(
 
           // determines a users role
           const role =
-            (user.super_administrator && 'SUPERADMIN') || (user.administrator && 'ADMIN') || 'USER';
+            (user.super_administrator && 'ADMIN') || (user.administrator && 'ADMIN') || 'USER';
 
           const existing = await prisma.user.findFirst({
             where: {

@@ -507,7 +507,7 @@ export function Component() {
                   keep your instance secure.
                 </p>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {['Per-user storage quotas', 'Admin & superadmin roles', 'Invite-only registration'].map((f) => (
+                  {['Per-user storage quotas', 'Admin roles', 'Invite-only registration'].map((f) => (
                     <li
                       key={f}
                       style={{

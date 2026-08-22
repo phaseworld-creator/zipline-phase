@@ -134,7 +134,7 @@ const navLinks: NavLinks[] = [
         label: 'Settings',
         icon: <IconAdjustments size='1rem' />,
         active: (path: string) => path.startsWith('/dashboard/admin/settings'),
-        if: (user) => user?.role === 'SUPERADMIN' || user?.role === 'OWNER',
+        if: (user) => user?.role === 'ADMIN',
         href: '/dashboard/admin/settings',
         links: SETTINGS_EXTERNAL_LINKS.map(({ label, href, icon: Icon }) => ({
           label,
@@ -193,7 +193,7 @@ const navLinks: NavLinks[] = [
             icon: <IconLogin2 size='1rem' />,
             active: (path: string) => path === '/dashboard/admin/login-customiser',
             href: '/dashboard/admin/login-customiser',
-            if: (user) => user?.role === 'SUPERADMIN' || user?.role === 'OWNER',
+            if: (user) => user?.role === 'ADMIN',
           },
         ],
       },
@@ -484,7 +484,7 @@ export default function Layout() {
                 >
                   Settings
                 </Menu.Item>
-                {(user?.role === 'SUPERADMIN' || user?.role === 'OWNER') && (
+                {(user?.role === 'ADMIN') && (
                   <Menu.Item
                     leftSection={<IconAdjustments size='1rem' />}
                     component={Link}

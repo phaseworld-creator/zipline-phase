@@ -32,9 +32,9 @@ export default function Export4UserChoose({
                 <Text my='sm'>
                   {user.username} ({user.id})
                 </Text>{' '}
-                {(user.role === 'SUPERADMIN' || user.role === 'OWNER') && (
+                {user.role === 'ADMIN' && (
                   <Text c='red' size='xs' mb='xs'>
-                    {user.role === 'OWNER' ? 'Owner' : 'Super Administrator'}
+                    Administrator
                   </Text>
                 )}
               </Stack>

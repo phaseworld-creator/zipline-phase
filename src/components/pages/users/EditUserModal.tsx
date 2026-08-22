@@ -46,7 +46,7 @@ export default function EditUserModal({
   const form = useForm<{
     username: string;
     password: string;
-    role: 'USER' | 'ADMIN' | 'SUPERADMIN';
+    role: 'USER' | 'ADMIN';
     avatar: File | null;
     fileType: 'BY_BYTES' | 'BY_FILES' | 'NONE';
     maxFiles: number;
@@ -56,7 +56,7 @@ export default function EditUserModal({
     initialValues: {
       username: user?.username || '',
       password: '',
-      role: (user?.role === 'OWNER' ? 'SUPERADMIN' : user?.role) || 'USER',
+      role: (user?.role === 'ADMIN' ? 'ADMIN' : 'USER') || 'USER',
       avatar: null,
       fileType: derivedFileType,
       maxFiles: user?.quota?.maxFiles ?? 0,

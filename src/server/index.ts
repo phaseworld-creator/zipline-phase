@@ -43,22 +43,6 @@ async function main() {
   logger.info('reading settings...');
   await reloadSettings();
 
-  // Auto-assign OWNER to the oldest SUPERADMIN if no OWNER exists yet
-  // (handles upgrades from before OWNER role was introduced)
-  const { prisma } = await import('@/lib/db');
-  const ownerCount = await prisma.user.count({ where: { role: 'OWNER' } });
-  if (ownerCount === 0) {
-    const oldest = await prisma.user.findFirst({
-      where: { role: 'SUPERADMIN' },
-      orderBy: { createdAt: 'asc' },
-      select: { id: true, username: true },
-    });
-    if (oldest) {
-      await prisma.user.update({ where: { id: oldest.id }, data: { role: 'OWNER' } });
-      logger.info(`auto-assigned OWNER role to first SUPERADMIN: ${oldest.username}`);
-    }
-  }
-
   const config = global.__config__;
   getDatasource(config);
 

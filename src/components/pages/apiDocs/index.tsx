@@ -317,7 +317,7 @@ const API_GROUPS: ApiGroup[] = [
         body: [
           { name: 'username', type: 'string', required: true, description: 'Username' },
           { name: 'password', type: 'string', required: true, description: 'Password' },
-          { name: 'role', type: 'USER | ADMIN | SUPERADMIN', required: false, description: 'User role' },
+          { name: 'role', type: 'USER | ADMIN', required: false, description: 'User role' },
         ],
         response: '{ user: User }',
       },

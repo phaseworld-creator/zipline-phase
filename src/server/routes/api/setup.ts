@@ -43,7 +43,7 @@ export default typedPlugin(
       PATH,
       {
         schema: {
-          description: 'Perform the first-time setup by creating the initial SUPERADMIN user.',
+          description: 'Perform the first-time setup by creating the initial admin user.',
           body: z.object({
             username: zStringTrimmed,
             password: zStringTrimmed,
@@ -79,7 +79,7 @@ export default typedPlugin(
             data: {
               username,
               password: hashed,
-              role: 'OWNER',
+              role: 'ADMIN',
               token,
             },
             select: userSelect,

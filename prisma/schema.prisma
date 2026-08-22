@@ -242,8 +242,6 @@ model UserPasskey {
 enum Role {
   USER
   ADMIN
-  SUPERADMIN
-  OWNER
 }
 
 model OAuthProvider {

@@ -51,7 +51,7 @@ export default function DashboardAdminHome() {
       description: 'Server configuration',
       href: '/dashboard/admin/settings',
       icon: IconAdjustments,
-      show: user?.role === 'SUPERADMIN' || user?.role === 'OWNER',
+      show: user?.role === 'ADMIN',
     },
     {
       label: 'Invites',
@@ -89,7 +89,7 @@ export default function DashboardAdminHome() {
       description: 'Customise the login page appearance with live preview',
       href: '/dashboard/admin/login-customiser',
       icon: IconLogin2,
-      show: user?.role === 'SUPERADMIN' || user?.role === 'OWNER',
+      show: user?.role === 'ADMIN',
     },
   ];
 
