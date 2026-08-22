@@ -2,13 +2,15 @@ import { useConfig } from '@/components/ConfigProvider';
 import { LinksList } from '@/components/LinksList';
 import useLogin from '@/lib/client/hooks/useLogin';
 import { isAdministrator } from '@/lib/role';
-import { SimpleGrid, Title } from '@mantine/core';
+import { Divider, SimpleGrid, Text, Title } from '@mantine/core';
 import {
   IconAdjustments,
   IconApi,
   IconBrush,
   IconGhost2Filled,
   IconGraph,
+  IconLogin2,
+  IconSparkles,
   IconStopwatch,
   IconTags,
   IconUsersGroup,
@@ -59,6 +61,16 @@ export default function DashboardAdminHome() {
       show: config.invites.enabled,
     },
     {
+      label: 'Theme Maker',
+      description: 'Design custom themes with live preview',
+      href: '/dashboard/admin/theme-maker',
+      icon: IconBrush,
+      show: true,
+    },
+  ];
+
+  const phaseLinks = [
+    {
       label: 'Troll',
       description: 'Disguised prank links with preset media',
       href: '/dashboard/admin/troll',
@@ -73,11 +85,11 @@ export default function DashboardAdminHome() {
       show: true,
     },
     {
-      label: 'Theme Maker',
-      description: 'Design custom themes with live preview',
-      href: '/dashboard/admin/theme-maker',
-      icon: IconBrush,
-      show: true,
+      label: 'Login Customiser',
+      description: 'Customise the login page appearance with live preview',
+      href: '/dashboard/admin/login-customiser',
+      icon: IconLogin2,
+      show: user?.role === 'SUPERADMIN',
     },
   ];
 
@@ -91,6 +103,13 @@ export default function DashboardAdminHome() {
       </SimpleGrid>
 
       <LinksList links={adminLinks} />
+
+      <Divider my='lg' />
+
+      <Text fw={700} size='lg' mb='sm' style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <IconSparkles size='1.1rem' /> Phase
+      </Text>
+      <LinksList links={phaseLinks} />
     </>
   );
 }

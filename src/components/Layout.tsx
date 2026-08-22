@@ -38,10 +38,12 @@ import {
   IconGraph,
   IconHome,
   IconLink,
+  IconLogin2,
   IconLogout,
   IconRefreshDot,
   IconSettingsFilled,
   IconShieldLockFilled,
+  IconSparkles,
   IconStopwatch,
   IconTags,
   IconUpload,
@@ -161,22 +163,39 @@ const navLinks: NavLinks[] = [
         if: (_, config) => config.invites.enabled,
       },
       {
-        label: 'Troll',
-        icon: <IconGhost2Filled size='1rem' />,
-        active: (path: string) => path === '/dashboard/admin/troll',
-        href: '/dashboard/admin/troll',
-      },
-      {
-        label: 'API Reference',
-        icon: <IconApi size='1rem' />,
-        active: (path: string) => path === '/dashboard/admin/api-docs',
-        href: '/dashboard/admin/api-docs',
-      },
-      {
         label: 'Theme Maker',
         icon: <IconBrush size='1rem' />,
         active: (path: string) => path === '/dashboard/admin/theme-maker',
         href: '/dashboard/admin/theme-maker',
+      },
+      {
+        label: 'Phase',
+        icon: <IconSparkles size='1rem' />,
+        active: (path: string) =>
+          path === '/dashboard/admin/troll' ||
+          path === '/dashboard/admin/api-docs' ||
+          path === '/dashboard/admin/login-customiser',
+        links: [
+          {
+            label: 'Troll',
+            icon: <IconGhost2Filled size='1rem' />,
+            active: (path: string) => path === '/dashboard/admin/troll',
+            href: '/dashboard/admin/troll',
+          },
+          {
+            label: 'API Reference',
+            icon: <IconApi size='1rem' />,
+            active: (path: string) => path === '/dashboard/admin/api-docs',
+            href: '/dashboard/admin/api-docs',
+          },
+          {
+            label: 'Login Customiser',
+            icon: <IconLogin2 size='1rem' />,
+            active: (path: string) => path === '/dashboard/admin/login-customiser',
+            href: '/dashboard/admin/login-customiser',
+            if: (user) => user?.role === 'SUPERADMIN',
+          },
+        ],
       },
     ],
   },
