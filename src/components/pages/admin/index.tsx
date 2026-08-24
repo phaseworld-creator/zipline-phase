@@ -10,6 +10,7 @@ import {
   IconGhost2Filled,
   IconGraph,
   IconLogin2,
+  IconMusic,
   IconSparkles,
   IconStopwatch,
   IconTags,
@@ -76,6 +77,13 @@ export default function DashboardAdminHome() {
       href: '/dashboard/admin/troll',
       icon: IconGhost2Filled,
       show: true,
+    },
+    {
+      label: 'Soundboard',
+      description: 'Manage audio prank links and sound effects',
+      href: '/dashboard/admin/soundboard',
+      icon: IconMusic,
+      show: config.features.soundboard,
     },
     {
       label: 'API Reference',
