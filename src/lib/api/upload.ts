@@ -119,6 +119,7 @@ export async function getFilename(
         (await prisma.file.findFirst({ where: { name: { in: fullFileNames } } }));
     }
 
+    if (!fileName) throw 'invalid file name';
     for (const name of fullFileNames) reservedNames?.add(name);
     return fileName;
   } catch (e) {
