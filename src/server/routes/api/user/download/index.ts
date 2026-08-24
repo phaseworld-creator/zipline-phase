@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join } from 'path';
 import { randomUUID } from 'crypto';
+import { Readable } from 'stream';
 
 export const PATH = '/api/user/download';
 export type ApiDownloadResponse = { url: string };
@@ -16,6 +17,14 @@ export type ApiDownloadResponse = { url: string };
 const downloadResponseSchema = z.object({ url: z.string() });
 
 const logger = log('api').c('user').c('download');
+
+async function streamToBuffer(stream: Readable): Promise<Buffer> {
+  const chunks: Buffer[] = [];
+  for await (const chunk of stream) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+  return Buffer.concat(chunks);
+}
 
 export default typedPlugin(
   async (server) => {
@@ -37,7 +46,7 @@ export default typedPlugin(
         preHandler: [userMiddleware],
       },
       async (req, res) => {
-        const { type, id } = req.body;
+        const { type, id } = req.body as unknown as { type: 'folder' | 'tag'; id: string };
 
         const files: { name: string; path: string }[] = [];
 
@@ -53,11 +62,12 @@ export default typedPlugin(
             const buf = await datasource.get(file.name);
             if (!buf) continue;
 
+            const buffer = await streamToBuffer(buf);
             const tempDir = join(config.core.tempDirectory, 'zip-' + randomUUID());
             if (!existsSync(tempDir)) mkdirSync(tempDir, { recursive: true });
 
             const filePath = join(tempDir, file.originalName ?? file.name);
-            writeFileSync(filePath, buf);
+            writeFileSync(filePath, buffer);
 
             files.push({ name: file.originalName ?? file.name, path: filePath });
           }
@@ -73,11 +83,12 @@ export default typedPlugin(
             const buf = await datasource.get(file.name);
             if (!buf) continue;
 
+            const buffer = await streamToBuffer(buf);
             const tempDir = join(config.core.tempDirectory, 'zip-' + randomUUID());
             if (!existsSync(tempDir)) mkdirSync(tempDir, { recursive: true });
 
             const filePath = join(tempDir, file.originalName ?? file.name);
-            writeFileSync(filePath, buf);
+            writeFileSync(filePath, buffer);
 
             files.push({ name: file.originalName ?? file.name, path: filePath });
           }

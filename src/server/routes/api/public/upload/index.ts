@@ -1,5 +1,10 @@
 import { ApiError } from '@/lib/api/errors';
 import { checkQuota, getFilename } from '@/lib/api/upload';
+import { config } from '@/lib/config';
+import { datasource } from '@/lib/datasource';
+import { prisma } from '@/lib/db';
+import { fileSelect } from '@/lib/db/models/file';
+import { parseHeaders, UploadHeaders } from '@/lib/uploader/parseHeaders';
 import { onUpload } from '@/lib/webhooks';
 import typedPlugin from '@/server/typedPlugin';
 import { z } from 'zod';
@@ -125,6 +130,10 @@ export default typedPlugin(
             createdAt: new Date(),
             updatedAt: new Date(),
             role: 'USER',
+            view: {},
+            sessions: [],
+            oauthProviders: [],
+            totpEnabled: false,
           },
           file: created[0],
           link: {

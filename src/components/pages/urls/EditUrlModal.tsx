@@ -74,6 +74,7 @@ export default function EditUrlModal({ url, onClose }: { url: Url | null; onClos
       vanity?: string;
       destination?: string;
       enabled?: boolean;
+      oneTimeView?: boolean;
     } = {};
 
     if (urlData.maxViews === null) data['maxViews'] = null;
