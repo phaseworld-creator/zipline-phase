@@ -63,5 +63,21 @@ export async function urlsRoute(
     },
   });
 
+  // one-time view: delete immediately after redirect
+  if (url.oneTimeView) {
+    const deleteAfterRedirect = async () => {
+      try {
+        await prisma.url.delete({
+          where: { id: url.id },
+        });
+        logger.info(`one-time url ${url.id} deleted after view`);
+      } catch (e) {
+        logger.error('failed to delete one-time url', { id: url.id }).error(e as Error);
+      }
+    };
+
+    res.raw.once('finish', deleteAfterRedirect);
+  }
+
   return res.redirect(url.destination);
 }

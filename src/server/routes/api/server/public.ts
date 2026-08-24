@@ -33,6 +33,10 @@ const publicConfigSchema = z.object({
         adminOnly: z.boolean().optional(),
       })
       .optional(),
+    publicUploadPortal: z.boolean().optional(),
+    oneTimeShareLinks: z.boolean().optional(),
+    soundboard: z.boolean().optional(),
+    advancedAnalytics: z.boolean().optional(),
   }),
   mfa: z.object({
     passkeys: z.boolean(),
@@ -82,6 +86,10 @@ export default typedPlugin(
           features: {
             oauthRegistration: config.features.oauthRegistration,
             userRegistration: config.features.userRegistration,
+            publicUploadPortal: config.features.publicUploadPortal,
+            oneTimeShareLinks: config.features.oneTimeShareLinks,
+            soundboard: config.features.soundboard,
+            advancedAnalytics: config.features.advancedAnalytics,
           },
           mfa: {
             passkeys: isTruthy(

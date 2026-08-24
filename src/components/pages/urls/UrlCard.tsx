@@ -2,7 +2,7 @@ import { useConfig } from '@/components/ConfigProvider';
 import RelativeDate from '@/components/RelativeDate';
 import { Url } from '@/lib/db/models/url';
 import { formatRootUrl, trimUrl } from '@/lib/url';
-import { ActionIcon, Anchor, Card, Group, Menu, Stack, Text, Tooltip } from '@mantine/core';
+import { ActionIcon, Anchor, Badge, Card, Group, Menu, Stack, Text, Tooltip } from '@mantine/core';
 import { useClipboard } from '@mantine/hooks';
 import { IconCopy, IconDots, IconPencil, IconQrcode, IconTrashFilled } from '@tabler/icons-react';
 import { copyUrl, deleteUrl } from './actions';
@@ -40,14 +40,20 @@ export default function UrlCard({
               <Text fw={400}>{url.vanity ?? url.code}</Text>
             )}
 
-            <Menu withinPortal position='bottom-end' shadow='sm'>
-              <Group gap={2}>
-                <Menu.Target>
-                  <ActionIcon variant='transparent'>
-                    <IconDots size='1rem' />
-                  </ActionIcon>
-                </Menu.Target>
-              </Group>
+            <Group gap='xs'>
+              {url.oneTimeView && (
+                <Badge color='red' variant='light' size='xs'>
+                  One-Time
+                </Badge>
+              )}
+              <Menu withinPortal position='bottom-end' shadow='sm'>
+                <Group gap={2}>
+                  <Menu.Target>
+                    <ActionIcon variant='transparent'>
+                      <IconDots size='1rem' />
+                    </ActionIcon>
+                  </Menu.Target>
+                </Group>
 
               <Menu.Dropdown>
                 <Menu.Item

@@ -18,6 +18,7 @@ import { userSelect } from '@/lib/db/models/user';
 import { sanitizeFilename } from '@/lib/fs';
 import { removeGps } from '@/lib/gps';
 import { log } from '@/lib/logger';
+import { applyWatermark, WatermarkOptions } from '@/lib/watermark';
 import { mapConcurrent } from '@/lib/mapConcurrent';
 import { runThumbnailWorkers } from '@/lib/tasks/run/thumbnails';
 import { parseHeaders, UploadHeaders } from '@/lib/uploader/parseHeaders';
@@ -253,21 +254,57 @@ export default typedPlugin(
             `file[${i}]`,
           ).mimetype;
 
+          let finalBuffer = compressed?.buffer ?? (typeof file.filepath === 'string' ? Buffer.from(file.filepath) : file.filepath);
+
+          // apply watermark if enabled and file is an image
+          if (
+            config.features.watermark.enabled &&
+            mimetype.startsWith('image/') &&
+            !options.encrypted
+          ) {
+            try {
+              const watermarkOpts: import('@/lib/watermark').WatermarkOptions = {
+                text: config.features.watermark.text ?? undefined,
+                imagePath: config.features.watermark.image ?? undefined,
+                position: config.features.watermark.position,
+                opacity: config.features.watermark.opacity,
+              };
+
+              let bufferToWatermark: Buffer;
+              if (Buffer.isBuffer(finalBuffer)) {
+                bufferToWatermark = finalBuffer;
+              } else if (typeof finalBuffer === 'string') {
+                const fs = await import('fs');
+                bufferToWatermark = Buffer.from(await fs.promises.readFile(finalBuffer));
+              } else {
+                bufferToWatermark = Buffer.from(finalBuffer as ArrayBuffer);
+              }
+
+              const watermarked = await applyWatermark(bufferToWatermark, watermarkOpts);
+              if (watermarked !== bufferToWatermark) {
+                finalBuffer = watermarked;
+              }
+            } catch {
+              logger.warn('failed to apply watermark', { file: file.filename });
+            }
+          }
+
           return {
             file,
             fileName,
             extension: compressed ? `.${compressed.ext}` : extension,
             mimetype: storedMimetype,
-            size: compressed?.buffer.length ?? file.file.bytesRead,
+            size: Buffer.isBuffer(finalBuffer) ? finalBuffer.length : file.file.bytesRead,
             compressed,
             removedGps,
             originalName,
+            watermarkedBuffer: Buffer.isBuffer(finalBuffer) ? finalBuffer : undefined,
           };
         });
 
         const password = options.password ? await hashPassword(options.password) : undefined;
         const uploads = prepared.map((item) => {
-          const { file, fileName, extension, mimetype, size, compressed, removedGps, originalName } = item;
+          const { file, fileName, extension, mimetype, size, compressed, removedGps, originalName, watermarkedBuffer } = item as any;
 
           const data: Prisma.FileCreateInput = {
             name: `${fileName}${extension}`,
@@ -282,10 +319,12 @@ export default typedPlugin(
           if (password) data.password = password;
           if (folder) data.Folder = { connect: { id: folder.id } };
           if (originalName) data.originalName = originalName;
+          if (options.oneTimeView) data.oneTimeView = true;
+          if (options.encrypted) data.encrypted = true;
 
           data.deletesAt = options.deletesAt && options.deletesAt !== 'never' ? options.deletesAt : null;
 
-          return { compressed, data, extension, file, removedGps, size };
+          return { compressed, data, extension, file, removedGps, size, watermarkedBuffer };
         });
 
         const fileUploads = await prisma.$transaction(async (tx) => {
@@ -316,10 +355,10 @@ export default typedPlugin(
         });
 
         response.files = await mapConcurrent(uploads, 4, async (upload, uploadIndex) => {
-          const { compressed, extension, file, removedGps } = upload;
+          const { compressed, extension, file, removedGps, watermarkedBuffer } = upload;
           const fileUpload = fileUploads[uploadIndex];
 
-          const storageData = compressed?.buffer ?? file.filepath;
+          const storageData = watermarkedBuffer ?? compressed?.buffer ?? file.filepath;
           await datasource.put(fileUpload.name, storageData, {
             mimetype: fileUpload.type,
           });

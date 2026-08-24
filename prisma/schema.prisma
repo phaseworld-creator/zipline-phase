@@ -70,6 +70,17 @@ model Zipline {
 
   featuresVersionChecking Boolean @default(true)
 
+  featuresPublicUploadPortal   Boolean @default(false)
+  featuresOneTimeShareLinks    Boolean @default(true)
+  featuresSoundboard           Boolean @default(false)
+  featuresAdvancedAnalytics    Boolean @default(false)
+
+  featuresWatermarkEnabled     Boolean @default(false)
+  featuresWatermarkText        String?
+  featuresWatermarkImage       String?
+  featuresWatermarkPosition    String  @default("center")
+  featuresWatermarkOpacity     Int     @default(50)
+
   invitesEnabled Boolean @default(true)
   invitesLength  Int     @default(6)
 
@@ -284,6 +295,8 @@ model File {
   favorite     Boolean @default(false)
   password     String?
   anonymous    Boolean @default(false)
+  encrypted    Boolean @default(false)
+  oneTimeView  Boolean @default(false)
 
   tags Tag[]
 
@@ -379,6 +392,7 @@ model Url {
   maxViews    Int?
   password    String?
   enabled     Boolean @default(true)
+  oneTimeView Boolean @default(false)
 
   User   User?   @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   userId String?

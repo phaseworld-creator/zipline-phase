@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 
-export type TrollMediaType = 'image' | 'gif' | 'video' | 'youtube';
+export type TrollMediaType = 'image' | 'gif' | 'video' | 'youtube' | 'audio';
 
 export type TrollLink = {
   id: string;

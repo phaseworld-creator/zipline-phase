@@ -12,6 +12,7 @@ import {
   Grid,
   Group,
   Kbd,
+  Modal,
   Paper,
   Progress,
   Text,
@@ -29,6 +30,7 @@ import { Link } from 'react-router-dom';
 import { useShallow } from 'zustand/shallow';
 import UploadOptionsButton from '../UploadOptionsButton';
 import DropzoneFile from './DropzoneFile';
+import ImageEditor from '@/components/pages/upload/ImageEditor';
 
 const initialVisible = 24;
 
@@ -48,9 +50,10 @@ export default function UploadFile({ title, folder }: { title?: string; folder?:
   const [visibleCount, setVisibleCount] = useState(initialVisible);
   const [progress, setProgress] = useProgress();
   const [dropLoading, setLoading] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editedFiles, setEditedFiles] = useState<Map<number, File>>(new Map());
 
-  const visibleFiles = files.slice(0, visibleCount);
-  const hiddenFiles = Math.max(0, files.length - visibleFiles.length);
+  const getDisplayFile = (file: File, index: number) => editedFiles.get(index) ?? file;
 
   const aggSize = useCallback(() => files.reduce((acc, file) => acc + file.size, 0), [files]);
 
@@ -67,9 +70,10 @@ export default function UploadFile({ title, folder }: { title?: string; folder?:
   }, []);
 
   const upload = async () => {
+    const effectiveFiles = files.map((f, i) => editedFiles.get(i) ?? f);
     const maxBytes = config.chunks.enabled && bytes(config.chunks.max);
-    const partialUploads: File[] = maxBytes ? files.filter((file) => file.size >= maxBytes) : [];
-    const normalUploads: File[] = maxBytes ? files.filter((file) => file.size < maxBytes) : files;
+    const partialUploads: File[] = maxBytes ? effectiveFiles.filter((file) => file.size >= maxBytes) : [];
+    const normalUploads: File[] = maxBytes ? effectiveFiles.filter((file) => file.size < maxBytes) : effectiveFiles;
     const hasBoth = normalUploads.length > 0 && partialUploads.length > 0;
 
     let uploadedNormal: Awaited<ReturnType<typeof uploadFiles>> = null;
@@ -238,12 +242,44 @@ export default function UploadFile({ title, folder }: { title?: string; folder?:
           <Grid.Col span={3} key={i}>
             <DropzoneFile
               loading={dropLoading}
-              file={file}
-              onDelete={() => setFiles((prev) => prev.filter((_, j) => i !== j))}
+              file={getDisplayFile(file, i)}
+              onDelete={() => {
+                setFiles((prev) => prev.filter((_, j) => i !== j));
+                setEditedFiles((prev) => {
+                  const next = new Map(prev);
+                  next.delete(i);
+                  return next;
+                });
+              }}
+              onEdit={
+                file.type.startsWith('image/')
+                  ? () => setEditingIndex(i)
+                  : undefined
+              }
             />
           </Grid.Col>
         ))}
       </Grid>
+
+      <Modal
+        opened={editingIndex !== null}
+        onClose={() => setEditingIndex(null)}
+        title='Edit Image'
+        size='xl'
+        centered
+      >
+        {editingIndex !== null && (
+          <ImageEditor
+            file={getDisplayFile(files[editingIndex], editingIndex)}
+            onSave={(edited) => {
+              setEditedFiles((prev) => new Map(prev).set(editingIndex, edited));
+              setEditingIndex(null);
+              showNotification({ message: 'Image edited', color: 'teal' });
+            }}
+            onCancel={() => setEditingIndex(null)}
+          />
+        )}
+      </Modal>
 
       {hiddenFiles > 0 && (
         <Group justify='center' gap='xs' my='xs'>

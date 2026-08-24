@@ -3,6 +3,7 @@ import { z } from 'zod';
 export function cleanUrlPasswords(urls: Url[]) {
   for (const url of urls) {
     (url as any).password = !!url.password;
+    (url as any).oneTimeView = !!url.oneTimeView;
   }
 
   return urls;
@@ -20,6 +21,7 @@ export const urlSchema = z.object({
   maxViews: z.number().nullable(),
   password: z.union([z.string(), z.boolean()]).nullable(),
   enabled: z.boolean(),
+  oneTimeView: z.boolean(),
 
   userId: z.string().nullable(),
 

@@ -69,6 +69,8 @@ export default typedPlugin(
             tags: z.array(z.string()).optional(),
             name: z.string().trim().min(1).optional().transform(zValidatePath),
             anonymous: z.boolean().optional(),
+            oneTimeView: z.boolean().optional(),
+            encrypted: z.boolean().optional(),
           }),
           response: {
             200: fileSchema,
@@ -98,6 +100,14 @@ export default typedPlugin(
 
         if (req.body.maxViews !== undefined) {
           data.maxViews = req.body.maxViews;
+        }
+
+        if (req.body.oneTimeView !== undefined) {
+          data.oneTimeView = req.body.oneTimeView;
+        }
+
+        if (req.body.encrypted !== undefined) {
+          data.encrypted = req.body.encrypted;
         }
 
         if (req.body.password !== undefined) {

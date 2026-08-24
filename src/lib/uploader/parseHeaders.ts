@@ -17,6 +17,8 @@ export type UploadHeaders = {
   'x-zipline-no-json'?: StringBoolean;
   'x-zipline-original-name'?: StringBoolean;
   'x-zipline-extensionless'?: StringBoolean;
+  'x-zipline-one-time-view'?: StringBoolean;
+  'x-zipline-encrypted'?: StringBoolean;
 
   'x-zipline-folder'?: string;
 
@@ -42,6 +44,8 @@ export type UploadOptions = {
   noJson?: boolean;
   addOriginalName?: boolean;
   extensionless?: boolean;
+  oneTimeView?: boolean;
+  encrypted?: boolean;
 
   imageCompression?: {
     type?: CompressType;
@@ -216,6 +220,12 @@ export function parseHeaders(headers: UploadHeaders, fileConfig: Config['files']
 
   const extensionless = headers['x-zipline-extensionless'];
   if (extensionless) response.extensionless = extensionless === 'true';
+
+  const oneTimeView = headers['x-zipline-one-time-view'];
+  if (oneTimeView) response.oneTimeView = oneTimeView === 'true';
+
+  const encrypted = headers['x-zipline-encrypted'];
+  if (encrypted) response.encrypted = encrypted === 'true';
 
   const folder = headers['x-zipline-folder'];
   if (folder) response.folder = folder;

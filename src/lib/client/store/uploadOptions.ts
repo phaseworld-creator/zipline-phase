@@ -11,6 +11,8 @@ export const defaultUploadOptions: UploadOptionsStore['options'] = {
   addOriginalName: false,
   extensionless: false,
   overrides_returnDomain: null,
+  oneTimeView: false,
+  encrypted: false,
 };
 
 export const defaultEphemeralOptions: UploadOptionsStore['ephemeral'] = {
@@ -29,6 +31,8 @@ export type UploadOptionsStore = {
     addOriginalName: boolean | null;
     extensionless: boolean | null;
     overrides_returnDomain: string | null;
+    oneTimeView: boolean | null;
+    encrypted: boolean | null;
   };
 
   ephemeral: {

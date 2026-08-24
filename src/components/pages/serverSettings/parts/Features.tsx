@@ -8,6 +8,7 @@ import {
   SimpleGrid,
   Stack,
   Switch,
+  TextInput,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconDeviceFloppy } from '@tabler/icons-react';
@@ -37,6 +38,10 @@ function Form({ data, isLoading }: { data: Response['/api/server/settings']; isL
       featuresUserRegistration: data.settings.featuresUserRegistration,
       featuresOauthRegistration: data.settings.featuresOauthRegistration,
       featuresDeleteOnMaxViews: data.settings.featuresDeleteOnMaxViews,
+      featuresPublicUploadPortal: data.settings.featuresPublicUploadPortal,
+      featuresOneTimeShareLinks: data.settings.featuresOneTimeShareLinks,
+      featuresSoundboard: data.settings.featuresSoundboard,
+      featuresAdvancedAnalytics: data.settings.featuresAdvancedAnalytics,
 
       featuresThumbnailsEnabled: data.settings.featuresThumbnailsEnabled,
       featuresThumbnailsNumberThreads: data.settings.featuresThumbnailsNumberThreads,
@@ -48,6 +53,12 @@ function Form({ data, isLoading }: { data: Response['/api/server/settings']; isL
       featuresMetricsShowUserSpecific: data.settings.featuresMetricsShowUserSpecific,
 
       featuresVersionChecking: data.settings.featuresVersionChecking,
+
+      featuresWatermarkEnabled: data.settings.featuresWatermarkEnabled,
+      featuresWatermarkText: data.settings.featuresWatermarkText,
+      featuresWatermarkImage: data.settings.featuresWatermarkImage,
+      featuresWatermarkPosition: data.settings.featuresWatermarkPosition,
+      featuresWatermarkOpacity: data.settings.featuresWatermarkOpacity,
     },
     enhanceGetInputProps: (payload) => ({
       disabled: data.tampered.includes(payload.field) || false,
@@ -111,6 +122,74 @@ function Form({ data, isLoading }: { data: Response['/api/server/settings']; isL
           label='Show User Specific Metrics'
           description='Shows metrics specific to each user, for all users.'
           {...form.getInputProps('featuresMetricsShowUserSpecific', { type: 'checkbox' })}
+        />
+
+        <Switch
+          label='Public Upload Portal'
+          description='Allow unauthenticated uploads via a public community portal. Disabled by default for security.'
+          {...form.getInputProps('featuresPublicUploadPortal', { type: 'checkbox' })}
+        />
+
+        <Switch
+          label='One-Time Share Links'
+          description='Allow users to create links that self-destruct after a single view.'
+          {...form.getInputProps('featuresOneTimeShareLinks', { type: 'checkbox' })}
+        />
+
+        <Switch
+          label='Soundboard'
+          description='Enable audio prank links in the troll system.'
+          {...form.getInputProps('featuresSoundboard', { type: 'checkbox' })}
+        />
+
+        <Switch
+          label='Advanced Analytics'
+          description='Enable expanded analytics with bandwidth and type breakdown charts.'
+          {...form.getInputProps('featuresAdvancedAnalytics', { type: 'checkbox' })}
+        />
+
+        <Divider label='Watermark' />
+
+        <Switch
+          label='Enable Watermark'
+          description='Automatically overlay a watermark on uploaded images.'
+          {...form.getInputProps('featuresWatermarkEnabled', { type: 'checkbox' })}
+        />
+
+        <TextInput
+          label='Watermark Text'
+          description='Text to overlay on images. Leave blank to use image watermark.'
+          placeholder='Zipline'
+          {...form.getInputProps('featuresWatermarkText')}
+        />
+
+        <TextInput
+          label='Watermark Image Path'
+          description='Absolute path to a watermark image file.'
+          placeholder='/path/to/watermark.png'
+          {...form.getInputProps('featuresWatermarkImage')}
+        />
+
+        <Select
+          label='Watermark Position'
+          description='Where to place the watermark on the image.'
+          data={[
+            { value: 'center', label: 'Center' },
+            { value: 'top-left', label: 'Top Left' },
+            { value: 'top-right', label: 'Top Right' },
+            { value: 'bottom-left', label: 'Bottom Left' },
+            { value: 'bottom-right', label: 'Bottom Right' },
+            { value: 'tile', label: 'Tile' },
+          ]}
+          {...form.getInputProps('featuresWatermarkPosition')}
+        />
+
+        <NumberInput
+          label='Watermark Opacity'
+          description='Opacity percentage (0-100) for the watermark.'
+          min={0}
+          max={100}
+          {...form.getInputProps('featuresWatermarkOpacity')}
         />
 
         <Divider label='Thumbnails' />

@@ -233,6 +233,17 @@ export const schema = z.object({
     userRegistration: z.boolean().default(false),
     oauthRegistration: z.boolean().default(false),
     deleteOnMaxViews: z.boolean().default(true),
+    publicUploadPortal: z.boolean().default(false),
+    oneTimeShareLinks: z.boolean().default(true),
+    soundboard: z.boolean().default(false),
+    advancedAnalytics: z.boolean().default(false),
+    watermark: z.object({
+      enabled: z.boolean().default(false),
+      text: z.string().nullable().default(null),
+      image: z.string().nullable().default(null),
+      position: z.enum(['center', 'top-left', 'top-right', 'bottom-left', 'bottom-right', 'tile']).default('center'),
+      opacity: z.number().min(0).max(100).default(50),
+    }),
     thumbnails: z.object({
       enabled: z.boolean().default(true),
       num_threads: z.number().default(4),

@@ -5,6 +5,7 @@ import { renderMode } from '@/components/render/renderMode';
 import { useSettingsStore } from '@/lib/client/store/settings';
 import type { File as DbFile } from '@/lib/db/models/file';
 import {
+  Badge,
   Box,
   Center,
   Loader,
@@ -15,7 +16,7 @@ import {
   Text,
 } from '@mantine/core';
 import type { Icon } from '@tabler/icons-react';
-import { IconPlayerPlay, IconShieldLockFilled } from '@tabler/icons-react';
+import { IconPlayerPlay, IconShieldLockFilled, IconLock, IconBurn } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import fileIcon from '../fileIcon';
 import FileZoomModal from './FileZoomModal';
@@ -23,7 +24,7 @@ import FullscreenFrame from './FullscreenFrame';
 import useFileContents from './useFileContent';
 import useFileUrls, { isDbFile } from './useFileUrls';
 
-export function Placeholder({ text, Icon, ...props }: { text: string; Icon: Icon; onClick?: () => void }) {
+export function Placeholder({ text, Icon, extra, ...props }: { text: string; Icon: Icon; extra?: React.ReactNode; onClick?: () => void }) {
   return (
     <Center py='xs' style={{ height: '100%', width: '100%', cursor: 'pointer' }} {...props}>
       <Stack align='center'>
@@ -31,6 +32,7 @@ export function Placeholder({ text, Icon, ...props }: { text: string; Icon: Icon
         <Text size='md' ta='center'>
           {text}
         </Text>
+        {extra}
       </Stack>
     </Center>
   );
@@ -124,6 +126,34 @@ export default function DashboardFileType({
           onClick={() => window.open(viewUrl!)}
         />
       </Paper>
+    );
+  }
+
+  if (db?.encrypted && !show) {
+    return (
+      <Placeholder
+        text={`Encrypted file — decryption required`}
+        Icon={IconLock}
+        extra={
+          <Badge color='teal' variant='light' mt='xs'>
+            Encrypted
+          </Badge>
+        }
+      />
+    );
+  }
+
+  if (db?.oneTimeView && !show) {
+    return (
+      <Placeholder
+        text={`One-time view — disappears after first view`}
+        Icon={IconBurn}
+        extra={
+          <Badge color='red' variant='light' mt='xs'>
+            One-Time
+          </Badge>
+        }
+      />
     );
   }
 

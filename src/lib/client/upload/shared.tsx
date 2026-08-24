@@ -15,6 +15,7 @@ export type UploadHeadersOptions = {
   ephemeral: UploadOptionsStore['ephemeral'];
   folder?: string;
   partials?: number;
+  isPublic?: boolean;
 };
 
 export type UploadHandlers = {
@@ -69,7 +70,7 @@ export function handleUploadResponse<R = Response['/api/upload']>(
 
 export function applyUploadHeaders(
   req: XMLHttpRequest,
-  { options, ephemeral, folder }: UploadHeadersOptions,
+  { options, ephemeral, folder, isPublic }: UploadHeadersOptions,
 ) {
   options.deletesAt !== 'default' && req.setRequestHeader('x-zipline-deletes-at', options.deletesAt);
   options.format !== 'default' && req.setRequestHeader('x-zipline-format', options.format);
@@ -79,6 +80,8 @@ export function applyUploadHeaders(
     options.imageCompressionFormat !== 'default' &&
     req.setRequestHeader('x-zipline-image-compression-type', options.imageCompressionFormat);
   options.maxViews && req.setRequestHeader('x-zipline-max-views', options.maxViews.toString());
+  options.oneTimeView && req.setRequestHeader('x-zipline-one-time-view', 'true');
+  options.encrypted && req.setRequestHeader('x-zipline-encrypted', 'true');
   options.addOriginalName && req.setRequestHeader('x-zipline-original-name', 'true');
   options.extensionless && req.setRequestHeader('x-zipline-extensionless', 'true');
   options.overrides_returnDomain && req.setRequestHeader('x-zipline-domain', options.overrides_returnDomain);

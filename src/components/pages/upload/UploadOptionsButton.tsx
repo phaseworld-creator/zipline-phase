@@ -32,6 +32,8 @@ import {
   IconSettings,
   IconTrashFilled,
   IconWriting,
+  IconLock,
+  IconBurn,
 } from '@tabler/icons-react';
 
 import ms from 'ms';
@@ -307,6 +309,40 @@ export default function UploadOptionsButton({ folder, numFiles }: { folder?: str
             min={0}
             value={options.maxViews || ''}
             onChange={(value) => setOption('maxViews', value === '' ? null : Number(value))}
+          />
+
+          <Switch
+            label={
+              <>
+                One-Time View{' '}
+                {options.oneTimeView ? (
+                  <Badge variant='outline' size='xs'>
+                    saved
+                  </Badge>
+                ) : null}
+              </>
+            }
+            description='Delete the file immediately after it is viewed once.'
+            leftSection={<IconBurn size='1rem' />}
+            checked={options.oneTimeView ?? false}
+            onChange={(event) => setOption('oneTimeView', event.currentTarget.checked ?? false)}
+          />
+
+          <Switch
+            label={
+              <>
+                Client-Side Encrypt{' '}
+                {options.encrypted ? (
+                  <Badge variant='outline' size='xs'>
+                    saved
+                  </Badge>
+                ) : null}
+              </>
+            }
+            description='Encrypt files in your browser before uploading (zero-knowledge). You will receive a decryption key.'
+            leftSection={<IconLock size='1rem' />}
+            checked={options.encrypted ?? false}
+            onChange={(event) => setOption('encrypted', event.currentTarget.checked ?? false)}
           />
 
           <Combobox

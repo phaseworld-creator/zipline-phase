@@ -3,7 +3,7 @@ import { fetchApi } from '@/lib/fetchApi';
 import useObjectState from '@/lib/client/hooks/useObjectState';
 import { Button, Divider, Modal, NumberInput, PasswordInput, Stack, Switch, TextInput } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
-import { IconEye, IconKey, IconPencil, IconPencilOff, IconTrashFilled } from '@tabler/icons-react';
+import { IconBurn, IconEye, IconKey, IconPencil, IconPencilOff, IconTrashFilled } from '@tabler/icons-react';
 import { useEffect } from 'react';
 import { mutate } from 'swr';
 
@@ -14,12 +14,14 @@ export default function EditUrlModal({ url, onClose }: { url: Url | null; onClos
     destination: string | null;
     enabled: boolean;
     password: string | null;
+    oneTimeView: boolean;
   }>({
     maxViews: url?.maxViews ?? null,
     vanity: url?.vanity ?? null,
     destination: url?.destination ?? null,
     enabled: url?.enabled ?? true,
     password: '',
+    oneTimeView: url?.oneTimeView ?? false,
   });
 
   useEffect(() => {
@@ -30,6 +32,7 @@ export default function EditUrlModal({ url, onClose }: { url: Url | null; onClos
         destination: url.destination,
         enabled: url.enabled,
         password: '',
+        oneTimeView: url.oneTimeView,
       });
     }
   }, [url]);
@@ -83,6 +86,7 @@ export default function EditUrlModal({ url, onClose }: { url: Url | null; onClos
     if (urlData.destination !== null && urlData.destination !== url.destination)
       data['destination'] = urlData.destination?.trim();
     if (urlData.enabled !== url.enabled) data['enabled'] = urlData.enabled;
+    if (urlData.oneTimeView !== url.oneTimeView) data['oneTimeView'] = urlData.oneTimeView;
 
     const { error } = await fetchApi(`/api/user/urls/${url.id}`, 'PATCH', data);
 
@@ -150,6 +154,14 @@ export default function EditUrlModal({ url, onClose }: { url: Url | null; onClos
           description='Prevent or allow this URL from being visited.'
           checked={urlData.enabled}
           onChange={(event) => setUrlData('enabled', event.currentTarget.checked)}
+        />
+
+        <Switch
+          label='One-Time View'
+          description='Delete this URL immediately after it is viewed once.'
+          checked={urlData.oneTimeView}
+          onChange={(event) => setUrlData('oneTimeView', event.currentTarget.checked)}
+          leftSection={<IconBurn size='1rem' />}
         />
 
         <Divider />

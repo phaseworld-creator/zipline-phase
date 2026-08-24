@@ -66,6 +66,17 @@ export const rawConfig: any = {
     userRegistration: undefined,
     oauthRegistration: undefined,
     deleteOnMaxViews: undefined,
+    publicUploadPortal: undefined,
+    oneTimeShareLinks: undefined,
+    soundboard: undefined,
+    advancedAnalytics: undefined,
+    watermark: {
+      enabled: undefined,
+      text: undefined,
+      image: undefined,
+      position: undefined,
+      opacity: undefined,
+    },
     thumbnails: {
       enabled: undefined,
       num_threads: undefined,
@@ -76,6 +87,7 @@ export const rawConfig: any = {
       adminOnly: undefined,
       showUserSpecific: undefined,
     },
+    versionChecking: undefined,
   },
   invites: {
     enabled: undefined,

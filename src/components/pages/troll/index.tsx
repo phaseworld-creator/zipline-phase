@@ -37,7 +37,7 @@ import { useState } from 'react';
 import useSWR, { mutate as globalMutate } from 'swr';
 
 /* ─── Types ─────────────────────────────────────────────────── */
-type TrollMediaType = 'image' | 'gif' | 'video' | 'youtube';
+type TrollMediaType = 'image' | 'gif' | 'video' | 'youtube' | 'audio';
 
 type TrollLink = {
   id: string;
@@ -122,6 +122,7 @@ const TYPE_COLOR: Record<TrollMediaType, string> = {
   gif: 'grape',
   video: 'orange',
   youtube: 'red',
+  audio: 'teal',
 };
 
 const TYPE_ICON: Record<TrollMediaType, React.ReactNode> = {
@@ -129,6 +130,7 @@ const TYPE_ICON: Record<TrollMediaType, React.ReactNode> = {
   gif: <IconPhoto size='0.85rem' />,
   video: <IconPlayerPlay size='0.85rem' />,
   youtube: <IconPlayerPlay size='0.85rem' />,
+  audio: <IconPlayerPlay size='0.85rem' />,
 };
 
 const API_PATH = '/api/troll';
@@ -313,6 +315,7 @@ export default function DashboardTroll() {
                     { value: 'gif', label: 'GIF (animated image)' },
                     { value: 'video', label: 'Video (mp4, webm…)' },
                     { value: 'youtube', label: 'YouTube (watch?v= URL)' },
+                    { value: 'audio', label: 'Audio (mp3, wav…)' },
                   ]}
                   {...form.getInputProps('customType')}
                 />

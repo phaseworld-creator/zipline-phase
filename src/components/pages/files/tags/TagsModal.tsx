@@ -4,7 +4,7 @@ import { Tag } from '@/lib/db/models/tag';
 import { fetchApi } from '@/lib/fetchApi';
 import { ActionIcon, Group, Modal, Paper, Stack, Text, Title, Tooltip } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
-import { IconPencil, IconPlus, IconTagOff, IconTrashFilled } from '@tabler/icons-react';
+import { IconDownload, IconPencil, IconPlus, IconTagOff, IconTrashFilled } from '@tabler/icons-react';
 import { useState } from 'react';
 import useSWR from 'swr';
 import { DashboardFilesModals, DashboardFilesModalsUpdate } from '..';
@@ -47,6 +47,31 @@ export default function TagsModals({
     mutateFiles();
   };
 
+  const handleDownloadTag = async (tag: Tag) => {
+    const res = await fetch('/api/user/download', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'tag', id: tag.id }),
+    });
+
+    if (!res.ok) {
+      showNotification({
+        title: 'Error',
+        message: 'Failed to download tag',
+        color: 'red',
+      });
+      return;
+    }
+
+    const { url } = await res.json();
+    window.open(url, '_blank');
+    showNotification({
+      title: 'Downloading',
+      message: `Downloading ZIP for tag ${tag.name}`,
+      color: 'teal',
+    });
+  };
+
   return (
     <>
       <CreateTagModal open={createModalOpen} onClose={() => setCreateModalOpen(false)} />
@@ -78,6 +103,12 @@ export default function TagsModals({
                 </Group>
 
                 <Group>
+                  <Tooltip label='Download tag as ZIP'>
+                    <ActionIcon variant='outline' color='teal' onClick={() => handleDownloadTag(tag)}>
+                      <IconDownload size='1rem' />
+                    </ActionIcon>
+                  </Tooltip>
+
                   <Tooltip label='Edit tag'>
                     <ActionIcon variant='outline' onClick={() => setSelectedTag(tag)}>
                       <IconPencil size='1rem' />

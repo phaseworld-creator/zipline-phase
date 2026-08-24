@@ -213,6 +213,17 @@ export default typedPlugin(
             featuresOauthRegistration: z.boolean(),
             featuresDeleteOnMaxViews: z.boolean(),
 
+            featuresPublicUploadPortal: z.boolean(),
+            featuresOneTimeShareLinks: z.boolean(),
+            featuresSoundboard: z.boolean(),
+            featuresAdvancedAnalytics: z.boolean(),
+
+            featuresWatermarkEnabled: z.boolean(),
+            featuresWatermarkText: z.string().nullable(),
+            featuresWatermarkImage: z.string().nullable(),
+            featuresWatermarkPosition: z.enum(['center', 'top-left', 'top-right', 'bottom-left', 'bottom-right', 'tile']),
+            featuresWatermarkOpacity: z.number().min(0).max(100),
+
             featuresThumbnailsEnabled: z.boolean(),
             featuresThumbnailsNumberThreads: z
               .number()

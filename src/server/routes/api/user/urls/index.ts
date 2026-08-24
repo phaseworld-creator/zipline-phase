@@ -60,6 +60,10 @@ export default typedPlugin(
               .optional(),
             'x-zipline-domain': z.string().optional(),
             'x-zipline-password': z.string().optional(),
+            'x-zipline-one-time-view': z
+              .enum(['false', 'true'])
+              .transform((val) => val.toLowerCase() === 'true')
+              .optional(),
           }),
           response: {
             200: z.union([
@@ -88,6 +92,8 @@ export default typedPlugin(
         const password = req.headers['x-zipline-password']
           ? await hashPassword(req.headers['x-zipline-password'])
           : undefined;
+
+        const oneTimeView = req.headers['x-zipline-one-time-view'] ?? false;
 
         if (vanity) {
           const existingVanity = await prisma.url.findFirst({
@@ -126,6 +132,7 @@ export default typedPlugin(
               ...(maxViews && { maxViews: maxViews }),
               ...(password && { password: password }),
               ...(enabled !== undefined && { enabled: enabled }),
+              ...(options.oneTimeView && { oneTimeView: true }),
             },
             omit: {
               password: true,

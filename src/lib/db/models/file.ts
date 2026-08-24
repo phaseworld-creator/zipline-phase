@@ -19,6 +19,8 @@ export const fileSelect = {
   maxViews: true,
   folderId: true,
   anonymous: true,
+  encrypted: true,
+  oneTimeView: true,
   thumbnail: {
     select: {
       path: true,
@@ -47,6 +49,8 @@ export function cleanFiles(files: File[], stringifyDates = false) {
   for (let i = 0; i !== files.length; ++i) {
     const file = files[i];
     if (file.password) file.password = true;
+    if (file.encrypted) file.encrypted = true;
+    if (file.oneTimeView) file.oneTimeView = true;
 
     if (stringifyDates) {
       if (file.createdAt instanceof Date) file.createdAt = file.createdAt.toISOString();
@@ -75,6 +79,8 @@ export const fileSchema = z.object({
   password: z.union([z.string(), z.boolean()]).nullish(),
   folderId: z.string().nullable(),
   anonymous: z.boolean().nullish(),
+  encrypted: z.boolean().nullish(),
+  oneTimeView: z.boolean().nullish(),
 
   thumbnail: z
     .object({

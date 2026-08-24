@@ -4,7 +4,7 @@ import { userMiddleware } from '@/server/middleware/user';
 import typedPlugin from '@/server/typedPlugin';
 import z from 'zod';
 
-const MEDIA_TYPES: [TrollMediaType, ...TrollMediaType[]] = ['image', 'gif', 'video', 'youtube'];
+const MEDIA_TYPES: [TrollMediaType, ...TrollMediaType[]] = ['image', 'gif', 'video', 'youtube', 'audio'];
 
 export const PATH = '/api/troll';
 export default typedPlugin(

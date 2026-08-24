@@ -119,6 +119,24 @@ export const rawFileHandler = async (
     return res.callNotFound();
   }
 
+  // one-time view: delete immediately after serving
+  if (file.oneTimeView && canCountView) {
+    const deleteAfterView = async () => {
+      try {
+        await datasource.delete(file.name);
+        await prisma.file.delete({
+          where: { id: file.id },
+        });
+        logger.info(`one-time file ${file.id} deleted after view`);
+      } catch (e) {
+        logger.error('failed to delete one-time file', { id: file.id }).error(e as Error);
+      }
+    };
+
+    // schedule deletion after response is sent
+    res.raw.once('finish', deleteAfterView);
+  }
+
   const countView = async () => {
     if (!file || !canCountView) return;
     viewsCache.set(key, now);

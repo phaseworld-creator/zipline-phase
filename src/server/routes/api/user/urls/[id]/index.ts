@@ -60,6 +60,7 @@ export default typedPlugin(
             maxViews: z.number().min(0).nullish(),
             destination: z.httpUrl().optional(),
             enabled: z.boolean().optional(),
+            oneTimeView: z.boolean().optional(),
           }),
           response: {
             200: urlSchema.omit({ password: true }),
@@ -111,6 +112,7 @@ export default typedPlugin(
             ...(req.body.maxViews !== undefined && { maxViews: req.body.maxViews }),
             ...(req.body.destination !== undefined && { destination: req.body.destination }),
             ...(req.body.enabled !== undefined && { enabled: req.body.enabled }),
+            ...(req.body.oneTimeView !== undefined && { oneTimeView: req.body.oneTimeView }),
           },
           omit: {
             password: true,

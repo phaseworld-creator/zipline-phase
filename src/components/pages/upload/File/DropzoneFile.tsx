@@ -18,10 +18,12 @@ export default function DropzoneFile({
   file,
   onDelete,
   loading,
+  onEdit,
 }: {
   loading: boolean;
   file: File;
   onDelete: () => void;
+  onEdit?: () => void;
 }) {
   if (loading)
     return (
@@ -66,16 +68,29 @@ export default function DropzoneFile({
             <Text size='sm' c='dimmed'>
               {bytes(file.size)}
             </Text>
-            <Button
-              size='compact-sm'
-              variant='outline'
-              color='red'
-              fullWidth
-              onClick={onDelete}
-              leftSection={<IconTrashFilled size='1rem' />}
-            >
-              Remove
-            </Button>
+            <Group gap='xs'>
+              {onEdit && file.type.startsWith('image/') && (
+                <Button
+                  size='compact-sm'
+                  variant='outline'
+                  color='blue'
+                  style={{ flex: 1 }}
+                  onClick={onEdit}
+                >
+                  Edit
+                </Button>
+              )}
+              <Button
+                size='compact-sm'
+                variant='outline'
+                color='red'
+                style={{ flex: 1 }}
+                onClick={onDelete}
+                leftSection={<IconTrashFilled size='1rem' />}
+              >
+                Remove
+              </Button>
+            </Group>
           </Stack>
         </Stack>
       </HoverCard.Dropdown>
