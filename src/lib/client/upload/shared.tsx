@@ -70,7 +70,7 @@ export function handleUploadResponse<R = Response['/api/upload']>(
 
 export function applyUploadHeaders(
   req: XMLHttpRequest,
-  { options, ephemeral, folder, isPublic }: UploadHeadersOptions,
+  { options, ephemeral, folder, _isPublic }: UploadHeadersOptions,
 ) {
   options.deletesAt !== 'default' && req.setRequestHeader('x-zipline-deletes-at', options.deletesAt);
   options.format !== 'default' && req.setRequestHeader('x-zipline-format', options.format);

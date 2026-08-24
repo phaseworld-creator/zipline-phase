@@ -1,9 +1,7 @@
 import { useConfig } from '@/components/ConfigProvider';
 import { bytes } from '@/lib/bytes';
 import { useUploadOptionsStore } from '@/lib/client/store/uploadOptions';
-import { uploadFiles } from '@/lib/client/upload/files';
 import { useProgress } from '@/lib/client/upload/useProgress';
-import { humanizeDuration } from '@/lib/relativeTime';
 import {
   Button,
   Collapse,
@@ -17,10 +15,9 @@ import {
   useMantineTheme,
 } from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
-import { useClipboard } from '@mantine/hooks';
 import { notifications, showNotification } from '@mantine/notifications';
 import { IconDeviceSdCard, IconUpload, IconX } from '@tabler/icons-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 const initialVisible = 24;

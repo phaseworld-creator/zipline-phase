@@ -1,6 +1,6 @@
 import { Button, Group, Stack, Text, ColorInput, NumberInput, Slider, ActionIcon } from '@mantine/core';
 import { useRef, useState, useEffect } from 'react';
-import { IconTrash, IconDownload, IconCheck } from '@tabler/icons-react';
+import { IconTrash, IconCheck } from '@tabler/icons-react';
 
 export interface ImageEditorProps {
   file: File;

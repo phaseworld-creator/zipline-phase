@@ -47,7 +47,9 @@ export default function UploadFile({ title, folder }: { title?: string; folder?:
   );
 
   const [files, setFiles] = useState<File[]>([]);
-  const [visibleCount, setVisibleCount] = useState(initialVisible);
+  const [_visibleCount, setVisibleCount] = useState(initialVisible);
+  const visibleFiles = files.slice(0, _visibleCount);
+  const hiddenFiles = Math.max(0, files.length - visibleFiles.length);
   const [progress, setProgress] = useProgress();
   const [dropLoading, setLoading] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);

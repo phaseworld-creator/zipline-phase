@@ -19,7 +19,7 @@ const logger = log('api').c('user').c('download');
 export default typedPlugin(
   async (server) => {
     server.post<{
-      Body: z.ZodTypeAny;
+      Body: z.ZodTypeAny,
       Querystring: z.ZodTypeAny;
       Response: { 200: z.object({ url: z.string() }) };
     }>(

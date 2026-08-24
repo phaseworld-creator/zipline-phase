@@ -18,7 +18,7 @@ import { userSelect } from '@/lib/db/models/user';
 import { sanitizeFilename } from '@/lib/fs';
 import { removeGps } from '@/lib/gps';
 import { log } from '@/lib/logger';
-import { applyWatermark, WatermarkOptions } from '@/lib/watermark';
+import { applyWatermark } from '@/lib/watermark';
 import { mapConcurrent } from '@/lib/mapConcurrent';
 import { runThumbnailWorkers } from '@/lib/tasks/run/thumbnails';
 import { parseHeaders, UploadHeaders } from '@/lib/uploader/parseHeaders';

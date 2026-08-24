@@ -84,6 +84,7 @@ export default function UrlCard({
               </Menu.Dropdown>
             </Menu>
           </Group>
+        </Group>
         </Card.Section>
 
         <Card.Section inheritPadding py='xs'>

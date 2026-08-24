@@ -23,7 +23,7 @@ export type ApiPublicUploadResponse = {
 export default typedPlugin(
   async (server) => {
     server.post<{
-      Headers: UploadHeaders;
+      Headers: UploadHeaders,
       Response: { 200: z.object({ files: z.array(z.object({
         id: z.string(),
         name: z.string(),
