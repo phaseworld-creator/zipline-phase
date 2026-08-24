@@ -57,7 +57,7 @@ The custom "Phase" logic lives alongside the upstream code:
   background (with optional blur) via a live preview.
 - **`phase_dark` built-in theme**: a new built-in dark theme, set as the default
   (`builtin:phase_dark`).
-- **Avatar / PFP upload**: client-side resize to 256×256 JPEG (80%) before upload.
+- **Avatar / PFP upload**: client-side resize to 256vs×256 JPEG (80%) before upload.
 - **Custom code language map** (`code.json`): ~40 syntax-highlighted languages for code/text file
   viewing (HTML, CSS, C++, JS, Python, Ruby, Java, Go, Rust, TS, Lua, Kotlin, etc.).
 
