@@ -203,7 +203,7 @@ function Form({ data }: { data: Response['/api/server/settings'] }) {
 
           <TextInput
             label='Logo URL'
-            description='Image shown above the title. Leave blank for the default Z icon. [BROKEN]'
+            description='Image shown above the title. Leave blank for the default Z icon.'
             placeholder='https://example.com/logo.png'
             leftSection={<IconPhoto size='1rem' />}
             {...form.getInputProps('websiteTitleLogo')}
