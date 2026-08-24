@@ -111,7 +111,12 @@ export async function getFilename(
 
     while (existing && (format === 'random' || format === 'date' || usedFallback)) {
       fileName = usedFallback ? formatFileName('random') : formatFileName(format, originalName, dateIncrement++);
-      if (!fileName) throw 'invalid file name';
+      
+      // If fileName is still null/empty after trying to generate, use random as fallback
+      if (!fileName) {
+        fileName = formatFileName('random');
+        usedFallback = true;
+      }
 
       fullFileNames = extensions.map((ext) => `${fileName}${ext}`);
       existing =
@@ -119,7 +124,6 @@ export async function getFilename(
         (await prisma.file.findFirst({ where: { name: { in: fullFileNames } } }));
     }
 
-    if (!fileName) throw 'invalid file name';
     for (const name of fullFileNames) reservedNames?.add(name);
     return fileName;
   } catch (e) {
