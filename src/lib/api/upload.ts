@@ -99,9 +99,10 @@ export async function getFilename(
 
     const extensions = [...new Set([extension, ...alternateExtensions])];
     let fullFileNames = extensions.map((ext) => `${fileName}${ext}`);
-    let existing =
+    // make `existing` explicitly boolean to avoid mixing with the DB result type
+    let existing: boolean =
       fullFileNames.some((name) => reservedNames?.has(name)) ||
-      (await prisma.file.findFirst({ where: { name: { in: fullFileNames } } }));
+      (await prisma.file.findFirst({ where: { name: { in: fullFileNames } } })) !== null;
 
     // If a file exists and the user explicitly requested a name (override) or the
     // format is 'name', try appending numeric suffixes instead of immediately failing.
@@ -113,9 +114,9 @@ export async function getFilename(
       for (let k = 1; k <= maxAttempts; k++) {
         const candidate = `${baseName}-${k}`;
         const candidateFull = extensions.map((ext) => `${candidate}${ext}`);
-        const candidateExists =
+        const candidateExists: boolean =
           candidateFull.some((n) => reservedNames?.has(n)) ||
-          (await prisma.file.findFirst({ where: { name: { in: candidateFull } } }));
+          (await prisma.file.findFirst({ where: { name: { in: candidateFull } } })) !== null;
         if (!candidateExists) {
           fileName = candidate;
           fullFileNames = candidateFull;
@@ -132,7 +133,10 @@ export async function getFilename(
 
     let dateIncrement = 1;
 
-    while (existing && (format === 'random' || format === 'date' || usedFallback)) {
+    while (
+      existing &&
+      (format === 'random' || format === 'date' || usedFallback)
+    ) {
       fileName = usedFallback ? formatFileName('random') : formatFileName(format, originalName, dateIncrement++);
 
       // If fileName is still null/empty after trying to generate, use random as fallback
@@ -144,7 +148,7 @@ export async function getFilename(
       fullFileNames = extensions.map((ext) => `${fileName}${ext}`);
       existing =
         fullFileNames.some((name) => reservedNames?.has(name)) ||
-        (await prisma.file.findFirst({ where: { name: { in: fullFileNames } } }));
+        (await prisma.file.findFirst({ where: { name: { in: fullFileNames } } })) !== null;
     }
 
     // Ensure fileName is not null before returning
