@@ -1,6 +1,6 @@
-import sharp from 'sharp';
-import { log } from '../logger';
-import { config } from '../config';
+import sharp, { type Gravity } from 'sharp';
+import { log } from './logger';
+import { config } from './config';
 
 const logger = log('watermark');
 
@@ -58,7 +58,7 @@ export async function applyWatermark(buffer: Buffer, options: WatermarkOptions):
 
 function positionToGravity(
   position: WatermarkOptions['position'],
-): sharp.Gravity | undefined {
+): Gravity | undefined {
   switch (position) {
     case 'top-left':
       return 'northwest';

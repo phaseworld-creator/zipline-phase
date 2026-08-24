@@ -1,9 +1,9 @@
 import { Url } from '@/lib/db/models/url';
 import { fetchApi } from '@/lib/fetchApi';
 import useObjectState from '@/lib/client/hooks/useObjectState';
-import { Button, Divider, Modal, NumberInput, PasswordInput, Stack, Switch, TextInput } from '@mantine/core';
+import { Button, Divider, Group, Modal, NumberInput, PasswordInput, Stack, Switch, TextInput } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
-import { IconBurn, IconEye, IconKey, IconPencil, IconPencilOff, IconTrashFilled } from '@tabler/icons-react';
+import { IconFlame, IconEye, IconKey, IconPencil, IconPencilOff, IconTrashFilled } from '@tabler/icons-react';
 import { useEffect } from 'react';
 import { mutate } from 'swr';
 
@@ -156,13 +156,15 @@ export default function EditUrlModal({ url, onClose }: { url: Url | null; onClos
           onChange={(event) => setUrlData('enabled', event.currentTarget.checked)}
         />
 
-        <Switch
-          label='One-Time View'
-          description='Delete this URL immediately after it is viewed once.'
-          checked={urlData.oneTimeView}
-          onChange={(event) => setUrlData('oneTimeView', event.currentTarget.checked)}
-          leftSection={<IconBurn size='1rem' />}
-        />
+        <Group gap='xs'>
+          <IconFlame size='1rem' />
+          <Switch
+            label='One-Time View'
+            description='Delete this URL immediately after it is viewed once.'
+            checked={urlData.oneTimeView}
+            onChange={(event) => setUrlData('oneTimeView', event.currentTarget.checked)}
+          />
+        </Group>
 
         <Divider />
 

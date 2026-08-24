@@ -47,7 +47,7 @@ export const router = createBrowserRouter([
                 lazy: () => import('./pages/auth/setup'),
               },
                { path: 'auth/tos', lazy: () => import('./pages/auth/tos') },
-               { path: 'upload', lazy: () => import('./pages/public/upload') },
+               { path: 'upload', lazy: () => import('./pages/public/upload').then((m) => ({ Component: m.default })) },
             ],
           },
           {

@@ -1,11 +1,5 @@
 import { ApiError } from '@/lib/api/errors';
-import { checkQuota } from '@/lib/api/upload';
-import { config } from '@/lib/config';
-import { datasource } from '@/lib/datasource';
-import { prisma } from '@/lib/db';
-import { fileSelect } from '@/lib/db/models/file';
-import { getFilename } from '@/lib/uploader/formatFileName';
-import { parseHeaders, UploadHeaders } from '@/lib/uploader/parseHeaders';
+import { checkQuota, getFilename } from '@/lib/api/upload';
 import { onUpload } from '@/lib/webhooks';
 import typedPlugin from '@/server/typedPlugin';
 import { z } from 'zod';

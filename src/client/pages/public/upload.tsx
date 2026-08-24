@@ -12,6 +12,7 @@ import {
   Text,
   Title,
   rem,
+  useMantineColorScheme,
   useMantineTheme,
 } from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
@@ -24,6 +25,7 @@ const initialVisible = 24;
 
 export default function PublicUpload() {
   const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
   const config = useConfig();
 
   const [_options] = useUploadOptionsStore(
@@ -106,11 +108,11 @@ export default function PublicUpload() {
             <IconUpload
               size='3.2rem'
               stroke={1.5}
-              color={theme.colors[theme.primaryColor][theme.colorScheme === 'dark' ? 4 : 6]}
+              color={theme.colors[theme.primaryColor][colorScheme === 'dark' ? 4 : 6]}
             />
           </Dropzone.Accept>
           <Dropzone.Reject>
-            <IconX size='3.2rem' stroke={1.5} color={theme.colors.red[theme.colorScheme === 'dark' ? 4 : 6]} />
+            <IconX size='3.2rem' stroke={1.5} color={theme.colors.red[colorScheme === 'dark' ? 4 : 6]} />
           </Dropzone.Reject>
           <Dropzone.Idle>
             <IconDeviceSdCard size='3.2rem' stroke={1.5} />

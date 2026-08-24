@@ -93,6 +93,8 @@ export default typedPlugin(
           ? await hashPassword(req.headers['x-zipline-password'])
           : undefined;
 
+        const oneTimeView = req.headers['x-zipline-one-time-view'] ?? false;
+
         if (vanity) {
           const existingVanity = await prisma.url.findFirst({
             where: {
@@ -130,7 +132,7 @@ export default typedPlugin(
               ...(maxViews && { maxViews: maxViews }),
               ...(password && { password: password }),
               ...(enabled !== undefined && { enabled: enabled }),
-              ...(options.oneTimeView && { oneTimeView: true }),
+              ...(oneTimeView && { oneTimeView: true }),
             },
             omit: {
               password: true,

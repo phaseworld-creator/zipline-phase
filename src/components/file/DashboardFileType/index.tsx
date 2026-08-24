@@ -16,7 +16,7 @@ import {
   Text,
 } from '@mantine/core';
 import type { Icon } from '@tabler/icons-react';
-import { IconPlayerPlay, IconShieldLockFilled, IconLock, IconBurn } from '@tabler/icons-react';
+import { IconPlayerPlay, IconShieldLockFilled, IconLock, IconFlame } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import fileIcon from '../fileIcon';
 import FileZoomModal from './FileZoomModal';
@@ -147,7 +147,7 @@ export default function DashboardFileType({
     return (
       <Placeholder
         text={`One-time view — disappears after first view`}
-        Icon={IconBurn}
+        Icon={IconFlame}
         extra={
           <Badge color='red' variant='light' mt='xs'>
             One-Time
