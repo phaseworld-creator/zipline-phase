@@ -40,6 +40,7 @@ import {
   IconLink,
   IconLogin2,
   IconLogout,
+  IconMusic,
   IconRefreshDot,
   IconSettingsFilled,
   IconShieldLockFilled,
@@ -173,6 +174,7 @@ const navLinks: NavLinks[] = [
         icon: <IconSparkles size='1rem' />,
         active: (path: string) =>
           path === '/dashboard/admin/troll' ||
+          path === '/dashboard/admin/soundboard' ||
           path === '/dashboard/admin/api-docs' ||
           path === '/dashboard/admin/login-customiser',
         links: [
@@ -181,6 +183,13 @@ const navLinks: NavLinks[] = [
             icon: <IconGhost2Filled size='1rem' />,
             active: (path: string) => path === '/dashboard/admin/troll',
             href: '/dashboard/admin/troll',
+          },
+          {
+            label: 'Soundboard',
+            icon: <IconMusic size='1rem' />,
+            active: (path: string) => path === '/dashboard/admin/soundboard',
+            href: '/dashboard/admin/soundboard',
+            if: (_, config) => config.features.soundboard,
           },
           {
             label: 'API Reference',
