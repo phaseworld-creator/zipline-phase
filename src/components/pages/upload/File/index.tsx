@@ -65,9 +65,13 @@ export default function UploadFile({ title, folder }: { title?: string; folder?:
       if (!e.clipboardData.items[i].type.startsWith('image')) return;
       const blob = e.clipboardData.items[i].getAsFile();
       if (!blob) return;
-      setFiles((prev) => [...prev, blob]);
+      const file =
+        blob.name
+          ? blob
+          : new File([blob], `clipboard-${Date.now()}.png`, { type: blob.type || 'image/png' });
+      setFiles((prev) => [...prev, file]);
       setVisibleCount(initialVisible);
-      showNotification({ message: `Image ${blob.name} pasted from clipboard`, color: 'blue' });
+      showNotification({ message: `Image ${file.name} pasted from clipboard`, color: 'blue' });
     }
   }, []);
 

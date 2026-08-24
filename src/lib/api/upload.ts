@@ -83,9 +83,19 @@ export async function getFilename(
   alternateExtensions: string[] = [],
 ): Promise<string> {
   try {
-    let fileName = override ? sanitizeFilename(override) : formatFileName(format, originalName);
+    const resolveName = (increment?: number) =>
+      override ? sanitizeFilename(override) : formatFileName(format, originalName, increment);
 
-    if (!fileName) throw 'invalid file name';
+    let fileName = resolveName();
+    let usedFallback = false;
+
+    // fall back to a generated name when the provided/derived name is empty or invalid
+    // (e.g. empty multipart filename, empty x-zipline-filename override, or a name that
+    // sanitizes to nothing) instead of failing the upload with E1009.
+    if (!fileName) {
+      fileName = formatFileName('random');
+      usedFallback = true;
+    }
 
     const extensions = [...new Set([extension, ...alternateExtensions])];
     let fullFileNames = extensions.map((ext) => `${fileName}${ext}`);
@@ -93,14 +103,14 @@ export async function getFilename(
       fullFileNames.some((name) => reservedNames?.has(name)) ||
       (await prisma.file.findFirst({ where: { name: { in: fullFileNames } } }));
 
-    if (existing && (override || format === 'name')) {
+    if (existing && (override || format === 'name') && !usedFallback) {
       throw 'file with the same name already exists';
     }
 
     let dateIncrement = 1;
 
-    while (existing && (format === 'random' || format === 'date')) {
-      fileName = formatFileName(format, originalName, dateIncrement++);
+    while (existing && (format === 'random' || format === 'date' || usedFallback)) {
+      fileName = usedFallback ? formatFileName('random') : formatFileName(format, originalName, dateIncrement++);
       if (!fileName) throw 'invalid file name';
 
       fullFileNames = extensions.map((ext) => `${fileName}${ext}`);
