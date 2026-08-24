@@ -103,15 +103,38 @@ export async function getFilename(
       fullFileNames.some((name) => reservedNames?.has(name)) ||
       (await prisma.file.findFirst({ where: { name: { in: fullFileNames } } }));
 
+    // If a file exists and the user explicitly requested a name (override) or the
+    // format is 'name', try appending numeric suffixes instead of immediately failing.
     if (existing && (override || format === 'name') && !usedFallback) {
-      throw 'file with the same name already exists';
+      const maxAttempts = 50;
+      const baseName = fileName;
+      let found = false;
+
+      for (let k = 1; k <= maxAttempts; k++) {
+        const candidate = `${baseName}-${k}`;
+        const candidateFull = extensions.map((ext) => `${candidate}${ext}`);
+        const candidateExists =
+          candidateFull.some((n) => reservedNames?.has(n)) ||
+          (await prisma.file.findFirst({ where: { name: { in: candidateFull } } }));
+        if (!candidateExists) {
+          fileName = candidate;
+          fullFileNames = candidateFull;
+          existing = false;
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
+        throw 'file with the same name already exists';
+      }
     }
 
     let dateIncrement = 1;
 
     while (existing && (format === 'random' || format === 'date' || usedFallback)) {
       fileName = usedFallback ? formatFileName('random') : formatFileName(format, originalName, dateIncrement++);
-      
+
       // If fileName is still null/empty after trying to generate, use random as fallback
       if (!fileName) {
         fileName = formatFileName('random');
@@ -132,7 +155,7 @@ export async function getFilename(
     for (const name of fullFileNames) reservedNames?.add(name);
     return fileName as string;
   } catch (e) {
-    logger.warn(`error generating file name: ${e}`);
+    logger.warn(`error generating file name for ${originalName}: ${e}`);
 
     if (typeof e === 'string') throw e;
     throw e instanceof URIError ? 'invalid file name: make sure it is URL encoded' : 'invalid file name';
