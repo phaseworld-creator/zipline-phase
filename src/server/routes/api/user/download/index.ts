@@ -2,7 +2,6 @@ import { ApiError } from '@/lib/api/errors';
 import { config } from '@/lib/config';
 import { datasource } from '@/lib/datasource';
 import { prisma } from '@/lib/db';
-import { findFileByName } from '@/lib/db/models/file';
 import { log } from '@/lib/logger';
 import { userMiddleware } from '@/server/middleware/user';
 import typedPlugin from '@/server/typedPlugin';
@@ -14,14 +13,16 @@ import { randomUUID } from 'crypto';
 export const PATH = '/api/user/download';
 export type ApiDownloadResponse = { url: string };
 
+const downloadResponseSchema = z.object({ url: z.string() });
+
 const logger = log('api').c('user').c('download');
 
 export default typedPlugin(
   async (server) => {
     server.post<{
       Body: z.ZodTypeAny,
-      Querystring: z.ZodTypeAny;
-      Response: { 200: z.object({ url: z.string() }) };
+      Querystring: z.ZodTypeAny,
+      Response: { 200: typeof downloadResponseSchema },
     }>(
       PATH,
       {
@@ -38,7 +39,7 @@ export default typedPlugin(
       async (req, res) => {
         const { type, id } = req.body;
 
-        let files: { name: string; path: string }[] = [];
+        const files: { name: string; path: string }[] = [];
 
         if (type === 'folder') {
           const folder = await prisma.folder.findFirst({
@@ -113,7 +114,7 @@ export default typedPlugin(
         logger.info(`generated zip download for ${type} ${id}`, { userId: req.user.id });
 
         return res.send({ url });
-      },
+      }
     );
   },
   { name: PATH },

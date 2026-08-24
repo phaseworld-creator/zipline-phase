@@ -24,16 +24,6 @@ export default function ImageEditor({ file, onSave, onCancel }: ImageEditorProps
   const [isCropping, setIsCropping] = useState(false);
   const [cropStart, setCropStart] = useState<{ x: number; y: number } | null>(null);
 
-  useEffect(() => {
-    const img = new window.Image();
-    img.onload = () => {
-      imageRef.current = img;
-      render();
-    };
-    img.src = URL.createObjectURL(file);
-    return () => URL.revokeObjectURL(img.src);
-  }, [file, scale, rotation, brightness, contrast]);
-
   const render = () => {
     const canvas = canvasRef.current;
     const img = imageRef.current;
@@ -52,6 +42,16 @@ export default function ImageEditor({ file, onSave, onCancel }: ImageEditorProps
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.filter = 'none';
   };
+
+  useEffect(() => {
+    const img = new window.Image();
+    img.onload = () => {
+      imageRef.current = img;
+      render();
+    };
+    img.src = URL.createObjectURL(file);
+    return () => URL.revokeObjectURL(img.src);
+  }, [file, scale, rotation, brightness, contrast]);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = canvasRef.current!.getBoundingClientRect();

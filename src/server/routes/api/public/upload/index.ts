@@ -20,16 +20,22 @@ export type ApiPublicUploadResponse = {
   }[];
 };
 
+const publicUploadResponseSchema = z.object({
+  files: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      type: z.string(),
+      url: z.string(),
+    }),
+  ),
+});
+
 export default typedPlugin(
   async (server) => {
     server.post<{
       Headers: UploadHeaders,
-      Response: { 200: z.object({ files: z.array(z.object({
-        id: z.string(),
-        name: z.string(),
-        type: z.string(),
-        url: z.string(),
-      })) }) };
+      Response: { 200: typeof publicUploadResponseSchema },
     }>(
       PATH,
       {
@@ -134,7 +140,7 @@ export default typedPlugin(
         });
 
         return res.send(response);
-      },
+      }
     );
   },
   { name: PATH },

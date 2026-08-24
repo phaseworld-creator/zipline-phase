@@ -26,14 +26,14 @@ export default function PublicUpload() {
   const theme = useMantineTheme();
   const config = useConfig();
 
-  const [options] = useUploadOptionsStore(
+  const [_options] = useUploadOptionsStore(
     useShallow((state) => [state.options]),
   );
 
   const [files, setFiles] = useState<File[]>([]);
   const [visibleCount, setVisibleCount] = useState(initialVisible);
   const [progress, setProgress] = useProgress();
-  const [dropLoading, setLoading] = useState(false);
+  const [dropLoading, _setLoading] = useState(false);
 
   const visibleFiles = files.slice(0, visibleCount);
   const hiddenFiles = Math.max(0, files.length - visibleFiles.length);
