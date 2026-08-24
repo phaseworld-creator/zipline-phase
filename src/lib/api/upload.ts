@@ -130,7 +130,7 @@ export async function getFilename(
     }
 
     for (const name of fullFileNames) reservedNames?.add(name);
-    return fileName || formatFileName('random');
+    return fileName as string;
   } catch (e) {
     logger.warn(`error generating file name: ${e}`);
 
