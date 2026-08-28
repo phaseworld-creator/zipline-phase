@@ -7,6 +7,9 @@ Documentation: [zipline.diced.sh](https://zipline.diced.sh)
 
 </div>
 
+>[!NOTE]
+>Have Any Bug Email Me phaseworld.pro@gmail.com
+
 > [!WARNING]
 > That Fork that will not be updated mutch bc it mostly for fun but if you liked it star it :3
 
