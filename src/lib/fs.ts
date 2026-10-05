@@ -12,7 +12,14 @@ export async function exists(path: PathLike): Promise<boolean> {
 }
 
 export function sanitizeFilename(name: string): string | null {
-  const decoded = decodeURIComponent(name);
+  let decoded: string;
+  try {
+    decoded = decodeURIComponent(name);
+  } catch {
+    // If decoding fails, use the original name (it's not URL encoded)
+    decoded = name;
+  }
+  
   const normalized = normalize(decoded);
 
   if (normalized.includes('/') || normalized.includes('\\')) return null;
