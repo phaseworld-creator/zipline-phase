@@ -46,6 +46,9 @@ COPY --from=builder /zipline/build ./build
 COPY --from=builder /zipline/mimes.json ./mimes.json
 COPY --from=builder /zipline/code.json ./code.json
 
+# Copy prisma schema and migrations for runtime migrations
+COPY --from=base /zipline/prisma ./prisma
+
 RUN pnpm prisma generate \
     && rm -rf /tmp/* /root/*
 
