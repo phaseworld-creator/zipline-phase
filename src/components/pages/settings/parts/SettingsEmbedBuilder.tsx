@@ -164,8 +164,6 @@ function DiscordPreview({ data }: { data: EmbedData }) {
     );
   }
 
-  const inlineFields = data.fields.filter((f) => f.name.trim() && f.value.trim() && f.inline);
-  const nonInlineFields = data.fields.filter((f) => f.name.trim() && f.value.trim() && !f.inline);
   const allFields = data.fields.filter((f) => f.name.trim() && f.value.trim());
 
   return (
