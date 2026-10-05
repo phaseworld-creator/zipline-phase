@@ -97,6 +97,144 @@ const PRESETS: { label: string; draft: Partial<ThemeDraft> }[] = [
     },
   },
   {
+    // PhaseWorld Site — matches the PhaseWorld UI Theme contract:
+    // one accent (#ff5b2e), 1px-line structure, Space Grotesk + Newsreader + Space Mono,
+    // small radii only (0–4px), dark default, quiet authority reading experience.
+    label: 'PhaseWorld Site',
+    draft: {
+      name: 'PhaseWorld Site',
+      colorScheme: 'dark',
+      primaryColor: 'phaseAccent',
+      mainBackgroundColor: '#0d0d0f',
+      // --accent: #ff5b2e  ten-shade ramp (lightest → darkest)
+      primaryShades: [
+        '#fff2ee', // [0] lightest tint
+        '#ffd5c8', // [1]
+        '#ffb09a', // [2]
+        '#ff8b6c', // [3]
+        '#ff6a46', // [4]
+        '#ff5b2e', // [5] ← primary accent (index 5 is Mantine default)
+        '#e04820', // [6]
+        '#c23716', // [7]
+        '#9e2a0e', // [8]
+        '#7a1e08', // [9] darkest
+      ] as ColorShades,
+      // surface scale built from the token table:
+      // [0] --fg #f0efec · [1] --fg-2 #a9a7a1 · [2] --fg-3 #6e6c67
+      // [3] --line-2 #36363e · [4] --line #26262b
+      // [5] --bg-3 #1b1b1f · [6] --bg-2 #131316 · [7] --bg #0d0d0f
+      // [8] deeper · [9] deepest
+      darkShades: [
+        '#f0efec', // [0] --fg
+        '#a9a7a1', // [1] --fg-2
+        '#6e6c67', // [2] --fg-3
+        '#36363e', // [3] --line-2
+        '#26262b', // [4] --line
+        '#1b1b1f', // [5] --bg-3 (hover, code, chips)
+        '#131316', // [6] --bg-2 (sidebar, cards)
+        '#0d0d0f', // [7] --bg (page background)
+        '#09090b', // [8]
+        '#050506', // [9]
+      ] as ColorShades,
+      defaultRadius: 'xs', // 2px — closest Mantine radius to the 0/3/4px rule
+      fontFamily: "'Space Grotesk', system-ui, sans-serif",
+      headingFontFamily: "'Space Grotesk', system-ui, sans-serif",
+      extraCss: [
+        "/* ── PhaseWorld Site theme ── */",
+        "@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Newsreader:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&display=swap');",
+        "",
+        "/* Token layer — matches the PhaseWorld UI contract */",
+        ":root, [data-mantine-color-scheme='dark'] {",
+        "  --pw-bg:          #0d0d0f;",
+        "  --pw-bg-2:        #131316;",
+        "  --pw-bg-3:        #1b1b1f;",
+        "  --pw-line:        #26262b;",
+        "  --pw-line-2:      #36363e;",
+        "  --pw-fg:          #f0efec;",
+        "  --pw-fg-2:        #a9a7a1;",
+        "  --pw-fg-3:        #6e6c67;",
+        "  --pw-accent:      #ff5b2e;",
+        "  --pw-accent-wash: rgba(255,91,46,.12);",
+        "  --pw-signal:      #35c759;",
+        "}",
+        "",
+        "/* Override Mantine surface variables to use the PhaseWorld palette */",
+        "[data-mantine-color-scheme='dark'] {",
+        "  --mantine-color-body:           var(--pw-bg);",
+        "  --mantine-color-dark-filled:     var(--pw-bg-2);",
+        "  --mantine-color-dark-hover:      var(--pw-bg-3);",
+        "  --mantine-color-dark-text:       var(--pw-fg);",
+        "  --mantine-color-default-border:  var(--pw-line);",
+        "}",
+        "",
+        "/* Hard-edge structure: no shadows, no gradients on flat content */",
+        ".mantine-Paper-root { box-shadow: none !important; }",
+        ".mantine-Paper-root[data-with-border] { border-color: var(--pw-line) !important; }",
+        "",
+        "/* Typography — serif for prose, mono stays mono */",
+        "body { font-family: 'Space Grotesk', system-ui, sans-serif; }",
+        ".mantine-Text-root { font-family: 'Space Grotesk', system-ui, sans-serif; }",
+        "p, .pw-prose { font-family: 'Newsreader', Georgia, serif; font-size: 17px; line-height: 1.7; }",
+        "code, kbd, .mantine-Code-root, .mantine-Badge-root { font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: .04em; }",
+        "",
+        "/* Accent — focus ring must always use --pw-accent */",
+        "*:focus-visible { outline: 2px solid var(--pw-accent) !important; outline-offset: 2px !important; }",
+        "::selection { background: var(--pw-accent); color: var(--pw-bg); }",
+        "",
+        "/* Radius clamp — nothing above 4px on flat surfaces */",
+        ".mantine-Button-root, .mantine-Badge-root, .mantine-TextInput-input,",
+        ".mantine-PasswordInput-input, .mantine-Select-input, .mantine-Textarea-input {",
+        "  border-radius: 3px !important;",
+        "}",
+        ".mantine-Paper-root { border-radius: 4px !important; }",
+        ".mantine-NavLink-root { border-radius: 3px !important; }",
+        "",
+        "/* Accent primary button */",
+        ".mantine-Button-root[data-variant='filled'] {",
+        "  background: var(--pw-accent) !important;",
+        "  color: #fff !important;",
+        "}",
+        ".mantine-Button-root[data-variant='filled']:hover {",
+        "  background: #e04820 !important;",
+        "}",
+        "",
+        "/* Nav active state — accent line, no fill */",
+        ".mantine-NavLink-root[data-active] {",
+        "  background: var(--pw-accent-wash) !important;",
+        "  border-left: 2px solid var(--pw-accent);",
+        "  color: var(--pw-fg) !important;",
+        "}",
+        "",
+        "/* Links */",
+        "a, .mantine-Anchor-root { color: var(--pw-fg-2); text-decoration: none; }",
+        "a:hover, .mantine-Anchor-root:hover { color: var(--pw-accent); }",
+        "",
+        "/* No pill badges — square them */",
+        ".mantine-Badge-root { border-radius: 3px !important; letter-spacing: .08em; font-size: 11px; text-transform: uppercase; }",
+        "",
+        "/* Table hairlines only */",
+        ".mantine-Table-root thead tr th { border-bottom: 1px solid var(--pw-line) !important; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--pw-fg-3); }",
+        ".mantine-Table-root tbody tr td { border-bottom: 1px solid var(--pw-line) !important; font-size: 14px; }",
+        ".mantine-Table-root tbody tr:hover td { background: var(--pw-bg-3) !important; }",
+        "",
+        "/* Dividers use the line token */",
+        ".mantine-Divider-root { border-color: var(--pw-line) !important; }",
+        "",
+        "/* Inputs — 1px border, no fill glow */",
+        ".mantine-TextInput-input, .mantine-PasswordInput-input,",
+        ".mantine-Select-input, .mantine-Textarea-input {",
+        "  background: var(--pw-bg-2) !important;",
+        "  border-color: var(--pw-line-2) !important;",
+        "  color: var(--pw-fg) !important;",
+        "}",
+        ".mantine-TextInput-input:focus, .mantine-PasswordInput-input:focus,",
+        ".mantine-Select-input:focus, .mantine-Textarea-input:focus {",
+        "  border-color: var(--pw-accent) !important;",
+        "}",
+      ].join('\n'),
+    },
+  },
+  {
     label: 'Midnight Purple',
     draft: {
       colorScheme: 'dark',

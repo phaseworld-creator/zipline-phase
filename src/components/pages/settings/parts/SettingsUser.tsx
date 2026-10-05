@@ -6,9 +6,12 @@ import { fetchApi } from '@/lib/fetchApi';
 import { useUserStore } from '@/lib/client/store/user';
 import {
   ActionIcon,
+  Alert,
   Avatar,
   Box,
   Button,
+  Code,
+  Divider,
   FileButton,
   Group,
   Paper,
@@ -23,11 +26,13 @@ import {
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import {
+  IconAlertTriangle,
   IconAsteriskSimple,
   IconCheck,
   IconCopy,
   IconDeviceFloppy,
   IconKey,
+  IconLock,
   IconPhoto,
   IconTrash,
   IconUser,
@@ -59,10 +64,20 @@ export default function SettingsUser() {
 
 function Form({ user, setUser, token }: { user: User; setUser: (u: User) => void; token: string }) {
   const [tokenShown, setTokenShown] = useState(false);
+  const [resetKeyShown, setResetKeyShown] = useState(false);
   const resetRef = useRef<() => void>(null);
 
   // Fetch the current avatar separately (not in default userSelect)
   const { data: currentAvatar, mutate: mutateAvatar } = useSWR<string>('/api/user/avatar');
+
+  // Fetch the reset key — only available to admins, 403 for regular users
+  const { data: resetKeyData } = useSWR<{ resetKey: string }>(
+    user.role === 'ADMIN' ? '/api/admin/reset-key' : null,
+  );
+  const resetKey = resetKeyData?.resetKey ?? null;
+  const resetUrl = resetKey
+    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/api/admin/reset/${resetKey}`
+    : '';
 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarSaving, setAvatarSaving] = useState(false);
@@ -270,6 +285,99 @@ function Form({ user, setUser, token }: { user: User; setUser: (u: User) => void
         >
           <ScrollArea scrollbarSize={5}>{tokenShown ? token : '[click to reveal]'}</ScrollArea>
         </TextInput>
+
+        {/* ── Reset Key — admin only ── */}
+        {user.role === 'ADMIN' && (
+          <>
+            <Divider my='sm' label='Instance reset' labelPosition='left' />
+            <Alert
+              icon={<IconAlertTriangle size='1rem' />}
+              color='orange'
+              variant='light'
+              mb='xs'
+              styles={{ message: { fontSize: '0.8rem' } }}
+            >
+              The reset key permanently deletes all users and restores first-time setup mode.
+              Keep it private — anyone with it and access to your URL can wipe the instance.
+            </Alert>
+            <Box
+              style={{
+                border: '1px solid var(--mantine-color-default-border)',
+                borderRadius: 6,
+                padding: '8px 12px',
+              }}
+            >
+              <Group gap='xs' mb={4}>
+                <IconLock size='0.85rem' style={{ color: 'var(--mantine-color-dimmed)' }} />
+                <Text size='xs' fw={600} c='dimmed'>Reset Key</Text>
+              </Group>
+              <Group gap='xs' align='center'>
+                <Code
+                  style={{
+                    flex: 1,
+                    fontSize: '0.7rem',
+                    wordBreak: 'break-all',
+                    cursor: 'pointer',
+                    letterSpacing: '0.04em',
+                  }}
+                  onClick={() => setResetKeyShown((v) => !v)}
+                >
+                  {resetKey
+                    ? (resetKeyShown ? resetKey : '•'.repeat(32) + ' [click to reveal]')
+                    : 'Loading…'}
+                </Code>
+                {resetKey && (
+                  <SafeCopyButton value={resetKey} timeout={1500}>
+                    {({ copied, copy }) => (
+                      <Tooltip label={copied ? 'Copied!' : 'Copy reset key'}>
+                        <ActionIcon size='sm' variant='subtle' color={copied ? 'teal' : 'gray'} onClick={copy}>
+                          {copied ? <IconCheck size='0.85rem' /> : <IconCopy size='0.85rem' />}
+                        </ActionIcon>
+                      </Tooltip>
+                    )}
+                  </SafeCopyButton>
+                )}
+              </Group>
+            </Box>
+            {resetKey && (
+              <Box
+                style={{
+                  border: '1px solid var(--mantine-color-default-border)',
+                  borderRadius: 6,
+                  padding: '8px 12px',
+                }}
+              >
+                <Group gap='xs' mb={4}>
+                  <Text size='xs' fw={600} c='dimmed'>Reset URL</Text>
+                  <Text size='xs' c='dimmed'>(visit this to wipe the instance)</Text>
+                </Group>
+                <Group gap='xs' align='center'>
+                  <Code
+                    style={{
+                      flex: 1,
+                      fontSize: '0.7rem',
+                      wordBreak: 'break-all',
+                      letterSpacing: '0.03em',
+                    }}
+                  >
+                    {resetKeyShown ? resetUrl : `${typeof window !== 'undefined' ? window.location.origin : ''}/api/admin/reset/[hidden]`}
+                  </Code>
+                  {resetKey && (
+                    <SafeCopyButton value={resetUrl} timeout={1500}>
+                      {({ copied, copy }) => (
+                        <Tooltip label={copied ? 'Copied!' : 'Copy reset URL'}>
+                          <ActionIcon size='sm' variant='subtle' color={copied ? 'teal' : 'gray'} onClick={copy}>
+                            {copied ? <IconCheck size='0.85rem' /> : <IconCopy size='0.85rem' />}
+                          </ActionIcon>
+                        </Tooltip>
+                      )}
+                    </SafeCopyButton>
+                  )}
+                </Group>
+              </Box>
+            )}
+          </>
+        )}
 
         <TextInput
           label='Username'

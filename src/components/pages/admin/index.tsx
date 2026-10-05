@@ -30,44 +30,45 @@ export default function DashboardAdminHome() {
       description: 'Instance-wide usage graphs and statistics',
       href: '/dashboard/metrics',
       icon: IconGraph,
-      show:
+      hidden: !(
         config.features.metrics.enabled &&
-        (!config.features.metrics.adminOnly || isAdministrator(user?.role)),
+        (!config.features.metrics.adminOnly || isAdministrator(user?.role))
+      ),
     },
     {
       label: 'Actions',
       description: 'Maintenance tools and import/export',
       href: '/dashboard/admin/actions',
       icon: IconStopwatch,
-      show: true,
+      hidden: false,
     },
     {
       label: 'Users',
       description: 'Manage users and quotas',
       href: '/dashboard/admin/users',
       icon: IconUsersGroup,
-      show: true,
+      hidden: false,
     },
     {
       label: 'Settings',
       description: 'Server configuration',
       href: '/dashboard/admin/settings',
       icon: IconAdjustments,
-      show: user?.role === 'ADMIN',
+      hidden: user?.role !== 'ADMIN',
     },
     {
       label: 'Invites',
       description: 'Create and manage invite codes',
       href: '/dashboard/admin/invites',
       icon: IconTags,
-      show: config.invites.enabled,
+      hidden: !config.invites.enabled,
     },
     {
       label: 'Theme Maker',
       description: 'Design custom themes with live preview',
       href: '/dashboard/admin/theme-maker',
       icon: IconBrush,
-      show: true,
+      hidden: false,
     },
   ];
 
@@ -77,35 +78,35 @@ export default function DashboardAdminHome() {
       description: 'Disguised prank links with preset media',
       href: '/dashboard/admin/troll',
       icon: IconGhost2Filled,
-      show: true,
+      hidden: false,
     },
     {
       label: 'Soundboard',
       description: 'Manage audio prank links and sound effects',
       href: '/dashboard/admin/soundboard',
       icon: IconMusic,
-      show: config.features.soundboard,
+      hidden: !config.features.soundboard,
     },
     {
       label: 'API Reference',
       description: 'Browse and test all API endpoints',
       href: '/dashboard/admin/api-docs',
       icon: IconApi,
-      show: true,
+      hidden: false,
     },
     {
       label: 'Login Customiser',
       description: 'Customise the login page appearance with live preview',
       href: '/dashboard/admin/login-customiser',
       icon: IconLogin2,
-      show: user?.role === 'ADMIN',
+      hidden: user?.role !== 'ADMIN',
     },
     {
       label: 'Embed Builder',
-      description: 'Build Discord embed links with discohook.app integration',
+      description: 'Build Discord embed links with live preview and discohook.app integration',
       href: '/dashboard/admin/embed-builder',
       icon: IconCode,
-      show: true,
+      hidden: false,
     },
   ];
 
