@@ -34,5 +34,5 @@ export default function SafeCopyButton({ value, timeout = 2000, children }: Prop
     };
   }, []);
 
-  return <>{children({ copied, copy })}</>;
+  return children({ copied, copy });
 }
