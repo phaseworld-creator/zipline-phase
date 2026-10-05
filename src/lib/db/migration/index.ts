@@ -40,7 +40,7 @@ export async function runMigrations() {
   });
 
   const logger = log('migrations');
-  logger.debug('running migrations...');
+  logger.info('running database migrations...');
 
   try {
     logger.debug('ensuring database exists...');
@@ -54,8 +54,12 @@ export async function runMigrations() {
       logger.info('database created');
     }
   } catch (e) {
-    logger.error('failed to create database' + e);
-    logger.error('try creating the database manually and running the server again');
+    logger.error('Failed to create database:');
+    logger.error(e instanceof Error ? e.message : String(e));
+    if (e instanceof Error && e.stack) {
+      logger.error(e.stack);
+    }
+    logger.error('Try creating the database manually and running the server again');
 
     await migrate.stop();
     process.exit(1);
@@ -63,11 +67,15 @@ export async function runMigrations() {
 
   let migrationIds: string[];
   try {
-    logger.debug('applying migrations...');
+    logger.info('applying pending migrations...');
     const { appliedMigrationNames } = await migrate.applyMigrations();
     migrationIds = appliedMigrationNames;
   } catch (e) {
-    logger.error('failed to apply migrations' + e);
+    logger.error('Failed to apply migrations:');
+    logger.error(e instanceof Error ? e.message : String(e));
+    if (e instanceof Error && e.stack) {
+      logger.error(e.stack);
+    }
 
     await migrate.stop();
     process.exit(1);
@@ -76,9 +84,9 @@ export async function runMigrations() {
   }
 
   if (migrationIds?.length === 0) {
-    logger.debug('no migrations applied');
+    logger.info('database is up to date - no migrations needed');
     return;
   }
 
-  logger.info(`applied migrations: ${migrationIds.join(', ')}`);
+  logger.info(`successfully applied ${migrationIds.length} migration(s): ${migrationIds.join(', ')}`);
 }
