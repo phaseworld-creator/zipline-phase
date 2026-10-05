@@ -89,8 +89,9 @@ export default typedPlugin(
           let fileName: string;
           try {
             fileName = await getFilename(format, file.filename, extension, undefined, reservedNames);
-          } catch {
-            throw new ApiError(1009, `file[${i}]: invalid file name`);
+          } catch (e) {
+            const errorMsg = typeof e === 'string' ? e : (e as Error)?.message || 'invalid file name';
+            throw new ApiError(1009, `file[${i}]: ${errorMsg}`);
           }
 
           filesBefore.push({ file, fileName, extension, mimetype });
