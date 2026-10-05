@@ -263,7 +263,7 @@ export default typedPlugin(
             `file[${i}]`,
           ).mimetype;
 
-          let finalBuffer = compressed?.buffer ?? (typeof file.filepath === 'string' ? Buffer.from(file.filepath) : file.filepath);
+          let finalBuffer = compressed?.buffer ?? (typeof file.filepath === 'string' ? await import('fs').then(fs => fs.promises.readFile(file.filepath)) : file.filepath);
 
           // apply watermark if enabled and file is an image
           if (
