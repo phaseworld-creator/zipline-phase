@@ -21,6 +21,9 @@ Documentation: [zipline.diced.sh](https://zipline.diced.sh)
 > May take up a time to start 
 
 More Stuff
+
 <- [Gitdiagram](gitdiagram.md)
+
 <- [Star History](starhistory.md)
+
 <- [Go Part 2](README2.md) (just the main zipline readme stuff in here)
