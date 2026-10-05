@@ -151,7 +151,7 @@ export const rawFileHandler = async (
       const viewerSession = await (async () => {
         try {
           const { getSession } = await import('@/server/session');
-          const session = await getSession(req, req.server.wrapReply(req as any) as any);
+          const session = await getSession(req, res);
           return session.id ?? null;
         } catch {
           return null;
