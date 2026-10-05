@@ -159,7 +159,15 @@ export async function getFilename(
     for (const name of fullFileNames) reservedNames?.add(name);
     return fileName as string;
   } catch (e) {
-    logger.warn(`error generating file name for ${originalName}: ${e}`);
+    logger.warn(`error generating file name for ${originalName}: ${e}`, {
+      originalName,
+      extension,
+      override,
+      format,
+      errorType: typeof e,
+      errorMessage: e instanceof Error ? e.message : String(e),
+      errorStack: e instanceof Error ? e.stack : undefined,
+    });
 
     if (typeof e === 'string') throw e;
     throw e instanceof URIError ? 'invalid file name: make sure it is URL encoded' : 'invalid file name';

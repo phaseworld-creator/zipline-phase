@@ -11,7 +11,7 @@ export function formatFileName(
   nameFormat: Config['files']['defaultFormat'],
   originalName?: string,
   dateIncrement?: number,
-) {
+): string | null {
   switch (nameFormat) {
     case 'random':
       return randomCharacters(config.files.length);
@@ -25,7 +25,9 @@ export function formatFileName(
       const sanitized = sanitizeFilename(originalName);
       if (!sanitized) return null;
 
-      return parse(sanitized).name;
+      const parsed = parse(sanitized).name;
+      // If parsing results in empty string, return null to trigger fallback
+      return parsed || null;
     case 'random-words':
     case 'gfycat':
       return randomWords(config.files.randomWordsNumAdjectives, config.files.randomWordsSeparator);

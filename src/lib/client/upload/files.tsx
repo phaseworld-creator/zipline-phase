@@ -116,7 +116,15 @@ export async function uploadFiles(
         () => {
           const { data: res, error } = handleUploadResponse<Response['/api/upload']>(req);
 
-          if (error || !res) return reject(new Error(error?.error ?? 'An unknown error occurred'));
+          if (error || !res) {
+            console.error('[Upload Error]', {
+              status: req.status,
+              statusText: req.statusText,
+              error,
+              responseText: req.responseText,
+            });
+            return reject(new Error(error?.error ?? 'An unknown error occurred'));
+          }
 
           resolve(res);
         },
