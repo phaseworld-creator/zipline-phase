@@ -129,9 +129,6 @@ export default typedPlugin(
             url: req.url,
           });
 
-          if (e instanceof Error && e.message.startsWith('Multipart:')) throw new ApiError(1061);
-          
-          // Re-throw other errors with better context
           throw new ApiError(1061, e instanceof Error ? e.message : 'Unknown multipart parsing error');
         }
 
