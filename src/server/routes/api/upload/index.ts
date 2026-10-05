@@ -263,13 +263,14 @@ export default typedPlugin(
             `file[${i}]`,
           ).mimetype;
 
-          let finalBuffer = compressed?.buffer ?? (typeof file.filepath === 'string' ? await import('fs').then(fs => fs.promises.readFile(file.filepath)) : file.filepath);
+          let finalBuffer: Buffer | undefined = compressed?.buffer ?? (typeof file.filepath === 'string' ? await import('fs').then(fs => fs.promises.readFile(file.filepath)) : Buffer.isBuffer(file.filepath) ? file.filepath : undefined);
 
           // apply watermark if enabled and file is an image
           if (
             config.features.watermark.enabled &&
             mimetype.startsWith('image/') &&
-            !options.encrypted
+            !options.encrypted &&
+            finalBuffer
           ) {
             try {
               const watermarkOpts: import('@/lib/watermark').WatermarkOptions = {
@@ -279,18 +280,8 @@ export default typedPlugin(
                 opacity: config.features.watermark.opacity,
               };
 
-              let bufferToWatermark: Buffer;
-              if (Buffer.isBuffer(finalBuffer)) {
-                bufferToWatermark = finalBuffer;
-              } else if (typeof finalBuffer === 'string') {
-                const fs = await import('fs');
-                bufferToWatermark = Buffer.from(await fs.promises.readFile(finalBuffer));
-              } else {
-                bufferToWatermark = Buffer.from(finalBuffer as ArrayBuffer);
-              }
-
-              const watermarked = await applyWatermark(bufferToWatermark, watermarkOpts);
-              if (watermarked !== bufferToWatermark) {
+              const watermarked = await applyWatermark(finalBuffer, watermarkOpts);
+              if (watermarked !== finalBuffer) {
                 finalBuffer = watermarked;
               }
             } catch {
@@ -367,12 +358,24 @@ export default typedPlugin(
           const { compressed, extension, file, removedGps, watermarkedBuffer } = upload;
           const fileUpload = fileUploads[uploadIndex];
 
-          const storageData = watermarkedBuffer ?? compressed?.buffer ?? file.filepath;
+          let storageData = watermarkedBuffer ?? compressed?.buffer;
+          if (!storageData) {
+            // If no buffer available, read from filepath
+            if (typeof file.filepath === 'string') {
+              const fs = await import('fs');
+              storageData = await fs.promises.readFile(file.filepath);
+            } else if (Buffer.isBuffer(file.filepath)) {
+              storageData = file.filepath;
+            } else {
+              throw new Error('No valid file data available');
+            }
+          }
+          
           await datasource.put(fileUpload.name, storageData, {
             mimetype: fileUpload.type,
           });
-          if (typeof storageData === 'string' && datasource.name === 'local' && req.tmpUploads) {
-            req.tmpUploads = req.tmpUploads.filter((path) => path !== storageData);
+          if (typeof file.filepath === 'string' && datasource.name === 'local' && req.tmpUploads) {
+            req.tmpUploads = req.tmpUploads.filter((path) => path !== file.filepath);
           }
 
           const urlPath =
