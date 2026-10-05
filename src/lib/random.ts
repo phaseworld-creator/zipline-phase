@@ -16,6 +16,10 @@ function getRandomValues(array: Uint8Array) {
 }
 
 export function randomCharacters(length: number) {
+  if (!length || length <= 0) {
+    throw new Error(`Invalid length for randomCharacters: ${length}`);
+  }
+
   const randomValues = new Uint8Array(Math.ceil(length * 1.5));
   let result = '';
 
