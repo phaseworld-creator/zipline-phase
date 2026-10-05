@@ -121,11 +121,18 @@ export default typedPlugin(
 
           files = res.files;
         } catch (e) {
-          logger.warn('error parsing multipart/form-data request', {
+          logger.error('error parsing multipart/form-data request', {
             error: e instanceof Error ? e.message : e,
+            stack: e instanceof Error ? e.stack : undefined,
+            contentType: req.headers['content-type'],
+            method: req.method,
+            url: req.url,
           });
 
           if (e instanceof Error && e.message.startsWith('Multipart:')) throw new ApiError(1061);
+          
+          // Re-throw other errors with better context
+          throw new ApiError(1061, e instanceof Error ? e.message : 'Unknown multipart parsing error');
         }
 
         if (!files.length) throw new ApiError(1062);

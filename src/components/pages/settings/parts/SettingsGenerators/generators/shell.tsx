@@ -11,7 +11,7 @@ export function shell(token: string, type: 'file' | 'url', options: GeneratorOpt
 
   if (type === 'file') {
     curl.push('-F', '"file=@$1;type=$(file --mime-type -b "$1")"');
-    curl.push('-H', "'content-type: multipart/form-data'");
+    // Content-Type is automatically set by curl when using -F flag
   } else {
     curl.push('-H', "'content-type: application/json'");
   }

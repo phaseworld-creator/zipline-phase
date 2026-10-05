@@ -48,6 +48,8 @@ export async function registerPlugins(server: FastifyInstance) {
       fileSize: bytes(config.files.maxFileSize),
       parts: config.files.maxFilesPerUpload,
     },
+    attachFieldsToBody: false,
+    sharedSchemaId: 'MultipartFileType',
   });
 
   await server.register(fastifyStatic, {

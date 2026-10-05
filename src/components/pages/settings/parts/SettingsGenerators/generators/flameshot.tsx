@@ -11,7 +11,7 @@ export function flameshot(token: string, type: 'file' | 'url', options: Generato
 
   if (type === 'file') {
     curl.push('-F', 'file=@/tmp/screenshot.png');
-    curl.push('-H', "'content-type: multipart/form-data'");
+    // Content-Type is automatically set by curl when using -F flag
   } else {
     curl.push('-H', "'content-type: application/json'");
   }
