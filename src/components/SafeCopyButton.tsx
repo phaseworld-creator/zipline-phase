@@ -1,5 +1,5 @@
 import { copyToClipboard } from '@/lib/client/safeClipboard';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 type RenderProps = {
   copied: boolean;
@@ -18,21 +18,23 @@ type Props = {
  */
 export default function SafeCopyButton({ value, timeout = 2000, children }: Props) {
   const [copied, setCopied] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const copy = useCallback(() => {
     copyToClipboard(value);
     setCopied(true);
-
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setCopied(false), timeout);
-  }, [value, timeout]);
+  }, [value]);
 
   useEffect(() => {
+    if (!copied) return;
+
+    const timer = setTimeout(() => {
+      setCopied(false);
+    }, timeout);
+
     return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
+      clearTimeout(timer);
     };
-  }, []);
+  }, [copied, timeout]);
 
   return children({ copied, copy });
 }
