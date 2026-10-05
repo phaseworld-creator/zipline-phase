@@ -43,6 +43,8 @@ export default typedPlugin(
             files: z.array(z.string()).min(1),
             favorite: z.boolean().optional(),
             folder: z.string().optional(),
+            tags: z.array(z.string()).optional(), // add/set tags on all files
+            clearFolder: z.boolean().optional(),  // remove from folder
           }),
           response: {
             200: z.object({
@@ -57,6 +59,7 @@ export default typedPlugin(
       },
       async (req, res) => {
         const { files, favorite, folder } = req.body;
+        const { tags, clearFolder } = req.body;
 
         if (typeof favorite === 'boolean') {
           const toFavoriteFiles = await prisma.file.findMany({
@@ -94,6 +97,46 @@ export default typedPlugin(
           });
 
           return res.send(resp);
+        }
+
+        // Bulk tag operation
+        if (tags !== undefined) {
+          const toTagFiles = await prisma.file.findMany({
+            where: { id: { in: files } },
+            include: { User: true },
+          });
+
+          const invalids = findInvalidTargets(
+            { id: req.user.id, role: req.user.role },
+            toTagFiles.map((f) => ({ id: f.userId ?? '', role: f.User?.role ?? 'USER' })),
+          );
+          if (invalids.length > 0)
+            throw new ApiError(3014, `You don't have the permission to modify files[${invalids.join(', ')}]`);
+
+          // Validate all requested tags belong to this user
+          const validTags = await prisma.tag.findMany({
+            where: { userId: req.user.id, id: { in: tags } },
+          });
+          if (validTags.length !== tags.length) throw new ApiError(1032);
+
+          // Update each file's tags (set)
+          for (const fileId of files) {
+            await prisma.file.update({
+              where: { id: fileId },
+              data: { tags: { set: tags.map((id) => ({ id })) } },
+            });
+          }
+
+          return res.send({ count: files.length });
+        }
+
+        // Clear folder
+        if (clearFolder) {
+          const resp = await prisma.file.updateMany({
+            where: { id: { in: files }, userId: req.user.id },
+            data: { folderId: null },
+          });
+          return res.send({ count: resp.count });
         }
 
         if (!folder) throw new ApiError(1020);

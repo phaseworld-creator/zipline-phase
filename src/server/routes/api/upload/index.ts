@@ -108,6 +108,11 @@ export default typedPlugin(
 
           const ownsFolder = req.user ? folder.userId === req.user.id : false;
           if (!ownsFolder && !folder.allowUploads) throw new ApiError(req.user ? 3011 : 3002);
+        } else if (options.dateOrganize && req.user) {
+          // Auto-organize into YYYY/MM/DD folder hierarchy
+          const { getOrCreateDateFolder } = await import('@/lib/api/dateOrganize');
+          const folderId = await getOrCreateDateFolder(req.user.id);
+          folder = await prisma.folder.findUnique({ where: { id: folderId } });
         }
 
         let files: SavedMultipartFile[] = [];

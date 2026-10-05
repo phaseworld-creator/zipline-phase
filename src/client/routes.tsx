@@ -60,6 +60,7 @@ export const router = createBrowserRouter([
                 children: [
                   { index: true, lazy: () => import('./pages/dashboard/index') },
                   { path: 'metrics', lazy: () => import('./pages/dashboard/metrics') },
+                  { path: 'analytics', lazy: () => import('./pages/dashboard/analytics') },
                   { path: 'settings', lazy: () => import('./pages/dashboard/settings') },
                   { path: 'files', lazy: () => import('./pages/dashboard/files') },
                   { path: 'folders/*', lazy: () => import('./pages/dashboard/folders') },
@@ -87,6 +88,7 @@ export const router = createBrowserRouter([
                       { path: 'admin/theme-maker', lazy: () => import('./pages/dashboard/admin/theme-maker') },
                       { path: 'admin/login-customiser', lazy: () => import('./pages/dashboard/admin/login-customiser') },
                       { path: 'admin/embed-builder', lazy: () => import('./pages/dashboard/admin/embed-builder') },
+                      { path: 'admin/audit-logs', lazy: () => import('./pages/dashboard/admin/audit-logs') },
                       {
                         path: 'admin/users/:id/files',
                         lazy: () => import('./pages/dashboard/admin/users/[id]/files'),
@@ -107,6 +109,10 @@ export const router = createBrowserRouter([
               {
                 path: 'upload',
                 lazy: () => import('./pages/folder/[id]/upload'),
+              },
+              {
+                path: 'gallery',
+                lazy: () => import('./pages/folder/[id]/gallery'),
               },
             ],
           },

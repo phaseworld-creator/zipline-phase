@@ -1,4 +1,5 @@
 import { ApiError } from '@/lib/api/errors';
+import { writeAuditLog } from '@/lib/audit';
 import { bytes } from '@/lib/bytes';
 import { hashPassword } from '@/lib/crypto';
 import { datasource } from '@/lib/datasource';
@@ -162,6 +163,28 @@ export default typedPlugin(
           updated: Object.keys(req.body),
         });
 
+        if (role && role !== user.role) {
+          writeAuditLog({
+            action: 'user.role_change',
+            actorId: req.user.id,
+            actorName: req.user.username,
+            targetId: updatedUser.id,
+            targetType: 'user',
+            meta: { username: updatedUser.username, oldRole: user.role, newRole: role },
+          });
+        }
+
+        if (quota) {
+          writeAuditLog({
+            action: 'user.quota_change',
+            actorId: req.user.id,
+            actorName: req.user.username,
+            targetId: updatedUser.id,
+            targetType: 'user',
+            meta: { username: updatedUser.username, quota },
+          });
+        }
+
         return res.send(updatedUser);
       },
     );
@@ -253,6 +276,15 @@ export default typedPlugin(
         logger.info(`${req.user.username} deleted another user`, {
           username: deletedUser.username,
           role: deletedUser.role,
+        });
+
+        writeAuditLog({
+          action: 'user.delete',
+          actorId: req.user.id,
+          actorName: req.user.username,
+          targetId: deletedUser.id,
+          targetType: 'user',
+          meta: { username: deletedUser.username, deletedFiles: req.body.delete },
         });
 
         return res.send(deletedUser);

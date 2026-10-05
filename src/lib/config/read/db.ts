@@ -121,6 +121,9 @@ export const DATABASE_TO_PROP = {
 
   httpWebhookOnUpload: 'httpWebhook.onUpload',
   httpWebhookOnShorten: 'httpWebhook.onShorten',
+  httpWebhookOnDelete: 'httpWebhook.onDelete',
+  httpWebhookOnSignup: 'httpWebhook.onSignup',
+  httpWebhookOnQuota: 'httpWebhook.onQuota',
 
   discordWebhookUrl: 'discord.webhookUrl',
   discordUsername: 'discord.username',
@@ -137,6 +140,16 @@ export const DATABASE_TO_PROP = {
   discordOnShortenAvatarUrl: 'discord.onShorten.avatarUrl',
   discordOnShortenContent: 'discord.onShorten.content',
   discordOnShortenEmbed: 'discord.onShorten.embed',
+
+  discordOnDeleteWebhookUrl: 'discord.onDelete.webhookUrl',
+  discordOnDeleteUsername: 'discord.onDelete.username',
+  discordOnDeleteAvatarUrl: 'discord.onDelete.avatarUrl',
+  discordOnDeleteContent: 'discord.onDelete.content',
+
+  discordOnSignupWebhookUrl: 'discord.onSignup.webhookUrl',
+  discordOnSignupUsername: 'discord.onSignup.username',
+  discordOnSignupAvatarUrl: 'discord.onSignup.avatarUrl',
+  discordOnSignupContent: 'discord.onSignup.content',
 
   pwaEnabled: 'pwa.enabled',
   pwaTitle: 'pwa.title',

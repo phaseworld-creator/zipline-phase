@@ -18,6 +18,8 @@ import {
   Paper,
   ScrollArea,
   Title,
+  ActionIcon,
+  Tooltip,
 } from '@mantine/core';
 import { useClipboard } from '@mantine/hooks';
 import { useModals } from '@mantine/modals';
@@ -43,12 +45,16 @@ import {
   IconMusic,
   IconRefreshDot,
   IconSettingsFilled,
+  IconShieldCheckFilled,
   IconShieldLockFilled,
   IconSparkles,
   IconStopwatch,
+  IconSun,
+  IconMoon,
   IconTags,
   IconUpload,
   IconUsersGroup,
+  IconChartBar,
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { Link, NavigateFunction, Outlet, useLoaderData, useLocation, useNavigate } from 'react-router-dom';
@@ -56,6 +62,8 @@ import type { dashboardLoader } from '../client/routes';
 import ConfigProvider from './ConfigProvider';
 import VersionBadge from './VersionBadge';
 import { SETTINGS_EXTERNAL_LINKS } from './pages/serverSettings';
+import { useKeyboardShortcuts } from '@/lib/client/hooks/useKeyboardShortcuts';
+import { useThemeOverrideStore } from '@/lib/client/store/themeOverride';
 
 type NavLinks = {
   label: string;
@@ -81,6 +89,12 @@ const navLinks: NavLinks[] = [
     if: (user, config) =>
       config.features.metrics.enabled &&
       (config.features.metrics.adminOnly ? isAdministrator(user?.role) : true),
+  },
+  {
+    label: 'Analytics',
+    icon: <IconChartBar size='1rem' />,
+    active: (path: string) => path === '/dashboard/analytics',
+    href: '/dashboard/analytics',
   },
   {
     label: 'Files',
@@ -149,6 +163,12 @@ const navLinks: NavLinks[] = [
         icon: <IconStopwatch size='1rem' />,
         active: (path: string) => path === '/dashboard/admin/actions',
         href: '/dashboard/admin/actions',
+      },
+      {
+        label: 'Audit Logs',
+        icon: <IconShieldCheckFilled size='1rem' />,
+        active: (path: string) => path === '/dashboard/admin/audit-logs',
+        href: '/dashboard/admin/audit-logs',
       },
       {
         label: 'Users',
@@ -284,6 +304,11 @@ export default function Layout() {
   const { user, mutate } = useLogin();
   const { avatar } = useAvatar();
 
+  const { override: themeOverride, toggle: toggleTheme } = useThemeOverrideStore();
+
+  // Wire keyboard shortcuts
+  useKeyboardShortcuts();
+
   const [prev, setPrev] = useState(location.pathname);
   if (prev !== location.pathname) {
     setPrev(location.pathname);
@@ -413,7 +438,18 @@ export default function Layout() {
               {config.website.title.trim()}
             </Title>
           </div>
-          <div style={{ marginLeft: 'auto' }}>
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Tooltip label={themeOverride === 'dark' ? 'Switch to light' : 'Switch to dark'}>
+              <ActionIcon
+                variant='subtle'
+                color='gray'
+                onClick={toggleTheme}
+                size='sm'
+                aria-label='Toggle dark/light mode'
+              >
+                {themeOverride === 'dark' ? <IconSun size='1rem' /> : <IconMoon size='1rem' />}
+              </ActionIcon>
+            </Tooltip>
             <Menu shadow='none' width={220} offset={8}>
               <Menu.Target>
                 <Button

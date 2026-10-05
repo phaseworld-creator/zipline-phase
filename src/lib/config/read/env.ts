@@ -154,6 +154,9 @@ export const ENVS = [
 
   env('httpWebhook.onUpload', 'HTTP_WEBHOOK_ON_UPLOAD', 'string', true),
   env('httpWebhook.onShorten', 'HTTP_WEBHOOK_ON_SHORTEN', 'string', true),
+  env('httpWebhook.onDelete', 'HTTP_WEBHOOK_ON_DELETE', 'string', true),
+  env('httpWebhook.onSignup', 'HTTP_WEBHOOK_ON_SIGNUP', 'string', true),
+  env('httpWebhook.onQuota', 'HTTP_WEBHOOK_ON_QUOTA', 'string', true),
 
   env('discord.webhookUrl', 'DISCORD_WEBHOOK_URL', 'string', true),
   env('discord.username', 'DISCORD_USERNAME', 'string', true),
@@ -168,6 +171,14 @@ export const ENVS = [
   env('discord.onShorten.avatarUrl', 'DISCORD_ON_SHORTEN_AVATAR_URL', 'string', true),
   env('discord.onShorten.content', 'DISCORD_ON_SHORTEN_CONTENT', 'string', true),
   env('discord.onShorten.embed', 'DISCORD_ON_SHORTEN_EMBED', 'json', true),
+  env('discord.onDelete.webhookUrl', 'DISCORD_ON_DELETE_WEBHOOK_URL', 'string', true),
+  env('discord.onDelete.username', 'DISCORD_ON_DELETE_USERNAME', 'string', true),
+  env('discord.onDelete.avatarUrl', 'DISCORD_ON_DELETE_AVATAR_URL', 'string', true),
+  env('discord.onDelete.content', 'DISCORD_ON_DELETE_CONTENT', 'string', true),
+  env('discord.onSignup.webhookUrl', 'DISCORD_ON_SIGNUP_WEBHOOK_URL', 'string', true),
+  env('discord.onSignup.username', 'DISCORD_ON_SIGNUP_USERNAME', 'string', true),
+  env('discord.onSignup.avatarUrl', 'DISCORD_ON_SIGNUP_AVATAR_URL', 'string', true),
+  env('discord.onSignup.content', 'DISCORD_ON_SIGNUP_CONTENT', 'string', true),
 
   env('pwa.enabled', 'PWA_ENABLED', 'boolean', true),
   env('pwa.title', 'PWA_TITLE', 'string', true),

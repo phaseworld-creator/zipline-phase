@@ -186,3 +186,67 @@ export async function onShorten(
 
   return;
 }
+
+export async function onDelete(
+  config: Config,
+  { user, file }: { user: User; file: Pick<import('../db/models/file').File, 'id' | 'name' | 'type' | 'size'> },
+) {
+  const webhookUrl = config.discord?.onDelete?.webhookUrl || config.discord?.webhookUrl;
+  if (!webhookUrl) return logger.debug('no onDelete webhookUrl, skipping');
+
+  const username = config.discord?.onDelete?.username || config.discord?.username || 'Zipline';
+  const avatarUrl =
+    config.discord?.onDelete?.avatarUrl ||
+    config.discord?.avatarUrl ||
+    'https://raw.githubusercontent.com/diced/zipline/9b60147e112ec5b70170500b85c75ea621f41d03/public/zipline.png';
+  const content = config.discord?.onDelete?.content
+    ? String(config.discord.onDelete.content)
+        .replace('{filename}', file.name)
+        .replace('{user}', user.username)
+    : null;
+
+  const body: WebhooksExecuteBody = {
+    username,
+    avatar_url: avatarUrl,
+    content: content || `File \`${file.name}\` was deleted by **${user.username}**.`,
+  };
+
+  const res = await fetch(webhookUrl, {
+    method: 'POST',
+    body: JSON.stringify(body),
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  if (!res.ok) logger.c('onDelete').error('webhook failed', { status: res.status });
+}
+
+export async function onSignup(
+  config: Config,
+  { user }: { user: Pick<User, 'id' | 'username' | 'createdAt'> },
+) {
+  const webhookUrl = config.discord?.onSignup?.webhookUrl || config.discord?.webhookUrl;
+  if (!webhookUrl) return logger.debug('no onSignup webhookUrl, skipping');
+
+  const username = config.discord?.onSignup?.username || config.discord?.username || 'Zipline';
+  const avatarUrl =
+    config.discord?.onSignup?.avatarUrl ||
+    config.discord?.avatarUrl ||
+    'https://raw.githubusercontent.com/diced/zipline/9b60147e112ec5b70170500b85c75ea621f41d03/public/zipline.png';
+  const content = config.discord?.onSignup?.content
+    ? String(config.discord.onSignup.content).replace('{user}', user.username)
+    : null;
+
+  const body: WebhooksExecuteBody = {
+    username,
+    avatar_url: avatarUrl,
+    content: content || `New user **${user.username}** just registered.`,
+  };
+
+  const res = await fetch(webhookUrl, {
+    method: 'POST',
+    body: JSON.stringify(body),
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  if (!res.ok) logger.c('onSignup').error('webhook failed', { status: res.status });
+}

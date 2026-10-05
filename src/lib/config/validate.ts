@@ -403,6 +403,8 @@ export const schema = z.object({
       avatarUrl: z.url().nullable().default(null),
       onUpload: discordContent,
       onShorten: discordContent,
+      onDelete: discordContent,
+      onSignup: discordContent,
     })
     .nullable()
     .default(null),
@@ -420,6 +422,9 @@ export const schema = z.object({
   httpWebhook: z.object({
     onUpload: z.url().nullable().default(null),
     onShorten: z.url().nullable().default(null),
+    onDelete: z.url().nullable().default(null),
+    onSignup: z.url().nullable().default(null),
+    onQuota: z.url().nullable().default(null),
   }),
   pwa: z.object({
     enabled: z.boolean().default(true),

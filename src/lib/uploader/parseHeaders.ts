@@ -19,6 +19,7 @@ export type UploadHeaders = {
   'x-zipline-extensionless'?: StringBoolean;
   'x-zipline-one-time-view'?: StringBoolean;
   'x-zipline-encrypted'?: StringBoolean;
+  'x-zipline-date-organize'?: StringBoolean;
 
   'x-zipline-folder'?: string;
 
@@ -46,6 +47,7 @@ export type UploadOptions = {
   extensionless?: boolean;
   oneTimeView?: boolean;
   encrypted?: boolean;
+  dateOrganize?: boolean;
 
   imageCompression?: {
     type?: CompressType;
@@ -226,6 +228,9 @@ export function parseHeaders(headers: UploadHeaders, fileConfig: Config['files']
 
   const encrypted = headers['x-zipline-encrypted'];
   if (encrypted) response.encrypted = encrypted === 'true';
+
+  const dateOrganize = headers['x-zipline-date-organize'];
+  if (dateOrganize) response.dateOrganize = dateOrganize === 'true';
 
   const folder = headers['x-zipline-folder'];
   if (folder) response.folder = folder;

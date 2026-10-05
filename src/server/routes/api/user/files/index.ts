@@ -33,6 +33,9 @@ export default typedPlugin(
             searchQuery: z.string().optional(),
             id: z.string().optional(),
             folder: z.string().optional(),
+            typeFilter: z.string().optional(), // e.g. "image/,video/"  (comma-sep MIME prefixes)
+            createdAfter: z.string().optional(),  // ISO date string
+            createdBefore: z.string().optional(), // ISO date string
           }),
           response: {
             200: z.object({
@@ -64,6 +67,23 @@ export default typedPlugin(
 
         const { perpage, searchQuery, searchField, page, filter, favorite, sortBy, order, folder } =
           req.query;
+        const { typeFilter, createdAfter, createdBefore } = req.query;
+
+        // Build date-range filter
+        const createdAtFilter: Record<string, Date> = {};
+        if (createdAfter) {
+          const d = new Date(createdAfter);
+          if (!isNaN(d.getTime())) createdAtFilter.gte = d;
+        }
+        if (createdBefore) {
+          const d = new Date(createdBefore);
+          if (!isNaN(d.getTime())) createdAtFilter.lte = d;
+        }
+
+        // Build MIME-type prefix filter
+        const typePrefixes = typeFilter
+          ? typeFilter.split(',').map((t) => t.trim()).filter(Boolean)
+          : null;
 
         let folderId: string | null = null;
         if (folder) {
@@ -201,20 +221,16 @@ export default typedPlugin(
 
         const where = {
           userId: user.id,
-          ...(filter === 'dashboard' && {
+          ...(Object.keys(createdAtFilter).length > 0 && { createdAt: createdAtFilter }),
+          ...(typePrefixes && typePrefixes.length > 0 && {
+            OR: typePrefixes.map((prefix) => ({ type: { startsWith: prefix } })),
+          }),
+          ...(filter === 'dashboard' && !typePrefixes && {
             OR: [
-              {
-                type: { startsWith: 'image/' },
-              },
-              {
-                type: { startsWith: 'video/' },
-              },
-              {
-                type: { startsWith: 'audio/' },
-              },
-              {
-                type: { startsWith: 'text/' },
-              },
+              { type: { startsWith: 'image/' } },
+              { type: { startsWith: 'video/' } },
+              { type: { startsWith: 'audio/' } },
+              { type: { startsWith: 'text/' } },
             ],
           }),
           ...(favorite &&

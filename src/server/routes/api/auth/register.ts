@@ -11,6 +11,7 @@ import typedPlugin from '@/server/typedPlugin';
 import z from 'zod';
 import { ApiLoginResponse } from './login';
 import { zStringTrimmed } from '@/lib/validation';
+import { onSignup } from '@/lib/webhooks';
 
 export type ApiAuthRegisterResponse = ApiLoginResponse;
 
@@ -109,6 +110,9 @@ export default typedPlugin(
           ip: req.ip ?? 'unknown',
           ua: req.headers['user-agent'],
         });
+
+        // Fire signup webhook
+        onSignup(config, { user: { id: user.id, username: user.username, createdAt: user.createdAt } });
 
         return res.send({
           user,

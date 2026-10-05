@@ -146,6 +146,26 @@ export const rawFileHandler = async (
         where: { id: file.id },
         data: { views: { increment: 1 } },
       });
+
+      // Record download/view history
+      const viewerSession = await (async () => {
+        try {
+          const { getSession } = await import('@/server/session');
+          const session = await getSession(req, req.server.wrapReply(req as any) as any);
+          return session.id ?? null;
+        } catch {
+          return null;
+        }
+      })();
+
+      await prisma.downloadLog.create({
+        data: {
+          fileId: file.id,
+          ip: req.ip ?? null,
+          userAgent: (req.headers['user-agent'] as string) ?? null,
+          viewerId: viewerSession,
+        },
+      });
     } catch (e) {
       logger.error('failed to increment view counter', { id: file.id }).error(e as Error);
     }

@@ -7,6 +7,8 @@ import { File, fileSchema, fileSelect } from '@/lib/db/models/file';
 import { log } from '@/lib/logger';
 import { canInteract } from '@/lib/role';
 import { zValidatePath } from '@/lib/validation';
+import { config } from '@/lib/config';
+import { onDelete } from '@/lib/webhooks';
 import { Prisma } from '@/prisma/client';
 import { userMiddleware } from '@/server/middleware/user';
 import typedPlugin from '@/server/typedPlugin';
@@ -211,6 +213,16 @@ export default typedPlugin(
         logger.info(`${req.user.username} deleted file ${deletedFile.name}`, {
           size: bytes(deletedFile.size),
           owner: file.User?.id,
+        });
+
+        onDelete(config, {
+          user: req.user,
+          file: {
+            id: deletedFile.id,
+            name: deletedFile.name,
+            type: deletedFile.type,
+            size: Number(deletedFile.size),
+          },
         });
 
         return res.send(deletedFile);

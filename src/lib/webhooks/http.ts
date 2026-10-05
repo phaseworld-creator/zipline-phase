@@ -88,3 +88,54 @@ export async function onShorten(config: Config, { user, url, link }: Parameters<
 
   return;
 }
+
+export async function onDelete(
+  config: Config,
+  { user, file }: { user: import('../db/models/user').User; file: { id: string; name: string; type: string; size: number } },
+) {
+  const url = config.httpWebhook?.onDelete;
+  if (!url || !URL.canParse(url)) return;
+
+  const { oauthProviders: _op, passkeys: _pk, ...safeUser } = user;
+  const payload = { type: 'delete', data: { user: safeUser, file } };
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-zipline-webhook': 'true',
+        'x-zipline-webhook-type': 'delete',
+      },
+    });
+    if (!res.ok) logger.error('http delete webhook failed', { status: res.status });
+  } catch (e) {
+    logger.error('http delete webhook error', { error: (e as Error).message });
+  }
+}
+
+export async function onSignup(
+  config: Config,
+  { user }: { user: { id: string; username: string; createdAt: Date | string } },
+) {
+  const url = config.httpWebhook?.onSignup;
+  if (!url || !URL.canParse(url)) return;
+
+  const payload = { type: 'signup', data: { user } };
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-zipline-webhook': 'true',
+        'x-zipline-webhook-type': 'signup',
+      },
+    });
+    if (!res.ok) logger.error('http signup webhook failed', { status: res.status });
+  } catch (e) {
+    logger.error('http signup webhook error', { error: (e as Error).message });
+  }
+}

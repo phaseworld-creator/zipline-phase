@@ -75,6 +75,11 @@ model Zipline {
   featuresSoundboard           Boolean @default(false)
   featuresAdvancedAnalytics    Boolean @default(false)
 
+  featuresDownloadHistory      Boolean @default(true)
+  featuresFileComments         Boolean @default(true)
+  featuresAuditLog             Boolean @default(true)
+  featuresQrCodes              Boolean @default(true)
+
   featuresWatermarkEnabled     Boolean @default(false)
   featuresWatermarkText        String?
   featuresWatermarkImage       String?
@@ -135,6 +140,9 @@ model Zipline {
 
   httpWebhookOnUpload  String?
   httpWebhookOnShorten String?
+  httpWebhookOnDelete  String?
+  httpWebhookOnSignup  String?
+  httpWebhookOnQuota   String?
 
   discordWebhookUrl String?
   discordUsername   String?
@@ -151,6 +159,16 @@ model Zipline {
   discordOnShortenAvatarUrl  String?
   discordOnShortenContent    String?
   discordOnShortenEmbed      Json?
+
+  discordOnDeleteWebhookUrl  String?
+  discordOnDeleteUsername    String?
+  discordOnDeleteAvatarUrl   String?
+  discordOnDeleteContent     String?
+
+  discordOnSignupWebhookUrl  String?
+  discordOnSignupUsername    String?
+  discordOnSignupAvatarUrl   String?
+  discordOnSignupContent     String?
 
   pwaEnabled         Boolean @default(false)
   pwaTitle           String  @default("Zipline")
@@ -174,9 +192,10 @@ model User {
   role     Role    @default(USER)
   view     Json    @default("{}")
 
-  totpSecret String?
-  passkeys   UserPasskey[]
-  sessions   UserSession[]
+  totpSecret    String?
+  tokenDisabled Boolean @default(false)
+  passkeys      UserPasskey[]
+  sessions      UserSession[]
 
   quota UserQuota?
 
@@ -188,6 +207,7 @@ model User {
   oauthProviders OAuthProvider[]
   IncompleteFile IncompleteFile[]
   exports        Export[]
+  fileComments   FileComment[]
 }
 
 model Export {
@@ -306,11 +326,59 @@ model File {
   Folder   Folder? @relation(fields: [folderId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   folderId String?
 
-  thumbnail Thumbnail?
+  thumbnail    Thumbnail?
+  downloadLogs DownloadLog[]
+  comments     FileComment[]
 
   @@index([name])
   @@index([userId, size])
   @@index([folderId, createdAt])
+}
+
+model DownloadLog {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  ip        String?
+  userAgent String?
+  // viewer's user id if they were authenticated
+  viewerId  String?
+
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  fileId String
+
+  @@index([fileId, createdAt])
+}
+
+model FileComment {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  body String
+
+  author   User?   @relation(fields: [authorId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  authorId String?
+
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  fileId String
+
+  @@index([fileId, createdAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  action     String // e.g. "user.delete", "user.role_change", "settings.update"
+  actorId    String? // admin who performed the action
+  actorName  String?
+  targetId   String? // affected resource id
+  targetType String? // "user", "file", "settings", etc.
+  meta       Json    @default("{}")
+
+  @@index([createdAt])
+  @@index([actorId])
 }
 
 model Thumbnail {

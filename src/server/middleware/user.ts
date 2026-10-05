@@ -65,6 +65,7 @@ export async function userMiddleware(req: FastifyRequest, res: FastifyReply) {
       select: leanUpload ? limitedUserSelect : userSelect,
     });
     if (!user) throw new ApiError(2001);
+    if ((user as any).tokenDisabled) throw new ApiError(2001);
 
     req.user = user as User;
 
