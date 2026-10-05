@@ -1,119 +1,139 @@
-# Upload Multipart Boundary Fix
+# Upload Multipart Boundary Fix & Auto-Migration Setup
 
-## Problem
-Users were experiencing "no multipart boundary" errors when uploading files. This error occurs when the `Content-Type: multipart/form-data` header is set manually without the correct boundary parameter, or when the boundary in the header doesn't match the actual boundary used in the request body.
+## Problems Fixed
 
-## Root Cause
-The issue was found in the script generators that create curl commands for uploading files. These generators were incorrectly adding `-H 'content-type: multipart/form-data'` when using curl's `-F` flag.
+### 1. Multipart Boundary Error
+**Error:** "no multipart boundary" when uploading files
 
-## Why This Breaks Uploads
-When you use:
-- `FormData` in browser JavaScript
-- `curl -F` in shell scripts
-- Any multipart form upload tool
+**Root Cause:** Shell script generators were manually setting `Content-Type: multipart/form-data` header, which breaks the boundary parameter that curl automatically generates.
 
-The tool **automatically** generates:
-1. A unique boundary string (e.g., `----WebKitFormBoundary...`)
-2. The correct `Content-Type` header with that boundary
+**Fix:** Removed manual Content-Type headers from shell and flameshot generators.
 
-If you manually set the `Content-Type` header:
-- You either provide no boundary → Server error: "no multipart boundary"
-- You provide a wrong boundary → Server can't parse the data
+### 2. Invalid Filename Error (E1009)
+**Error:** "E1009: file[0]: invalid file name"
 
-## Files Fixed
+**Root Cause:** Database schema was outdated - missing the `encrypted` column in the `File` table.
 
-### 1. `src/components/pages/settings/parts/SettingsGenerators/generators/shell.tsx`
-**Before:**
-```typescript
-if (type === 'file') {
-  curl.push('-F', '"file=@$1;type=$(file --mime-type -b "$1")"');
-  curl.push('-H', "'content-type: multipart/form-data'");  // ❌ WRONG
-}
-```
+**Fix:** 
+- Auto-migration already implemented in `src/lib/db/migration/index.ts`
+- Improved migration logging for better visibility
+- Made `POSTGRESQL_PASSWORD` optional in docker-compose.yml for CI/CD compatibility
 
-**After:**
-```typescript
-if (type === 'file') {
-  curl.push('-F', '"file=@$1;type=$(file --mime-type -b "$1")"');
-  // Content-Type is automatically set by curl when using -F flag
-}
-```
+### 3. Docker Compose CI/CD Issue
+**Error:** Build workflow failing due to required `POSTGRESQL_PASSWORD`
 
-### 2. `src/components/pages/settings/parts/SettingsGenerators/generators/flameshot.tsx`
-**Before:**
-```typescript
-if (type === 'file') {
-  curl.push('-F', 'file=@/tmp/screenshot.png');
-  curl.push('-H', "'content-type: multipart/form-data'");  // ❌ WRONG
-}
-```
+**Fix:** Changed `POSTGRESQL_PASSWORD` from required (`:?`) to optional with default (`:-zipline`)
 
-**After:**
-```typescript
-if (type === 'file') {
-  curl.push('-F', 'file=@/tmp/screenshot.png');
-  // Content-Type is automatically set by curl when using -F flag
-}
-```
+## How to Fix Your Installation
 
-### 3. `src/server/routes/api/upload/index.ts`
-Enhanced error logging to make debugging easier:
-- Changed log level from `warn` to `error`
-- Added more context (stack trace, headers, URL)
-- Better error messages for multipart parsing failures
-
-### 4. `src/server/startup/plugins.ts`
-Added explicit multipart configuration options for better compatibility:
-```typescript
-await server.register(fastifyMultipart, {
-  limits: {
-    fileSize: bytes(config.files.maxFileSize),
-    parts: config.files.maxFilesPerUpload,
-  },
-  attachFieldsToBody: false,
-  sharedSchemaId: 'MultipartFileType',
-});
-```
-
-## How to Test
-
-### Browser Upload
-1. Go to `/dashboard/upload/file`
-2. Drag and drop files or click to select
-3. Click Upload
-4. Should work without errors
-
-### Generated Scripts
-1. Go to Settings → Generators
-2. Download shell script or flameshot script
-3. Run the script with a file
-4. Should upload successfully
-
-### Manual curl Test
+### Option 1: Docker (Recommended)
 ```bash
-# ✅ CORRECT - Let curl set Content-Type automatically
-curl -H "authorization: YOUR_TOKEN" \
-  -F "file=@test.png" \
-  http://your-zipline-instance.com/api/upload
+# Restart to trigger auto-migration
+pnpm docker:restart
 
-# ❌ WRONG - Don't do this
-curl -H "authorization: YOUR_TOKEN" \
-  -H "content-type: multipart/form-data" \
-  -F "file=@test.png" \
-  http://your-zipline-instance.com/api/upload
+# Check logs to verify migration ran
+pnpm docker:logs
 ```
+
+You should see:
+```
+[migrations] running database migrations...
+[migrations] successfully applied X migration(s): ...
+```
+
+### Option 2: Manual Migration
+If auto-migration doesn't work:
+```bash
+# Run migrations manually
+pnpm docker:migrate
+
+# Restart
+pnpm docker:restart
+```
+
+## Changes Made
+
+### Files Modified:
+1. **src/components/pages/settings/parts/SettingsGenerators/generators/shell.tsx**
+   - Removed manual Content-Type header for file uploads
+
+2. **src/components/pages/settings/parts/SettingsGenerators/generators/flameshot.tsx**
+   - Removed manual Content-Type header for file uploads
+
+3. **src/lib/fs.ts**
+   - Added try-catch for `decodeURIComponent` to handle non-encoded filenames
+
+4. **src/lib/uploader/formatFileName.ts**
+   - Added safety check for empty parsed filenames
+
+5. **src/lib/random.ts**
+   - Added validation for invalid length parameter
+
+6. **src/lib/api/upload.ts**
+   - Enhanced error logging with detailed context
+
+7. **src/server/routes/api/upload/index.ts**
+   - Improved error logging for multipart parsing failures
+
+8. **src/server/startup/plugins.ts**
+   - Added explicit multipart configuration options
+
+9. **src/lib/db/migration/index.ts**
+   - Improved logging (changed debug to info)
+   - Better error messages with stack traces
+   - Clear success/failure messages
+
+10. **docker-compose.yml**
+    - Made `POSTGRESQL_PASSWORD` optional with default value `zipline`
+    - Ensures CI/CD compatibility
+
+11. **package.json**
+    - Kept local development scripts (`build`, `dev`, etc.)
+    - Added Docker-specific scripts (`docker:start`, `docker:logs`, etc.)
+    - Fixed build workflow compatibility
+
+### Files Created:
+1. **UPLOAD_FIX.md** - Detailed explanation of the multipart boundary fix
+2. **docker-helper.md** - Quick reference for Docker commands
+
+## Script Reference
+
+### Docker Operations:
+- `pnpm docker:start` - Start containers
+- `pnpm docker:stop` - Stop containers
+- `pnpm docker:restart` - Restart Zipline service
+- `pnpm docker:logs` - View logs
+- `pnpm docker:migrate` - Run migrations manually
+- `pnpm docker:shell` - Get a shell inside container
+- `pnpm docker:build` - Build images
+
+### Local Development:
+- `pnpm build` - Build locally
+- `pnpm dev` - Run dev server
+- `pnpm start` - Run production server
+- `pnpm db:migrate` - Create migration
 
 ## Key Takeaways
 
-1. **Never** manually set `Content-Type: multipart/form-data` when using:
-   - `FormData` in JavaScript
-   - `curl -F` in shell scripts
-   - Any tool that handles multipart uploads
+1. **Never manually set Content-Type for multipart uploads** - Let the tool (curl, browser) do it automatically
+2. **Auto-migration runs on every server start** - Check logs to verify it succeeded
+3. **Database schema must be up-to-date** - Missing columns will cause upload failures
+4. **Use docker:* commands for Docker operations** - Regular commands are for local development
 
-2. **Always** let the tool set the Content-Type automatically with the correct boundary
+## Testing
 
-3. The browser/curl automatically generates a unique boundary and includes it in the header
+After applying these fixes:
 
-## Additional Notes
+1. Restart your container:
+   ```bash
+   pnpm docker:restart
+   ```
 
-The existing frontend code (`src/lib/client/upload/files.tsx`) was already correct and didn't set Content-Type manually. The issue only affected users who were using the generated shell scripts or testing with manually crafted curl commands.
+2. Check migrations ran:
+   ```bash
+   pnpm docker:logs | grep migrations
+   ```
+
+3. Try uploading a file through the web interface
+
+4. Should work without errors! 🎉
