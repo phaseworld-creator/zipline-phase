@@ -115,7 +115,8 @@ export async function uploadPartialFiles(
       if (failed) break;
 
       const body = new FormData();
-      body.append('file', chunks[j].blob);
+      // Ensure chunk has a filename for proper multipart handling
+      body.append('file', chunks[j].blob, file.name || `unnamed-chunk-${Date.now()}`);
 
       setLoading(true);
 

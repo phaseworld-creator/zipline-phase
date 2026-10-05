@@ -89,7 +89,12 @@ export async function uploadFiles(
       const body = new FormData();
       const batchBytes = batchFiles.reduce((acc, file) => acc + file.size, 0);
 
-      for (let i = 0; i !== batchFiles.length; ++i) body.append('file', batchFiles[i]);
+      for (let i = 0; i !== batchFiles.length; ++i) {
+        const file = batchFiles[i];
+        // Ensure file has a name - fallback to generic name if empty
+        const filename = file.name || `unnamed-file-${Date.now()}-${i}`;
+        body.append('file', file, filename);
+      }
 
       const req = new XMLHttpRequest();
 
