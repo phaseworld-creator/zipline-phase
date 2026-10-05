@@ -350,23 +350,22 @@ export default function Layout() {
   const logoMark = (
     <div
       style={{
-        width: 32,
-        height: 32,
-        borderRadius: 10,
-        background: 'linear-gradient(135deg, #6366f1, #f43f5e)',
+        width: 28,
+        height: 28,
+        borderRadius: 4,
+        background: 'var(--accent)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontFamily: "'Syne', sans-serif",
-        fontWeight: 800,
-        fontSize: 16,
+        fontFamily: "'Space Grotesk', system-ui, sans-serif",
+        fontWeight: 700,
+        fontSize: 14,
         color: '#fff',
         flexShrink: 0,
-        boxShadow: '0 4px 14px rgba(99, 102, 241, 0.4)',
       }}
     >
       {config.website.titleLogo ? (
-        <Avatar src={config.website.titleLogo} alt='Zipline logo' radius='sm' size={28} />
+        <Avatar src={config.website.titleLogo} alt='logo' radius={0} size={28} />
       ) : (
         (config.website.title?.trim()[0] ?? 'Z').toUpperCase()
       )}
@@ -376,17 +375,15 @@ export default function Layout() {
   return (
     <AppShell
       navbar={{ breakpoint: 'sm', width: { sm: 210, lg: 240 }, collapsed: { mobile: !opened } }}
-      header={{ height: 64 }}
+      header={{ height: 56 }}
       footer={{ height: { base: 0.1 } }}
-      styles={{ main: { background: 'var(--bg, #030712)', minHeight: '100vh' } }}
+      styles={{ main: { background: 'var(--bg)', minHeight: '100vh' } }}
     >
       <AppShell.Header
         px='md'
         style={{
-          background: 'rgba(3, 7, 18, 0.75)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          background: 'var(--bg-2)',
+          borderBottom: '1px solid var(--line)',
           display: 'flex',
           alignItems: 'center',
         }}
@@ -396,57 +393,56 @@ export default function Layout() {
             opened={opened}
             onClick={() => setOpened((o) => !o)}
             size='sm'
-            color='#94a3b8'
+            color='var(--fg-3)'
             mr='md'
             hiddenFrom='sm'
-            bdrs='md'
           />
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {logoMark}
             <Title
               visibleFrom='sm'
               lineClamp={1}
               style={{
-                fontFamily: "'Syne', sans-serif",
-                fontWeight: 800,
-                fontSize: '1.15rem',
-                letterSpacing: '-0.02em',
-                color: 'var(--text-main, #f8fafc)',
+                fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                fontWeight: 600,
+                fontSize: '0.95rem',
+                letterSpacing: '-0.01em',
+                color: 'var(--fg)',
               }}
             >
               {config.website.title.trim()}
             </Title>
           </div>
           <div style={{ marginLeft: 'auto' }}>
-            <Menu shadow='md' width={220} offset={10}>
+            <Menu shadow='none' width={220} offset={8}>
               <Menu.Target>
                 <Button
                   variant='subtle'
                   color='gray'
                   style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    borderRadius: 'var(--radius-inner, 16px)',
-                    color: 'var(--text-main, #f8fafc)',
-                    fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
-                    fontWeight: 600,
+                    background: 'var(--bg-3)',
+                    border: '1px solid var(--line)',
+                    borderRadius: 'var(--radius-sm)',
+                    color: 'var(--fg)',
+                    fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                    fontWeight: 500,
                     fontSize: '0.85rem',
-                    padding: '6px 14px',
+                    padding: '5px 12px',
                   }}
                   leftSection={
                     avatar ? (
-                      <Avatar src={avatar} radius='xl' size={24} alt={user?.username ?? 'User avatar'} />
+                      <Avatar src={avatar} radius={0} size={20} alt={user?.username ?? 'User avatar'} />
                     ) : (
                       <div
                         style={{
-                          width: 24,
-                          height: 24,
-                          borderRadius: '50%',
-                          background: 'linear-gradient(135deg, #6366f1, #f43f5e)',
+                          width: 20,
+                          height: 20,
+                          borderRadius: 2,
+                          background: 'var(--accent)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          fontSize: 11,
+                          fontSize: 10,
                           fontWeight: 700,
                           color: '#fff',
                         }}
@@ -455,41 +451,32 @@ export default function Layout() {
                       </div>
                     )
                   }
-                  rightSection={<IconChevronDown size='0.7rem' />}
+                  rightSection={<IconChevronDown size='0.65rem' />}
                   size='sm'
                 >
                   {user?.username}
                 </Button>
               </Menu.Target>
-              <Menu.Dropdown
-                style={{
-                  background: 'rgba(3, 7, 18, 0.92)',
-                  backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: 16,
-                }}
-              >
-                <Menu.Label style={{ color: 'var(--text-faint, #475569)', fontSize: '0.75rem' }}>
+              <Menu.Dropdown>
+                <Menu.Label>
                   {user?.username}
-                  {isAdministrator(user?.role) ? ' · Administrator' : ''}
+                  {isAdministrator(user?.role) ? ' · admin' : ''}
                 </Menu.Label>
                 <Menu.Item
                   leftSection={<IconClipboardCopy size='1rem' />}
                   onClick={copyToken}
-                  style={{ color: 'var(--text-muted, #94a3b8)' }}
                 >
                   Copy token
                 </Menu.Item>
                 <Menu.Item color='red' leftSection={<IconRefreshDot size='1rem' />} onClick={refreshToken}>
                   Refresh token
                 </Menu.Item>
-                <Menu.Divider style={{ borderColor: 'rgba(255,255,255,0.08)' }} />
+                <Menu.Divider />
                 <Menu.Item
                   leftSection={<IconSettingsFilled size='1rem' />}
                   component={Link}
                   to='/dashboard/settings'
                   prefetch='intent'
-                  style={{ color: 'var(--text-muted, #94a3b8)' }}
                 >
                   Settings
                 </Menu.Item>
@@ -499,12 +486,11 @@ export default function Layout() {
                     component={Link}
                     to='/dashboard/admin/settings'
                     prefetch='intent'
-                    style={{ color: 'var(--text-muted, #94a3b8)' }}
                   >
                     Server Settings
                   </Menu.Item>
                 )}
-                <Menu.Divider style={{ borderColor: 'rgba(255,255,255,0.08)' }} />
+                <Menu.Divider />
                 <Menu.Item color='red' leftSection={<IconLogout size='1rem' />} onClick={logout}>
                   Logout
                 </Menu.Item>
@@ -518,41 +504,39 @@ export default function Layout() {
         hidden={!opened}
         zIndex={90}
         style={{
-          background: 'rgba(3, 7, 18, 0.7)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderRight: '1px solid rgba(255,255,255,0.08)',
+          background: 'var(--bg-2)',
+          borderRight: '1px solid var(--line)',
           display: 'flex',
           flexDirection: 'column',
         }}
       >
         <Box
           hiddenFrom='sm'
-          style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 12px' }}
+          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 14px 10px' }}
         >
           {logoMark}
           <span
             style={{
-              fontFamily: "'Syne', sans-serif",
-              fontWeight: 800,
-              fontSize: '1rem',
-              color: 'var(--text-main, #f8fafc)',
-              letterSpacing: '-0.02em',
+              fontFamily: "'Space Grotesk', system-ui, sans-serif",
+              fontWeight: 600,
+              fontSize: '0.95rem',
+              color: 'var(--fg)',
+              letterSpacing: '-0.01em',
             }}
           >
             {config.website.title.trim()}
           </span>
         </Box>
-        <Divider hiddenFrom='sm' style={{ borderColor: 'rgba(255,255,255,0.08)', marginBottom: 8 }} />
+        <Divider hiddenFrom='sm' style={{ marginBottom: 6 }} />
 
         <ScrollArea style={{ flex: 1 }} px={8} py={4}>
           {renderLinks(navLinks, location.pathname, user as Response['/api/user']['user'], config, navigate)}
         </ScrollArea>
 
-        <div style={{ padding: '8px 0' }}>
+        <div style={{ padding: '6px 0' }}>
           <VersionBadge />
-          <Divider style={{ borderColor: 'rgba(255,255,255,0.08)', margin: '8px 0' }} />
-          <ScrollArea mah={160} px={8}>
+          <Divider style={{ margin: '6px 0' }} />
+          <ScrollArea mah={140} px={8}>
             <Box>
               {config.website.externalLinks.map(({ name, url }, i) => (
                 <NavLink
@@ -563,7 +547,7 @@ export default function Layout() {
                   component={Link}
                   to={url}
                   target='_blank'
-                  style={{ borderRadius: 10, marginBottom: 2 }}
+                  style={{ marginBottom: 2 }}
                 />
               ))}
             </Box>
@@ -577,13 +561,8 @@ export default function Layout() {
             withBorder
             m='md'
             p='md'
-            radius='xl'
-            style={{
-              background: 'rgba(255,255,255,0.02)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              border: '1px solid rgba(255,255,255,0.08)',
-            }}
+            radius={0}
+            style={{ background: 'var(--bg-2)', border: '1px solid var(--line)' }}
           >
             <Outlet />
           </Paper>

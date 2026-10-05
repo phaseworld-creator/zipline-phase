@@ -55,6 +55,7 @@ export default function ThemeProvider({
     theme =
       systemTheme === 'dark'
         ? (findTheme(user ? preferredDark : (defaultTheme?.dark ?? ''), themes) ??
+          findTheme('builtin:phaseworld_site', themes) ??
           findTheme('builtin:phase_dark', themes) ??
           findTheme('builtin:dark_blue', themes))
         : (findTheme(user ? preferredLight : (defaultTheme?.light ?? ''), themes) ??
@@ -63,6 +64,7 @@ export default function ThemeProvider({
 
   if (!theme) {
     theme =
+      findTheme('builtin:phaseworld_site', themes) ??
       findTheme('builtin:phase_dark', themes) ??
       findTheme('builtin:dark_blue', themes) ??
       (phase_dark as unknown as ZiplineTheme);

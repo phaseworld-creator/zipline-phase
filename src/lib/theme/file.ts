@@ -10,6 +10,7 @@ import black_dark from './builtins/black_dark.theme.json' with { type: 'json' };
 import light_blue from './builtins/light_blue.theme.json' with { type: 'json' };
 import dark_blue from './builtins/dark_blue.theme.json' with { type: 'json' };
 import phase_dark from './builtins/phase_dark.theme.json' with { type: 'json' };
+import phaseworld_site from './builtins/phaseworld_site.theme.json' with { type: 'json' };
 
 import cat_frappe from './builtins/catppuccin_frappe.theme.json' with { type: 'json' };
 import cat_latte from './builtins/catppuccin_latte.theme.json' with { type: 'json' };
@@ -51,6 +52,7 @@ export async function readThemes(): Promise<ZiplineTheme[]> {
     handleOverrideColors(light_blue as unknown as ZiplineTheme),
     handleOverrideColors(dark_blue as unknown as ZiplineTheme),
     handleOverrideColors(phase_dark as unknown as ZiplineTheme),
+    handleOverrideColors(phaseworld_site as unknown as ZiplineTheme),
 
     handleOverrideColors(cat_frappe as unknown as ZiplineTheme),
     handleOverrideColors(cat_latte as unknown as ZiplineTheme),

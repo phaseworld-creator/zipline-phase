@@ -1,0 +1,40 @@
+{
+  "name": "PhaseWorld Site",
+  "id": "builtin:phaseworld_site",
+  "colorScheme": "dark",
+  "primaryColor": "accent",
+  "mainBackgroundColor": "#0d0d0f",
+  "colors": {
+    "accent": [
+      "#fff2ee",
+      "#ffd5c8",
+      "#ffb09a",
+      "#ff8b6c",
+      "#ff6a46",
+      "#ff5b2e",
+      "#e04820",
+      "#c23716",
+      "#9e2a0e",
+      "#7a1e08"
+    ],
+    "dark": [
+      "#f0efec",
+      "#a9a7a1",
+      "#6e6c67",
+      "#36363e",
+      "#26262b",
+      "#1b1b1f",
+      "#131316",
+      "#0d0d0f",
+      "#09090b",
+      "#050506"
+    ]
+  },
+  "fontFamily": "'Space Grotesk', system-ui, sans-serif",
+  "headings": {
+    "fontFamily": "'Space Grotesk', system-ui, sans-serif",
+    "fontWeight": "600"
+  },
+  "defaultRadius": "xs",
+  "extraCss": "@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');"
+}
