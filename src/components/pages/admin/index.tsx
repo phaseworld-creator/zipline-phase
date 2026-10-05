@@ -7,6 +7,7 @@ import {
   IconAdjustments,
   IconApi,
   IconBrush,
+  IconCode,
   IconGhost2Filled,
   IconGraph,
   IconLogin2,
@@ -98,6 +99,13 @@ export default function DashboardAdminHome() {
       href: '/dashboard/admin/login-customiser',
       icon: IconLogin2,
       show: user?.role === 'ADMIN',
+    },
+    {
+      label: 'Embed Builder',
+      description: 'Build Discord embed links with discohook.app integration',
+      href: '/dashboard/admin/embed-builder',
+      icon: IconCode,
+      show: true,
     },
   ];
 

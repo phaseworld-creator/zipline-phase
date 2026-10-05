@@ -23,6 +23,7 @@ const publicConfigSchema = z.object({
     loginBackground: z.string().nullable().optional(),
     loginBackgroundBlur: z.boolean().optional(),
     title: z.string().optional(),
+    titleLogo: z.string().nullable().optional(),
     tos: z.boolean(),
   }),
   features: z.object({
@@ -81,6 +82,7 @@ export default typedPlugin(
             loginBackground: config.website.loginBackground,
             loginBackgroundBlur: config.website.loginBackgroundBlur,
             title: config.website.title,
+            titleLogo: config.website.titleLogo ?? null,
             tos: config.website.tos !== undefined,
           },
           features: {

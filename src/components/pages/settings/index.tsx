@@ -3,9 +3,7 @@ import { eitherTrue } from '@/lib/primitive';
 import { Group, SimpleGrid, Stack, Title } from '@mantine/core';
 import { lazy } from 'react';
 
-const SettingsAvatar = lazy(() => import('./parts/SettingsAvatar'));
 const SettingsDashboard = lazy(() => import('./parts/SettingsDashboard'));
-const SettingsEmbedBuilder = lazy(() => import('./parts/SettingsEmbedBuilder'));
 const SettingsFileView = lazy(() => import('./parts/SettingsFileView'));
 const SettingsGenerators = lazy(() => import('./parts/SettingsGenerators'));
 const SettingsMfa = lazy(() => import('./parts/SettingsMfa'));
@@ -26,8 +24,6 @@ export default function DashboardSettings() {
       <SimpleGrid mt='md' cols={{ base: 1, md: 2 }} spacing='lg'>
         <SettingsUser />
 
-        <SettingsAvatar />
-
         <Stack gap='sm'>
           <SettingsSessions />
           <SettingsDashboard />
@@ -46,7 +42,6 @@ export default function DashboardSettings() {
 
         <SettingsExports />
         <SettingsGenerators />
-        <SettingsEmbedBuilder />
       </SimpleGrid>
     </>
   );

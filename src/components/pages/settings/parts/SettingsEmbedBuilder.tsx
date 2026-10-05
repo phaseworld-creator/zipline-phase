@@ -1,9 +1,11 @@
+import SafeCopyButton from '@/components/SafeCopyButton';
 import {
   ActionIcon,
+  Anchor,
+  Badge,
   Box,
   Button,
   ColorInput,
-  CopyButton,
   Divider,
   Group,
   Paper,
@@ -14,7 +16,7 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconCheck, IconCopy, IconExternalLink, IconRefresh } from '@tabler/icons-react';
+import { IconBrandDiscord, IconCheck, IconCopy, IconExternalLink, IconRefresh } from '@tabler/icons-react';
 import { useMemo } from 'react';
 
 type EmbedData = {
@@ -50,6 +52,43 @@ function buildEmbedUrl(data: EmbedData): string {
   const encoded = encodeEmbedData(data);
   if (typeof window === 'undefined') return `/embed?data=${encoded}`;
   return `${window.location.protocol}//${window.location.host}/embed?data=${encoded}`;
+}
+
+/**
+ * Build a discohook.app share URL that pre-fills a message embed.
+ * Discohook accepts a base64url-encoded JSON payload via the `data` query param.
+ * Schema: { messages: [{ data: { embeds: [{ title, description, color (int), author: { name } }] } }] }
+ */
+function buildDiscohookUrl(data: EmbedData, embedUrl: string): string {
+  // Convert hex color to int (discohook expects a decimal integer)
+  let colorInt: number | undefined;
+  const hex = data.color?.replace('#', '');
+  if (hex && /^[0-9a-fA-F]{3,8}$/.test(hex)) {
+    colorInt = parseInt(hex.length === 3
+      ? hex.split('').map((c) => c + c).join('')
+      : hex, 16);
+  }
+
+  const embed: Record<string, unknown> = {};
+  if (data.siteName?.trim()) embed.author = { name: data.siteName.trim() };
+  if (data.title?.trim())    embed.title = data.title.trim();
+  if (data.description?.trim()) embed.description = data.description.trim();
+  if (colorInt !== undefined) embed.color = colorInt;
+  if (data.imageUrl?.trim()) embed.image = { url: data.imageUrl.trim() };
+
+  // Always include the generated embed URL as the embed's url so Discord linkifies the title
+  if (data.title?.trim()) embed.url = embedUrl;
+
+  const payload = { messages: [{ data: { content: embedUrl, embeds: [embed] } }] };
+  const json = JSON.stringify(payload);
+
+  // URL-safe base64 (discohook v2 uses raw base64url)
+  const bytes = new TextEncoder().encode(json);
+  let binary = '';
+  bytes.forEach((b) => (binary += String.fromCharCode(b)));
+  const b64 = btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+  return `https://discohook.app/?data=${b64}`;
 }
 
 /* ─── Live preview ─────────────────────────────────────────────── */
@@ -103,13 +142,23 @@ export default function SettingsEmbedBuilder() {
   });
 
   const embedUrl = useMemo(() => buildEmbedUrl(form.values), [form.values]);
+  const discohookUrl = useMemo(() => buildDiscohookUrl(form.values, embedUrl), [form.values, embedUrl]);
 
   return (
     <Paper withBorder p='sm'>
-      <Title order={2} mb='xs'>Embed Builder</Title>
-      <Text c='dimmed' size='sm' mb='md'>
+      <Group gap='xs' mb='xs' align='center'>
+        <Title order={2}>Embed Builder</Title>
+        <Badge color='indigo' variant='light' size='sm'>Phase</Badge>
+      </Group>
+      <Text c='dimmed' size='sm' mb='xs'>
         Build a custom embed link — paste it in Discord or any OG-aware app and it shows your card.
       </Text>
+      <Group gap='xs' mb='md'>
+        <Text size='xs' c='dimmed'>Preview your embed in Discord before sharing using</Text>
+        <Anchor href='https://discohook.app/' target='_blank' size='xs' fw={600}>
+          discohook.app
+        </Anchor>
+      </Group>
       <Divider mb='md' />
 
       <Group align='flex-start' gap='xl' style={{ flexWrap: 'wrap' }}>
@@ -125,7 +174,7 @@ export default function SettingsEmbedBuilder() {
             {...form.getInputProps('color')}
           />
           <TextInput label='Image URL' placeholder='https://example.com/image.png' {...form.getInputProps('imageUrl')} />
-          <ActionIcon variant='subtle' color='gray' size='sm' onClick={() => form.reset()} title='Reset' mt='xs'>
+          <ActionIcon variant='subtle' color='gray' size='sm' onClick={() => form.reset()} title='Reset fields' mt='xs'>
             <IconRefresh size='0.9rem' />
           </ActionIcon>
         </Stack>
@@ -139,19 +188,43 @@ export default function SettingsEmbedBuilder() {
             {embedUrl}
           </Box>
           <Group gap='xs'>
-            <CopyButton value={embedUrl} timeout={2000}>
+            <SafeCopyButton value={embedUrl} timeout={2000}>
               {({ copied, copy }) => (
-                <Button size='xs' variant={copied ? 'filled' : 'light'} color={copied ? 'teal' : 'blue'} leftSection={copied ? <IconCheck size='0.85rem' /> : <IconCopy size='0.85rem' />} onClick={copy}>
+                <Button
+                  size='xs'
+                  variant={copied ? 'filled' : 'light'}
+                  color={copied ? 'teal' : 'blue'}
+                  leftSection={copied ? <IconCheck size='0.85rem' /> : <IconCopy size='0.85rem' />}
+                  onClick={copy}
+                >
                   {copied ? 'Copied!' : 'Copy URL'}
                 </Button>
               )}
-            </CopyButton>
-            <Tooltip label='Open in new tab'>
+            </SafeCopyButton>
+            <Tooltip label='Open embed URL in new tab'>
               <ActionIcon variant='light' color='gray' size='sm' component='a' href={embedUrl} target='_blank' rel='noreferrer'>
                 <IconExternalLink size='0.9rem' />
               </ActionIcon>
             </Tooltip>
+            <Tooltip label='Preview in discohook.app'>
+              <ActionIcon
+                variant='light'
+                color='indigo'
+                size='sm'
+                component='a'
+                href={discohookUrl}
+                target='_blank'
+                rel='noreferrer'
+              >
+                <IconBrandDiscord size='0.9rem' />
+              </ActionIcon>
+            </Tooltip>
           </Group>
+          <Text size='xs' c='dimmed' mt={2}>
+            The <IconBrandDiscord size='0.7rem' style={{ verticalAlign: 'middle' }} /> button opens{' '}
+            <Anchor href='https://discohook.app/' target='_blank' size='xs'>discohook.app</Anchor> pre-filled
+            with your embed so you can preview exactly how it renders in Discord.
+          </Text>
         </Stack>
       </Group>
     </Paper>

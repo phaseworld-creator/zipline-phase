@@ -4,6 +4,7 @@ import { Folder } from '@/lib/db/models/folder';
 import { fetchApi } from '@/lib/fetchApi';
 import { FolderBreadcrumb } from '@/lib/folderHierarchy';
 import { SEPARATOR, useTitle } from '@/lib/client/hooks/useTitle';
+import SafeCopyButton from '@/components/SafeCopyButton';
 import { useViewStore } from '@/lib/client/store/view';
 import {
   Alert,
@@ -12,7 +13,6 @@ import {
   Breadcrumbs,
   Button,
   Collapse,
-  CopyButton,
   Divider,
   Group,
   Modal,
@@ -217,13 +217,13 @@ export default function DashboardFolders() {
               <Anchor href={`/folder/${currentFolder.id}/upload`} target='_blank'>
                 {`${window?.location?.origin ?? ''}/folder/${currentFolder.id}/upload`}
               </Anchor>
-              <CopyButton value={`${window?.location?.origin ?? ''}/folder/${currentFolder.id}/upload`}>
+              <SafeCopyButton value={`${window?.location?.origin ?? ''}/folder/${currentFolder.id}/upload`}>
                 {({ copied, copy }) => (
                   <Button mx='sm' size='compact-xs' color={copied ? 'teal' : 'blue'} onClick={copy}>
                     {copied ? 'Copied url' : 'Copy url'}
                   </Button>
                 )}
-              </CopyButton>
+              </SafeCopyButton>
             </Alert>
           )}
           <Text

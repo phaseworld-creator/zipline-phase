@@ -86,6 +86,7 @@ export const router = createBrowserRouter([
                       { path: 'admin/api-docs', lazy: () => import('./pages/dashboard/admin/api-docs') },
                       { path: 'admin/theme-maker', lazy: () => import('./pages/dashboard/admin/theme-maker') },
                       { path: 'admin/login-customiser', lazy: () => import('./pages/dashboard/admin/login-customiser') },
+                      { path: 'admin/embed-builder', lazy: () => import('./pages/dashboard/admin/embed-builder') },
                       {
                         path: 'admin/users/:id/files',
                         lazy: () => import('./pages/dashboard/admin/users/[id]/files'),

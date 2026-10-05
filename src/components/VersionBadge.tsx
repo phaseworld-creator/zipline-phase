@@ -94,12 +94,12 @@ export function VersionInfo({ version }: { version: VersionData }) {
           {
             label: 'Version',
             value: version.version.tag!,
-            href: `https://github.com/diced/zipline/releases/${version.version.tag}`,
+            href: `https://github.com/phaseworld-creator/zipline-phase/releases/${version.version.tag}`,
           },
           {
             label: 'Commit',
             value: version.version.sha!.slice(0, 7)!,
-            href: `https://github.com/diced/zipline/commit/${version.version.sha}`,
+            href: `https://github.com/phaseworld-creator/zipline-phase/commit/${version.version.sha}`,
           },
           {
             label: 'Upstream?',
@@ -123,7 +123,7 @@ export function VersionInfo({ version }: { version: VersionData }) {
               {
                 label: 'Commit',
                 value: version.latest.commit.sha!.slice(0, 7)!,
-                href: `https://github.com/diced/zipline/commit/${version.latest.commit.sha}`,
+                href: `https://github.com/phaseworld-creator/zipline-phase/commit/${version.latest.commit.sha}`,
               },
               {
                 label: 'Available to update',
@@ -145,7 +145,7 @@ export function VersionInfo({ version }: { version: VersionData }) {
             {version.latest.tag}
           </VersionButton>
 
-          <VersionButton text='Update' href='https://zipline.diced.sh/docs/get-started/docker#updating'>
+          <VersionButton text='Update' href='https://github.com/phaseworld-creator/zipline-phase#updating'>
             {version.latest.tag}
           </VersionButton>
         </>

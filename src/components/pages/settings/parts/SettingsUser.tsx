@@ -1,3 +1,4 @@
+import SafeCopyButton from '@/components/SafeCopyButton';
 import type { User } from '@/lib/db/models/user';
 import { ApiError } from '@/lib/api/errors';
 import { Response } from '@/lib/api/response';
@@ -8,7 +9,6 @@ import {
   Avatar,
   Box,
   Button,
-  CopyButton,
   FileButton,
   Group,
   Paper,
@@ -252,7 +252,7 @@ function Form({ user, setUser, token }: { user: User; setUser: (u: User) => void
       <form onSubmit={form.onSubmit(onSubmit)}>
         <TextInput
           rightSection={
-            <CopyButton value={token} timeout={1000}>
+            <SafeCopyButton value={token} timeout={1000}>
               {({ copied, copy }) => (
                 <Tooltip label='Click to copy token'>
                   <ActionIcon onClick={copy} variant='subtle' color='gray'>
@@ -260,7 +260,7 @@ function Form({ user, setUser, token }: { user: User; setUser: (u: User) => void
                   </ActionIcon>
                 </Tooltip>
               )}
-            </CopyButton>
+            </SafeCopyButton>
           }
           // @ts-ignore this works trust
           component='span'

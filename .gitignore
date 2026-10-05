@@ -49,3 +49,6 @@ uploads*/
 src/prisma
 .memory.log*
 openapi.json
+
+# github updater
+update.cmd

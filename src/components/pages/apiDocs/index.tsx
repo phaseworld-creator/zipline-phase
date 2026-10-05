@@ -1,9 +1,9 @@
+import SafeCopyButton from '@/components/SafeCopyButton';
 import {
   Accordion,
   Badge,
   Box,
   Code,
-  CopyButton,
   Divider,
   Group,
   ScrollArea,
@@ -523,7 +523,7 @@ function EndpointBlock({ ep }: { ep: ApiEndpoint }) {
                 <Text size='xs' fw={700} tt='uppercase' c='dimmed'>
                   Example
                 </Text>
-                <CopyButton value={ep.example} timeout={2000}>
+                <SafeCopyButton value={ep.example} timeout={2000}>
                   {({ copied, copy }) => (
                     <Tooltip label={copied ? 'Copied!' : 'Copy'}>
                       <ActionIcon size='xs' variant='subtle' color={copied ? 'teal' : 'gray'} onClick={copy}>
@@ -531,7 +531,7 @@ function EndpointBlock({ ep }: { ep: ApiEndpoint }) {
                       </ActionIcon>
                     </Tooltip>
                   )}
-                </CopyButton>
+                </SafeCopyButton>
               </Group>
               <Code block style={{ fontSize: '0.8rem' }}>
                 {ep.example}

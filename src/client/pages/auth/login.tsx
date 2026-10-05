@@ -270,13 +270,34 @@ export default function Login() {
           }}
         >
           <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            {config.website.titleLogo ? (
+              <img
+                src={config.website.titleLogo}
+                alt='logo'
+                style={{
+                  width: 52,
+                  height: 52,
+                  borderRadius: 12,
+                  objectFit: 'contain',
+                  margin: '0 auto 16px',
+                  display: 'block',
+                }}
+                onError={(e) => {
+                  // Fall back to the default Z icon if the image fails to load
+                  const el = e.currentTarget as HTMLImageElement;
+                  el.style.display = 'none';
+                  const fallback = el.nextElementSibling as HTMLElement | null;
+                  if (fallback) fallback.style.display = 'flex';
+                }}
+              />
+            ) : null}
             <div
               style={{
                 width: 52,
                 height: 52,
                 borderRadius: 16,
                 background: 'linear-gradient(135deg, #6366f1, #f43f5e)',
-                display: 'flex',
+                display: config.website.titleLogo ? 'none' : 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontFamily: "'Syne', sans-serif",

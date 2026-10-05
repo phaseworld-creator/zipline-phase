@@ -1,10 +1,10 @@
+import SafeCopyButton from '@/components/SafeCopyButton';
 import { fetchApi } from '@/lib/fetchApi';
 import {
   ActionIcon,
   Badge,
   Button,
   Card,
-  CopyButton,
   Divider,
   Group,
   Image,
@@ -70,50 +70,50 @@ const PRESETS: Preset[] = [
     id: 'nyan',
     label: 'Nyan Cat',
     type: 'gif',
-    mediaUrl: 'https://phase-cdn.pages.dev/zipline/Nyan-Cat.webp',
-    preview: 'https://phase-cdn.pages.dev/zipline/Nyan-Cat.webp',
+    mediaUrl: 'https://cdn.phaseworld.top/zipline/Nyan-Cat.webp',
+    preview: 'https://cdn.phaseworld.top/zipline/Nyan-Cat.webp',
   },
   {
     id: 'trollface',
     label: 'Trollface',
     type: 'image',
-    mediaUrl: 'https://phase-cdn.pages.dev/zipline/TrollFace.png',
-    preview: 'hhttps://phase-cdn.pages.dev/zipline/TrollFace.png',
+    mediaUrl: 'https://cdn.phaseworld.top/zipline/TrollFace.png',
+    preview: 'https://cdn.phaseworld.top/zipline/TrollFace.png',
   },
   {
     id: 'doge',
     label: 'Doge',
     type: 'image',
-    mediaUrl: 'https://phase-cdn.pages.dev/zipline/Doge.jpg',
-    preview: 'https://phase-cdn.pages.dev/zipline/Doge.jpg',
+    mediaUrl: 'https://cdn.phaseworld.top/zipline/Doge.jpg',
+    preview: 'https://cdn.phaseworld.top/zipline/Doge.jpg',
   },
   {
     id: 'bonk',
     label: 'Bonk',
     type: 'gif',
-    mediaUrl: 'https://phase-cdn.pages.dev/zipline/Bonk.gif',
-    preview: 'https://phase-cdn.pages.dev/zipline/Bonk.gif',
+    mediaUrl: 'https://cdn.phaseworld.top/zipline/Bonk.gif',
+    preview: 'https://cdn.phaseworld.top/zipline/Bonk.gif',
   },
   {
     id: 'pikachu',
     label: 'Surprised Pikachu',
     type: 'image',
-    mediaUrl: 'https://phase-cdn.pages.dev/zipline/Surprised-Pikachu.png',
-    preview: 'https://phase-cdn.pages.dev/zipline/Surprised-Pikachu.png',
+    mediaUrl: 'https://cdn.phaseworld.top/zipline/Surprised-Pikachu.png',
+    preview: 'https://cdn.phaseworld.top/zipline/Surprised-Pikachu.png',
   },
   {
     id: 'spinning',
     label: 'Spinning Horse',
     type: 'gif',
-    mediaUrl: 'https://phase-cdn.pages.dev/zipline/Spinning-Horse.gif',
-    preview: 'https://phase-cdn.pages.dev/zipline/Spinning-Horse.gif',
+    mediaUrl: 'https://cdn.phaseworld.top/zipline/Spinning-Horse.gif',
+    preview: 'https://cdn.phaseworld.top/zipline/Spinning-Horse.gif',
   },
   {
     id: 'shrek',
     label: 'Shrek',
     type: 'image',
-    mediaUrl: 'https://phase-cdn.pages.dev/zipline/Shrek-Disappointed.png',
-    preview: 'https://phase-cdn.pages.dev/zipline/Shrek-Disappointed.png',
+    mediaUrl: 'https://cdn.phaseworld.top/zipline/Shrek-Disappointed.png',
+    preview: 'https://cdn.phaseworld.top/zipline/Shrek-Disappointed.png',
   },
 ];
 
@@ -448,7 +448,7 @@ export default function DashboardTroll() {
 
                   {/* Actions */}
                   <Group gap='xs' wrap='nowrap'>
-                    <CopyButton value={trollUrl} timeout={2000}>
+                    <SafeCopyButton value={trollUrl} timeout={2000}>
                       {({ copied, copy }) => (
                         <Tooltip label={copied ? 'Copied!' : 'Copy troll URL'}>
                           <ActionIcon variant='light' color={copied ? 'teal' : 'grape'} onClick={copy}>
@@ -456,7 +456,7 @@ export default function DashboardTroll() {
                           </ActionIcon>
                         </Tooltip>
                       )}
-                    </CopyButton>
+                    </SafeCopyButton>
                     <Tooltip label='Open in new tab'>
                       <ActionIcon
                         variant='light'

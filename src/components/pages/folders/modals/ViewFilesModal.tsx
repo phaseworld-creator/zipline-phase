@@ -1,5 +1,6 @@
+import SafeCopyButton from '@/components/SafeCopyButton';
 import { Folder } from '@/lib/db/models/folder';
-import { Alert, Anchor, Button, CopyButton, Group, Modal, SimpleGrid, Skeleton, Text } from '@mantine/core';
+import { Alert, Anchor, Button, Group, Modal, SimpleGrid, Skeleton, Text } from '@mantine/core';
 import { IconShare } from '@tabler/icons-react';
 import { lazy, Suspense } from 'react';
 
@@ -36,13 +37,13 @@ export default function ViewFilesModal({
           <Anchor href={`/folder/${folder.id}/upload`} target='_blank'>
             {`${window?.location?.origin ?? ''}/folder/${folder.id}/upload`}
           </Anchor>
-          <CopyButton value={`${window?.location?.origin ?? ''}/folder/${folder.id}/upload`}>
+          <SafeCopyButton value={`${window?.location?.origin ?? ''}/folder/${folder.id}/upload`}>
             {({ copied, copy }) => (
               <Button mx='sm' size='compact-xs' color={copied ? 'teal' : 'blue'} onClick={copy}>
                 {copied ? 'Copied url' : 'Copy url'}
               </Button>
             )}
-          </CopyButton>
+          </SafeCopyButton>
         </Alert>
       )}
 

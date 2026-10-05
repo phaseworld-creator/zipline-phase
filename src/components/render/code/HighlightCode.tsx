@@ -1,4 +1,5 @@
-import { ActionIcon, Button, CopyButton, Paper, Text, useMantineTheme } from '@mantine/core';
+import SafeCopyButton from '@/components/SafeCopyButton';
+import { ActionIcon, Button, Paper, Text, useMantineTheme } from '@mantine/core';
 import { IconCheck, IconChevronDown, IconChevronUp, IconClipboardCopy } from '@tabler/icons-react';
 import type { HLJSApi } from 'highlight.js';
 import * as sanitize from 'isomorphic-dompurify';
@@ -76,7 +77,7 @@ export default function HighlightCode({
 
   return (
     <Paper withBorder p='xs' my='md' pos='relative' style={{ overflow: 'hidden' }}>
-      <CopyButton value={code}>
+      <SafeCopyButton value={code}>
         {({ copied, copy }) => (
           <ActionIcon
             onClick={copy}
@@ -92,7 +93,7 @@ export default function HighlightCode({
             )}
           </ActionIcon>
         )}
-      </CopyButton>
+      </SafeCopyButton>
 
       <div style={{ height: noClamp ? undefined : estimatedHeight, overflowX: 'auto' }}>
         <Virtuoso

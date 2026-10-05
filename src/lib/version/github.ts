@@ -2,8 +2,8 @@ import type { VersionDetails, VersionInfo } from '.';
 import { ApiError } from '../api/errors';
 import { log } from '../logger';
 
-const GITHUB_API = 'https://api.github.com/repos/diced/zipline';
-const GITHUB_URL = 'https://github.com/diced/zipline';
+const GITHUB_API = 'https://api.github.com/repos/phaseworld-creator/zipline-phase';
+const GITHUB_URL = 'https://github.com/phaseworld-creator/zipline-phase';
 const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 hours
 
 // minimal github api types
