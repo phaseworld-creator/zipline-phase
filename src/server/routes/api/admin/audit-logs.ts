@@ -26,7 +26,7 @@ const logSchema = z.object({
   actorName: z.string().nullable(),
   targetId: z.string().nullable(),
   targetType: z.string().nullable(),
-  meta: z.record(z.unknown()),
+  meta: z.record(z.string(), z.unknown()),
 });
 
 export const PATH = '/api/admin/audit-logs';
