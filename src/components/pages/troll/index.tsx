@@ -495,15 +495,11 @@ export default function DashboardTroll() {
 
             <MultiSelect
               label='Tags (optional)'
-              description='Add tags to organize your troll links'
+              description='Add tags to organize your troll links. Type and press Enter to add.'
               placeholder='Type and press Enter'
-              data={allTags}
+              data={[...allTags, ...form.values.tags.filter((t: string) => !allTags.includes(t))]}
               searchable
               leftSection={<IconTag size='1rem' />}
-              onCreate={(query: string) => {
-                form.setFieldValue('tags', [...form.values.tags, query]);
-                return query;
-              }}
               {...form.getInputProps('tags')}
             />
 
@@ -572,15 +568,11 @@ export default function DashboardTroll() {
 
             <MultiSelect
               label='Tags (optional)'
-              description='Add tags to organize your troll links'
+              description='Add tags to organize your troll links. Type and press Enter to add.'
               placeholder='Type and press Enter'
-              data={allTags}
+              data={[...allTags, ...editForm.values.tags.filter((t: string) => !allTags.includes(t))]}
               searchable
               leftSection={<IconTag size='1rem' />}
-              onCreate={(query: string) => {
-                editForm.setFieldValue('tags', [...editForm.values.tags, query]);
-                return query;
-              }}
               {...editForm.getInputProps('tags')}
             />
 
