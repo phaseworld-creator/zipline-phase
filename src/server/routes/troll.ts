@@ -206,7 +206,7 @@ export default typedPlugin(
 
       // Handle redirect mode
       if (link.displayMode === 'redirect') {
-        return res.redirect(302, link.mediaUrl);
+        return res.redirect(302, String(link.mediaUrl));
       }
 
       // Default fullscreen mode
@@ -230,7 +230,7 @@ export default typedPlugin(
       trollStore.incrementViewsWithIp(req.params.alias, clientIp as string);
 
       if (link.displayMode === 'redirect') {
-        return res.redirect(302, link.mediaUrl);
+        return res.redirect(302, String(link.mediaUrl));
       }
 
       return res.type('text/html').send(buildTrollHtml(link));
