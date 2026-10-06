@@ -1,4 +1,4 @@
-import { trollStore } from '@/lib/trollStore';
+import { trollStore, type TrollLink } from '@/lib/trollStore';
 import typedPlugin from '@/server/typedPlugin';
 
 function getClientIp(req: any): string {
@@ -190,8 +190,8 @@ export default typedPlugin(
       const link = trollStore.get(req.params.alias);
       if (!link) return res.callNotFound();
 
-      // Type guard to ensure link is properly typed
-      const typedLink: NonNullable<ReturnType<typeof trollStore.get>> = link;
+      // Explicit type cast to ensure proper typing
+      const typedLink = link as TrollLink;
 
       // Check if expired
       if (trollStore.isExpired(req.params.alias)) {
@@ -220,8 +220,8 @@ export default typedPlugin(
       const link = trollStore.get(req.params.alias);
       if (!link) return res.callNotFound();
 
-      // Type guard to ensure link is properly typed
-      const typedLink: NonNullable<ReturnType<typeof trollStore.get>> = link;
+      // Explicit type cast to ensure proper typing
+      const typedLink = link as TrollLink;
 
       // Verify password
       const password = (req.body as any)?.password || '';
