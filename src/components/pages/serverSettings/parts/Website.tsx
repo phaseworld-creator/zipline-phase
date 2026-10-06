@@ -24,8 +24,8 @@ function Form({ data, isLoading }: { data: Response['/api/server/settings']; isL
     initialValues: {
       websiteTitle: data.settings.websiteTitle,
       websiteTitleLogo: data.settings.websiteTitleLogo,
-      websiteAnnouncement: data.settings.websiteAnnouncement || '',
-      websiteMotd: data.settings.websiteMotd || '',
+      websiteAnnouncement: (data.settings as any).websiteAnnouncement || '',
+      websiteMotd: (data.settings as any).websiteMotd || '',
       websiteExternalLinks: JSON.stringify(data.settings.websiteExternalLinks, null, 2),
       websiteLoginBackground: data.settings.websiteLoginBackground,
       websiteLoginBackgroundBlur: data.settings.websiteLoginBackgroundBlur,

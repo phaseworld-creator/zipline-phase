@@ -7,7 +7,7 @@ export default function AnnouncementBanner() {
   const { data } = useServerSettings();
   const [dismissed, setDismissed] = useState(false);
 
-  const announcement = data?.settings?.websiteAnnouncement;
+  const announcement = (data?.settings as any)?.websiteAnnouncement;
 
   // Reset dismissed state when announcement changes
   useEffect(() => {

@@ -499,10 +499,9 @@ export default function DashboardTroll() {
               placeholder='Type and press Enter'
               data={allTags}
               searchable
-              creatable
               leftSection={<IconTag size='1rem' />}
-              getCreateLabel={(query) => `+ Create "${query}"`}
-              onCreate={(query) => {
+              getCreateLabel={(query: string) => `+ Create "${query}"`}
+              onCreate={(query: string) => {
                 form.setFieldValue('tags', [...form.values.tags, query]);
                 return query;
               }}
@@ -578,10 +577,9 @@ export default function DashboardTroll() {
               placeholder='Type and press Enter'
               data={allTags}
               searchable
-              creatable
               leftSection={<IconTag size='1rem' />}
-              getCreateLabel={(query) => `+ Create "${query}"`}
-              onCreate={(query) => {
+              getCreateLabel={(query: string) => `+ Create "${query}"`}
+              onCreate={(query: string) => {
                 editForm.setFieldValue('tags', [...editForm.values.tags, query]);
                 return query;
               }}

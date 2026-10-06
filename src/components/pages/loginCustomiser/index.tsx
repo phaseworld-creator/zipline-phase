@@ -282,14 +282,14 @@ function Form({ data }: { data: Response['/api/server/settings'] }) {
 
   const form = useForm({
     initialValues: {
-      websiteTitle: data.settings.websiteTitle ?? 'Zipline',
-      websiteTitleLogo: data.settings.websiteTitleLogo ?? '',
-      websiteLoginBackground: data.settings.websiteLoginBackground ?? '',
-      websiteLoginBackgroundBlur: data.settings.websiteLoginBackgroundBlur ?? true,
-      websiteLoginParticles: data.settings.websiteLoginParticles ?? false,
-      websiteLoginCustomCss: data.settings.websiteLoginCustomCss ?? '',
-      website404Image: data.settings.website404Image ?? '',
-      website404Message: data.settings.website404Message ?? '',
+      websiteTitle: (data.settings as any).websiteTitle ?? 'Zipline',
+      websiteTitleLogo: (data.settings as any).websiteTitleLogo ?? '',
+      websiteLoginBackground: (data.settings as any).websiteLoginBackground ?? '',
+      websiteLoginBackgroundBlur: (data.settings as any).websiteLoginBackgroundBlur ?? true,
+      websiteLoginParticles: (data.settings as any).websiteLoginParticles ?? false,
+      websiteLoginCustomCss: (data.settings as any).websiteLoginCustomCss ?? '',
+      website404Image: (data.settings as any).website404Image ?? '',
+      website404Message: (data.settings as any).website404Message ?? '',
     },
   });
 

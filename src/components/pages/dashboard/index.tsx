@@ -16,7 +16,6 @@ import {
   IconLink,
   IconStarFilled,
 } from '@tabler/icons-react';
-import { Markdown } from 'marked-react';
 import { lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import useSWR from 'swr';
@@ -31,7 +30,7 @@ export default function DashboardHome() {
   const { data: serverSettings } = useServerSettings();
 
   const config = useConfig();
-  const motd = serverSettings?.settings?.websiteMotd;
+  const motd = (serverSettings?.settings as any)?.websiteMotd;
 
   return (
     <>
@@ -59,7 +58,7 @@ export default function DashboardHome() {
             },
           }}
         >
-          <Markdown>{motd}</Markdown>
+          <Text size='sm' style={{ whiteSpace: 'pre-wrap' }}>{motd}</Text>
         </Alert>
       )}
 
