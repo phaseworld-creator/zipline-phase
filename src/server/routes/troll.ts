@@ -190,14 +190,17 @@ export default typedPlugin(
       const link = trollStore.get(req.params.alias);
       if (!link) return res.callNotFound();
 
+      // Type guard to ensure link is properly typed
+      const typedLink: NonNullable<ReturnType<typeof trollStore.get>> = link;
+
       // Check if expired
       if (trollStore.isExpired(req.params.alias)) {
-        return res.type('text/html').send(buildExpiredHtml(link.label));
+        return res.type('text/html').send(buildExpiredHtml(typedLink.label));
       }
 
       // Check password protection
-      if (link.password) {
-        return res.type('text/html').send(buildPasswordPromptHtml(req.params.alias, link.label));
+      if (typedLink.password) {
+        return res.type('text/html').send(buildPasswordPromptHtml(req.params.alias, typedLink.label));
       }
 
       // Increment views with IP deduplication
@@ -205,35 +208,38 @@ export default typedPlugin(
       trollStore.incrementViewsWithIp(req.params.alias, clientIp as string);
 
       // Handle redirect mode
-      if (link.displayMode === 'redirect') {
-        return res.redirect(302, link.mediaUrl as string);
+      if (typedLink.displayMode === 'redirect') {
+        return res.redirect(302, typedLink.mediaUrl);
       }
 
       // Default fullscreen mode
-      return res.type('text/html').send(buildTrollHtml(link));
+      return res.type('text/html').send(buildTrollHtml(typedLink));
     });
 
     server.post<{ Params: { alias: string } }>(PATH, async (req, res) => {
       const link = trollStore.get(req.params.alias);
       if (!link) return res.callNotFound();
 
+      // Type guard to ensure link is properly typed
+      const typedLink: NonNullable<ReturnType<typeof trollStore.get>> = link;
+
       // Verify password
       const password = (req.body as any)?.password || '';
       const isValid = await trollStore.verifyPassword(req.params.alias, password);
       
       if (!isValid) {
-        return res.type('text/html').send(buildPasswordPromptHtml(req.params.alias, link.label, '❌ Incorrect password'));
+        return res.type('text/html').send(buildPasswordPromptHtml(req.params.alias, typedLink.label, '❌ Incorrect password'));
       }
 
       // Password correct, show content
       const clientIp = getClientIp(req);
       trollStore.incrementViewsWithIp(req.params.alias, clientIp as string);
 
-      if (link.displayMode === 'redirect') {
-        return res.redirect(302, link.mediaUrl as string);
+      if (typedLink.displayMode === 'redirect') {
+        return res.redirect(302, typedLink.mediaUrl);
       }
 
-      return res.type('text/html').send(buildTrollHtml(link));
+      return res.type('text/html').send(buildTrollHtml(typedLink));
     });
   },
   { name: PATH },
