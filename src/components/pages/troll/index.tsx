@@ -5,8 +5,6 @@ import {
   Badge,
   Button,
   Card,
-  Checkbox,
-  Combobox,
   Divider,
   Group,
   Image,
@@ -21,7 +19,6 @@ import {
   TextInput,
   Title,
   Tooltip,
-  useCombobox,
 } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { useForm } from '@mantine/form';
@@ -43,7 +40,7 @@ import {
   IconTag,
   IconTrash,
 } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import useSWR, { mutate as globalMutate } from 'swr';
 
 /* ─── Types ─────────────────────────────────────────────────── */
@@ -337,7 +334,7 @@ export default function DashboardTroll() {
   };
 
   // Helper to format time remaining
-  const getTimeRemaining = (expiresAt: string) => {
+  const getTimeRemaining = useCallback((expiresAt: string) => {
     const diff = new Date(expiresAt).getTime() - Date.now();
     if (diff < 0) return 'Expired';
     const hours = Math.floor(diff / 3600000);
@@ -345,7 +342,7 @@ export default function DashboardTroll() {
     if (days > 0) return `${days}d left`;
     if (hours > 0) return `${hours}h left`;
     return '<1h left';
-  };
+  }, []);
 
   // Surprise me - pick random troll link
   const onSurpriseMe = () => {

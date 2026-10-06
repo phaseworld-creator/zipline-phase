@@ -8,7 +8,6 @@ import {
   ColorInput,
   Divider,
   Group,
-  Menu,
   Modal,
   NumberInput,
   Paper,
@@ -25,7 +24,6 @@ import { useDisclosure, useLocalStorage } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import {
   IconBrandDiscord,
-  IconBrandTwitter,
   IconCheck,
   IconCopy,
   IconDeviceFloppy,
@@ -33,7 +31,6 @@ import {
   IconExternalLink,
   IconPlus,
   IconRefresh,
-  IconTemplate,
   IconTrash,
 } from '@tabler/icons-react';
 import { useMemo, useState } from 'react';

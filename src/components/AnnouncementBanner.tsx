@@ -1,5 +1,5 @@
 import useServerSettings from '@/components/pages/serverSettings/useServerSettings';
-import { Alert, CloseButton } from '@mantine/core';
+import { Alert } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useState, useEffect } from 'react';
 
@@ -14,7 +14,9 @@ export default function AnnouncementBanner() {
     if (announcement) {
       const stored = sessionStorage.getItem('announcement-dismissed');
       if (stored !== announcement) {
-        setDismissed(false);
+        // Use setTimeout to avoid synchronous setState in effect
+        const timer = setTimeout(() => setDismissed(false), 0);
+        return () => clearTimeout(timer);
       }
     }
   }, [announcement]);

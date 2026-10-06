@@ -10,7 +10,7 @@ function getClientIp(req: any): string {
   );
 }
 
-function buildExpiredHtml(label: string): string {
+function buildExpiredHtml(_label: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
