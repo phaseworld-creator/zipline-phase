@@ -1,24 +1,58 @@
 import DomainSelect from '@/components/DomainSelect';
 import { useThemes } from '@/components/ThemeProvider';
 import { useSettingsStore } from '@/lib/client/store/settings';
-import { Group, Paper, Select, Stack, Switch, Text, Title } from '@mantine/core';
+import { Box, Group, Paper, Select, Stack, Switch, Text, Title } from '@mantine/core';
 import { IconMoonFilled, IconPaintFilled, IconSunFilled } from '@tabler/icons-react';
 import { useShallow } from 'zustand/shallow';
 
 const renderThemeOption =
   (themes: ReturnType<typeof useThemes>) =>
-  ({ option }: { option: { value: string; label: string } }) => (
-    <Group gap='xs'>
-      {option.value === 'system' ? (
-        <IconPaintFilled size='1rem' />
-      ) : themes.find((theme) => theme.id === option.value)?.colorScheme === 'dark' ? (
-        <IconMoonFilled size='1rem' />
-      ) : (
-        <IconSunFilled size='1rem' />
-      )}
-      {option.label}
-    </Group>
-  );
+  ({ option }: { option: { value: string; label: string } }) => {
+    const theme = themes.find((t) => t.id === option.value);
+    
+    // Extract color swatches from theme
+    const getSwatches = () => {
+      if (!theme || option.value === 'system') return null;
+      
+      const colors = theme.colors || {};
+      const primaryColor = theme.primaryColor || 'violet';
+      const primaryShade = colors[primaryColor]?.[5] || colors[primaryColor]?.[4];
+      
+      // Try to get a secondary color (first non-primary, non-dark color)
+      const colorKeys = Object.keys(colors).filter(k => k !== 'dark' && k !== primaryColor);
+      const secondaryColor = colorKeys[0];
+      const secondaryShade = secondaryColor ? colors[secondaryColor]?.[5] || colors[secondaryColor]?.[4] : null;
+      
+      // Background color
+      const bgColor = theme.mainBackgroundColor || (theme.colorScheme === 'dark' ? '#1a1b1e' : '#ffffff');
+      
+      return (
+        <Group gap={3}>
+          {primaryShade && (
+            <Box style={{ width: 14, height: 14, borderRadius: 2, background: primaryShade, border: '1px solid rgba(0,0,0,0.1)' }} />
+          )}
+          {secondaryShade && (
+            <Box style={{ width: 14, height: 14, borderRadius: 2, background: secondaryShade, border: '1px solid rgba(0,0,0,0.1)' }} />
+          )}
+          <Box style={{ width: 14, height: 14, borderRadius: 2, background: bgColor, border: '1px solid rgba(0,0,0,0.2)' }} />
+        </Group>
+      );
+    };
+
+    return (
+      <Group gap='xs' wrap='nowrap'>
+        {option.value === 'system' ? (
+          <IconPaintFilled size='1rem' />
+        ) : theme?.colorScheme === 'dark' ? (
+          <IconMoonFilled size='1rem' />
+        ) : (
+          <IconSunFilled size='1rem' />
+        )}
+        <Text style={{ flex: 1 }}>{option.label}</Text>
+        {getSwatches()}
+      </Group>
+    );
+  };
 
 export default function SettingsDashboard() {
   const [settings, update] = useSettingsStore(useShallow((state) => [state.settings, state.update]));

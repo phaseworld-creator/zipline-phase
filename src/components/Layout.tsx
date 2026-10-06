@@ -1,4 +1,5 @@
 import type { Response } from '@/lib/api/response';
+import AnnouncementBanner from '@/components/AnnouncementBanner';
 import useAvatar from '@/lib/client/hooks/useAvatar';
 import useLogin from '@/lib/client/hooks/useLogin';
 import { useLogout } from '@/lib/client/hooks/useLogout';
@@ -593,6 +594,7 @@ export default function Layout() {
 
       <AppShell.Main>
         <ConfigProvider data={loaderData}>
+          <AnnouncementBanner />
           <Paper
             withBorder
             m='md'

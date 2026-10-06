@@ -8,7 +8,11 @@ import {
   ColorInput,
   Divider,
   Group,
+  Menu,
+  Modal,
+  NumberInput,
   Paper,
+  SegmentedControl,
   Stack,
   Text,
   Textarea,
@@ -17,19 +21,27 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { useDisclosure, useLocalStorage } from '@mantine/hooks';
+import { notifications } from '@mantine/notifications';
 import {
   IconBrandDiscord,
+  IconBrandTwitter,
   IconCheck,
   IconCopy,
+  IconDeviceFloppy,
+  IconDownload,
   IconExternalLink,
   IconPlus,
   IconRefresh,
+  IconTemplate,
   IconTrash,
 } from '@tabler/icons-react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 /* ─── Types ────────────────────────────────────────────────────── */
 type EmbedField = { name: string; value: string; inline: boolean };
+
+type CardType = 'website' | 'summary_large_image';
 
 type EmbedData = {
   authorName?: string;
@@ -43,6 +55,15 @@ type EmbedData = {
   footerText?: string;
   footerIconUrl?: string;
   fields: EmbedField[];
+  redirectUrl?: string;
+  redirectDelay?: number;
+  cardType?: CardType;
+};
+
+type SavedTemplate = {
+  name: string;
+  data: EmbedData;
+  createdAt: string;
 };
 
 /* ─── Short-key encoding for the /embed route ──────────────────── */
@@ -55,6 +76,8 @@ type ShortEmbed = {
   i?: string;
   ft?: string; fi?: string;
   f?: { n: string; v: string; il?: boolean }[];
+  r?: string; rd?: number;
+  ct?: CardType;
 };
 
 function toShort(data: EmbedData): ShortEmbed {
@@ -71,6 +94,9 @@ function toShort(data: EmbedData): ShortEmbed {
   if (data.footerIconUrl?.trim()) o.fi = data.footerIconUrl.trim();
   const fields = data.fields.filter((f) => f.name.trim() && f.value.trim());
   if (fields.length) o.f = fields.map((f) => ({ n: f.name.trim(), v: f.value.trim(), ...(f.inline ? { il: true } : {}) }));
+  if (data.redirectUrl?.trim())   o.r  = data.redirectUrl.trim();
+  if (data.redirectDelay && data.redirectDelay > 0) o.rd = data.redirectDelay;
+  if (data.cardType && data.cardType !== 'website') o.ct = data.cardType;
   return o;
 }
 
@@ -138,7 +164,7 @@ function buildDiscohookUrl(data: EmbedData, embedUrl: string): string {
 }
 
 /* ─── Discord-accurate live preview ────────────────────────────── */
-function DiscordPreview({ data }: { data: EmbedData }) {
+function DiscordPreview({ data, embedUrl }: { data: EmbedData; embedUrl: string }) {
   const accentColor =
     data.color && /^#[0-9a-fA-F]{3,8}$/.test(data.color) ? data.color : '#6366f1';
 
@@ -167,180 +193,209 @@ function DiscordPreview({ data }: { data: EmbedData }) {
   const allFields = data.fields.filter((f) => f.name.trim() && f.value.trim());
 
   return (
-    <Box
-      style={{
-        background: '#313338',
-        borderRadius: 8,
-        padding: '12px 16px',
-        fontFamily: '"gg sans","Noto Sans",system-ui,sans-serif',
-        maxWidth: 520,
-      }}
-    >
-      {/* fake message bubble */}
-      <Group gap='xs' mb={6} align='flex-start'>
-        <Box
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg,#6366f1,#f43f5e)',
-            flexShrink: 0,
-          }}
-        />
-        <Box style={{ flex: 1 }}>
-          <Text style={{ color: '#fff', fontSize: 14, fontWeight: 500, marginBottom: 6 }}>
-            You
-          </Text>
+    <Box style={{ position: 'relative' }}>
+      {/* Floating copy button */}
+      <Box style={{ position: 'absolute', top: 8, right: 8, zIndex: 10 }}>
+        <SafeCopyButton value={embedUrl} timeout={2000}>
+          {({ copied, copy }) => (
+            <Tooltip label={copied ? 'Copied!' : 'Copy embed URL'}>
+              <ActionIcon
+                variant='filled'
+                color={copied ? 'teal' : 'grape'}
+                size='md'
+                onClick={copy}
+                style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.3)' }}
+              >
+                {copied ? <IconCheck size='1rem' /> : <IconCopy size='1rem' />}
+              </ActionIcon>
+            </Tooltip>
+          )}
+        </SafeCopyButton>
+      </Box>
 
-          {/* embed card */}
+      <Box
+        style={{
+          background: '#313338',
+          borderRadius: 8,
+          padding: '12px 16px',
+          fontFamily: '"gg sans","Noto Sans",system-ui,sans-serif',
+          maxWidth: 520,
+        }}
+      >
+        {/* fake message bubble */}
+        <Group gap='xs' mb={6} align='flex-start'>
           <Box
             style={{
-              background: '#2b2d3a',
-              borderLeft: `4px solid ${accentColor}`,
-              borderRadius: 4,
-              padding: '12px 16px',
-              maxWidth: 480,
-              position: 'relative',
+              width: 36,
+              height: 36,
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg,#6366f1,#f43f5e)',
+              flexShrink: 0,
             }}
-          >
-            {/* author */}
-            {data.authorName?.trim() && (
-              <Group gap='xs' mb={6} wrap='nowrap'>
-                {data.authorIconUrl?.trim() && (
-                  <Box
-                    component='img'
-                    src={data.authorIconUrl}
-                    style={{ width: 20, height: 20, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
-                    onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
-                  />
-                )}
-                <Text style={{ fontSize: 12, fontWeight: 600, color: '#b9bbbe' }}>
-                  {data.authorName}
+          />
+          <Box style={{ flex: 1 }}>
+            <Text style={{ color: '#fff', fontSize: 14, fontWeight: 500, marginBottom: 6 }}>
+              You
+            </Text>
+
+            {/* embed card */}
+            <Box
+              style={{
+                background: '#2b2d3a',
+                borderLeft: `4px solid ${accentColor}`,
+                borderRadius: 4,
+                padding: '12px 16px',
+                maxWidth: 480,
+                position: 'relative',
+              }}
+            >
+              {/* author */}
+              {data.authorName?.trim() && (
+                <Group gap='xs' mb={6} wrap='nowrap'>
+                  {data.authorIconUrl?.trim() && (
+                    <Box
+                      component='img'
+                      src={data.authorIconUrl}
+                      style={{ width: 20, height: 20, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                      onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
+                    />
+                  )}
+                  <Text style={{ fontSize: 12, fontWeight: 600, color: '#b9bbbe' }}>
+                    {data.authorName}
+                  </Text>
+                </Group>
+              )}
+
+              {/* thumbnail — positioned top-right */}
+              {data.thumbnailUrl?.trim() && (
+                <Box
+                  component='img'
+                  src={data.thumbnailUrl}
+                  style={{
+                    float: 'right',
+                    width: 80,
+                    height: 80,
+                    borderRadius: 4,
+                    objectFit: 'cover',
+                    marginLeft: 12,
+                    marginBottom: 4,
+                  }}
+                  onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
+                />
+              )}
+
+              {/* title */}
+              {data.title?.trim() && (
+                <Text
+                  style={{
+                    fontSize: 15,
+                    fontWeight: 700,
+                    color: data.titleUrl?.trim() ? '#7289da' : '#fff',
+                    marginBottom: 4,
+                    wordBreak: 'break-word',
+                    cursor: data.titleUrl?.trim() ? 'pointer' : undefined,
+                    textDecoration: data.titleUrl?.trim() ? 'underline' : undefined,
+                  }}
+                >
+                  {data.title}
                 </Text>
-              </Group>
-            )}
+              )}
 
-            {/* thumbnail — positioned top-right */}
-            {data.thumbnailUrl?.trim() && (
-              <Box
-                component='img'
-                src={data.thumbnailUrl}
-                style={{
-                  float: 'right',
-                  width: 80,
-                  height: 80,
-                  borderRadius: 4,
-                  objectFit: 'cover',
-                  marginLeft: 12,
-                  marginBottom: 4,
-                }}
-                onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
-              />
-            )}
+              {/* description — multi-line */}
+              {data.description?.trim() && (
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: '#b9bbbe',
+                    lineHeight: 1.375,
+                    marginBottom: 8,
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                  }}
+                >
+                  {data.description}
+                </Text>
+              )}
 
-            {/* title */}
-            {data.title?.trim() && (
-              <Text
-                style={{
-                  fontSize: 15,
-                  fontWeight: 700,
-                  color: data.titleUrl?.trim() ? '#7289da' : '#fff',
-                  marginBottom: 4,
-                  wordBreak: 'break-word',
-                  cursor: data.titleUrl?.trim() ? 'pointer' : undefined,
-                  textDecoration: data.titleUrl?.trim() ? 'underline' : undefined,
-                }}
-              >
-                {data.title}
-              </Text>
-            )}
+              {/* fields */}
+              {allFields.length > 0 && (
+                <Box style={{ marginBottom: 8 }}>
+                  {/* render inline fields in a row, non-inline full-width */}
+                  {allFields.map((field, idx) => (
+                    <Box
+                      key={idx}
+                      style={{
+                        display: 'inline-block',
+                        width: field.inline ? 'calc(33% - 4px)' : '100%',
+                        verticalAlign: 'top',
+                        marginRight: field.inline ? 4 : 0,
+                        marginBottom: 8,
+                      }}
+                    >
+                      <Text style={{ fontSize: 12, fontWeight: 700, color: '#b9bbbe', marginBottom: 2 }}>
+                        {field.name}
+                      </Text>
+                      <Text style={{ fontSize: 13, color: '#b9bbbe', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                        {field.value}
+                      </Text>
+                    </Box>
+                  ))}
+                </Box>
+              )}
 
-            {/* description — multi-line */}
-            {data.description?.trim() && (
-              <Text
-                style={{
-                  fontSize: 14,
-                  color: '#b9bbbe',
-                  lineHeight: 1.375,
-                  marginBottom: 8,
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-word',
-                }}
-              >
-                {data.description}
-              </Text>
-            )}
+              {/* large image */}
+              {data.imageUrl?.trim() && (
+                <Box
+                  component='img'
+                  src={data.imageUrl}
+                  style={{
+                    display: 'block',
+                    clear: 'both',
+                    maxWidth: '100%',
+                    maxHeight: 300,
+                    borderRadius: 4,
+                    marginTop: 8,
+                    marginBottom: 8,
+                    objectFit: 'contain',
+                  }}
+                  onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
+                />
+              )}
 
-            {/* fields */}
-            {allFields.length > 0 && (
-              <Box style={{ marginBottom: 8 }}>
-                {/* render inline fields in a row, non-inline full-width */}
-                {allFields.map((field, idx) => (
-                  <Box
-                    key={idx}
-                    style={{
-                      display: 'inline-block',
-                      width: field.inline ? 'calc(33% - 4px)' : '100%',
-                      verticalAlign: 'top',
-                      marginRight: field.inline ? 4 : 0,
-                      marginBottom: 8,
-                    }}
-                  >
-                    <Text style={{ fontSize: 12, fontWeight: 700, color: '#b9bbbe', marginBottom: 2 }}>
-                      {field.name}
-                    </Text>
-                    <Text style={{ fontSize: 13, color: '#b9bbbe', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                      {field.value}
-                    </Text>
-                  </Box>
-                ))}
-              </Box>
-            )}
-
-            {/* large image */}
-            {data.imageUrl?.trim() && (
-              <Box
-                component='img'
-                src={data.imageUrl}
-                style={{
-                  display: 'block',
-                  clear: 'both',
-                  maxWidth: '100%',
-                  maxHeight: 300,
-                  borderRadius: 4,
-                  marginTop: 8,
-                  marginBottom: 8,
-                  objectFit: 'contain',
-                }}
-                onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
-              />
-            )}
-
-            {/* footer */}
-            {data.footerText?.trim() && (
-              <Group gap='xs' mt={8} wrap='nowrap' style={{ clear: 'both' }}>
-                {data.footerIconUrl?.trim() && (
-                  <Box
-                    component='img'
-                    src={data.footerIconUrl}
-                    style={{ width: 16, height: 16, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
-                    onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
-                  />
-                )}
-                <Text style={{ fontSize: 11, color: '#72757e' }}>{data.footerText}</Text>
-              </Group>
-            )}
+              {/* footer */}
+              {data.footerText?.trim() && (
+                <Group gap='xs' mt={8} wrap='nowrap' style={{ clear: 'both' }}>
+                  {data.footerIconUrl?.trim() && (
+                    <Box
+                      component='img'
+                      src={data.footerIconUrl}
+                      style={{ width: 16, height: 16, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                      onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
+                    />
+                  )}
+                  <Text style={{ fontSize: 11, color: '#72757e' }}>{data.footerText}</Text>
+                </Group>
+              )}
+            </Box>
           </Box>
-        </Box>
-      </Group>
+        </Group>
+      </Box>
     </Box>
   );
 }
 
 /* ─── Main component ───────────────────────────────────────────── */
 const EMPTY_FIELD: EmbedField = { name: '', value: '', inline: false };
+const TEMPLATES_KEY = 'zipline-embed-templates';
 
 export default function SettingsEmbedBuilder() {
+  const [templates, setTemplates] = useLocalStorage<SavedTemplate[]>({
+    key: TEMPLATES_KEY,
+    defaultValue: [],
+  });
+  const [saveModalOpen, { open: openSaveModal, close: closeSaveModal }] = useDisclosure(false);
+  const [templateName, setTemplateName] = useState('');
+
   const form = useForm<EmbedData>({
     initialValues: {
       authorName: '',
@@ -354,6 +409,9 @@ export default function SettingsEmbedBuilder() {
       footerText: '',
       footerIconUrl: '',
       fields: [],
+      redirectUrl: '',
+      redirectDelay: 5,
+      cardType: 'website',
     },
   });
 
@@ -362,6 +420,47 @@ export default function SettingsEmbedBuilder() {
 
   const addField = () => form.insertListItem('fields', { ...EMPTY_FIELD });
   const removeField = (i: number) => form.removeListItem('fields', i);
+
+  const saveTemplate = () => {
+    if (!templateName.trim()) {
+      notifications.show({ message: 'Template name is required', color: 'orange' });
+      return;
+    }
+    const newTemplate: SavedTemplate = {
+      name: templateName.trim(),
+      data: form.values,
+      createdAt: new Date().toISOString(),
+    };
+    setTemplates([...templates, newTemplate]);
+    notifications.show({
+      title: 'Template saved',
+      message: `"${templateName.trim()}" has been saved`,
+      color: 'teal',
+      icon: <IconDeviceFloppy size='1rem' />,
+    });
+    setTemplateName('');
+    closeSaveModal();
+  };
+
+  const loadTemplate = (template: SavedTemplate) => {
+    form.setValues(template.data);
+    notifications.show({
+      title: 'Template loaded',
+      message: `"${template.name}" has been loaded`,
+      color: 'blue',
+      icon: <IconDownload size='1rem' />,
+    });
+  };
+
+  const deleteTemplate = (index: number) => {
+    const name = templates[index].name;
+    setTemplates(templates.filter((_, i) => i !== index));
+    notifications.show({
+      message: `Template "${name}" deleted`,
+      color: 'red',
+      icon: <IconTrash size='1rem' />,
+    });
+  };
 
   return (
     <Paper withBorder p='md'>
@@ -499,6 +598,37 @@ export default function SettingsEmbedBuilder() {
           ))}
 
           <Divider />
+          <Text size='xs' fw={700} tt='uppercase' c='dimmed' style={{ letterSpacing: '0.05em' }}>Advanced</Text>
+          
+          <SegmentedControl
+            data={[
+              { label: 'Website Card', value: 'website' },
+              { label: 'Twitter Large Image', value: 'summary_large_image' },
+            ]}
+            {...form.getInputProps('cardType')}
+          />
+          <Text size='xs' c='dimmed' mt={-6}>
+            Card type affects how Discord/Slack parse metadata. Twitter card shows larger images.
+          </Text>
+
+          <TextInput
+            label='Auto-redirect URL (optional)'
+            description='Page will redirect here after a delay'
+            placeholder='https://example.com/pranked'
+            {...form.getInputProps('redirectUrl')}
+          />
+          
+          {form.values.redirectUrl && (
+            <NumberInput
+              label='Redirect delay (seconds)'
+              description='How long to show the embed before redirecting'
+              min={1}
+              max={60}
+              {...form.getInputProps('redirectDelay')}
+            />
+          )}
+
+          <Divider />
           <Text size='xs' fw={700} tt='uppercase' c='dimmed' style={{ letterSpacing: '0.05em' }}>Footer</Text>
           <TextInput
             label='Footer text'
@@ -511,17 +641,96 @@ export default function SettingsEmbedBuilder() {
             {...form.getInputProps('footerIconUrl')}
           />
 
-          <ActionIcon variant='subtle' color='gray' size='sm' onClick={() => form.reset()} title='Reset all fields' mt='xs'>
-            <IconRefresh size='0.9rem' />
-          </ActionIcon>
+          <Divider />
+          <Group justify='space-between' align='center'>
+            <Text size='xs' fw={700} tt='uppercase' c='dimmed' style={{ letterSpacing: '0.05em' }}>Templates</Text>
+            <Button
+              size='compact-xs'
+              variant='light'
+              color='teal'
+              leftSection={<IconDeviceFloppy size='0.75rem' />}
+              onClick={openSaveModal}
+            >
+              Save Template
+            </Button>
+          </Group>
+
+          {templates.length > 0 ? (
+            <Stack gap='xs'>
+              {templates.map((template, idx) => (
+                <Paper key={idx} withBorder p='xs' radius='sm'>
+                  <Group justify='space-between' wrap='nowrap'>
+                    <Stack gap={2} style={{ flex: 1 }}>
+                      <Text size='sm' fw={600}>{template.name}</Text>
+                      <Text size='xs' c='dimmed'>
+                        {new Date(template.createdAt).toLocaleDateString()}
+                      </Text>
+                    </Stack>
+                    <Group gap='xs'>
+                      <Tooltip label='Load template'>
+                        <ActionIcon
+                          size='sm'
+                          variant='light'
+                          color='blue'
+                          onClick={() => loadTemplate(template)}
+                        >
+                          <IconDownload size='0.8rem' />
+                        </ActionIcon>
+                      </Tooltip>
+                      <Tooltip label='Delete template'>
+                        <ActionIcon
+                          size='sm'
+                          variant='light'
+                          color='red'
+                          onClick={() => deleteTemplate(idx)}
+                        >
+                          <IconTrash size='0.8rem' />
+                        </ActionIcon>
+                      </Tooltip>
+                    </Group>
+                  </Group>
+                </Paper>
+              ))}
+            </Stack>
+          ) : (
+            <Text size='xs' c='dimmed' ta='center'>
+              No saved templates yet
+            </Text>
+          )}
+
+          <Group justify='center' mt='xs'>
+            <ActionIcon variant='subtle' color='gray' size='sm' onClick={() => form.reset()} title='Reset all fields'>
+              <IconRefresh size='0.9rem' />
+            </ActionIcon>
+          </Group>
         </Stack>
+
+        {/* Save Template Modal */}
+        <Modal opened={saveModalOpen} onClose={closeSaveModal} title='Save Template' size='sm'>
+          <Stack gap='sm'>
+            <TextInput
+              label='Template Name'
+              placeholder='My awesome embed'
+              value={templateName}
+              onChange={(e) => setTemplateName(e.target.value)}
+              data-autofocus
+            />
+            <Button
+              fullWidth
+              leftSection={<IconDeviceFloppy size='1rem' />}
+              onClick={saveTemplate}
+            >
+              Save
+            </Button>
+          </Stack>
+        </Modal>
 
         {/* ── Right: preview + actions ── */}
         <Stack gap='sm' style={{ flex: '1 1 320px', minWidth: 280 }}>
           <Text size='sm' fw={600} c='dimmed' tt='uppercase' style={{ letterSpacing: '0.05em' }}>
             Live preview
           </Text>
-          <DiscordPreview data={form.values} />
+          <DiscordPreview data={form.values} embedUrl={embedUrl} />
 
           <Divider my='xs' />
           <Text size='sm' fw={600}>Your embed URL</Text>

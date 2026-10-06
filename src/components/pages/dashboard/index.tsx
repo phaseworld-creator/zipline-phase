@@ -1,12 +1,14 @@
 import { useConfig } from '@/components/ConfigProvider';
 import Stat from '@/components/Stat';
+import useServerSettings from '@/components/pages/serverSettings/useServerSettings';
 import type { Response } from '@/lib/api/response';
 import { bytes } from '@/lib/bytes';
 import useLogin from '@/lib/client/hooks/useLogin';
 import { useSettingsStore } from '@/lib/client/store/settings';
 import { isAdministrator } from '@/lib/role';
-import { Button, Group, Paper, ScrollArea, SimpleGrid, Skeleton, Table, Text, Title } from '@mantine/core';
+import { Alert, Button, Group, Paper, ScrollArea, SimpleGrid, Skeleton, Table, Text, Title } from '@mantine/core';
 import {
+  IconBulb,
   IconDeviceSdCard,
   IconEyeFilled,
   IconFiles,
@@ -14,6 +16,7 @@ import {
   IconLink,
   IconStarFilled,
 } from '@tabler/icons-react';
+import { Markdown } from 'marked-react';
 import { lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import useSWR from 'swr';
@@ -25,8 +28,10 @@ export default function DashboardHome() {
   const { user } = useLogin();
   const { homeShowActivity, homeShowRecents, homeShowTypes } = useSettingsStore((state) => state.settings);
   const { data: stats, isLoading: statsLoading } = useSWR<Response['/api/user/stats']>('/api/user/stats');
+  const { data: serverSettings } = useServerSettings();
 
   const config = useConfig();
+  const motd = serverSettings?.settings?.websiteMotd;
 
   return (
     <>
@@ -39,6 +44,24 @@ export default function DashboardHome() {
           You have <b>{statsLoading ? '...' : stats?.filesUploaded}</b> files uploaded.
         </Text>
       </Skeleton>
+
+      {motd && (
+        <Alert
+          variant='light'
+          color='grape'
+          title='Phase Fun Fact'
+          icon={<IconBulb />}
+          mt='md'
+          mb='lg'
+          styles={{
+            root: {
+              borderLeft: '4px solid var(--mantine-color-grape-6)',
+            },
+          }}
+        >
+          <Markdown>{motd}</Markdown>
+        </Alert>
+      )}
 
       {homeShowRecents && (
         <Suspense

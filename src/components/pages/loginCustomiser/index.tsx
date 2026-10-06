@@ -10,13 +10,111 @@ import {
   Paper,
   Stack,
   Switch,
+  Tabs,
   Text,
+  Textarea,
   TextInput,
   Title,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconDeviceFloppy, IconLogin, IconPhoto } from '@tabler/icons-react';
+import { IconDeviceFloppy, IconLogin, IconPhoto, IconError404 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+
+/* ─── Particle animation ────────────────────────────────────── */
+function ParticleCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+
+    const particles: Array<{ x: number; y: number; vx: number; vy: number; size: number }> = [];
+    const particleCount = 50;
+
+    // Create particles
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        size: Math.random() * 2 + 1,
+      });
+    }
+
+    let animationId: number;
+
+    function animate() {
+      if (!canvas || !ctx) return;
+      
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Update and draw particles
+      particles.forEach((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Wrap around edges
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+
+        // Draw particle
+        ctx.fillStyle = 'rgba(99, 102, 241, 0.4)';
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Draw connections
+      ctx.strokeStyle = 'rgba(99, 102, 241, 0.15)';
+      ctx.lineWidth = 1;
+
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      animationId = requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    return () => {
+      if (animationId) cancelAnimationFrame(animationId);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'absolute',
+        inset: 0,
+        zIndex: 0,
+        opacity: 0.6,
+      }}
+    />
+  );
+}
 
 /* ─── Live preview ──────────────────────────────────────────── */
 function LoginPreview({
@@ -24,11 +122,15 @@ function LoginPreview({
   logoUrl,
   backgroundUrl,
   blur,
+  particles,
+  customCss,
 }: {
   title: string;
   logoUrl: string;
   backgroundUrl: string;
   blur: boolean;
+  particles: boolean;
+  customCss: string;
 }) {
   return (
     <Box
@@ -55,6 +157,9 @@ function LoginPreview({
           zIndex: 0,
         }}
       />
+
+      {/* Particle animation */}
+      {particles && <ParticleCanvas />}
 
       {/* Custom background image */}
       {backgroundUrl && (
@@ -162,6 +267,11 @@ function LoginPreview({
           />
         </Stack>
       </Box>
+
+      {/* Custom CSS injection (for preview) */}
+      {customCss && (
+        <style dangerouslySetInnerHTML={{ __html: customCss }} />
+      )}
     </Box>
   );
 }
@@ -176,6 +286,10 @@ function Form({ data }: { data: Response['/api/server/settings'] }) {
       websiteTitleLogo: data.settings.websiteTitleLogo ?? '',
       websiteLoginBackground: data.settings.websiteLoginBackground ?? '',
       websiteLoginBackgroundBlur: data.settings.websiteLoginBackgroundBlur ?? true,
+      websiteLoginParticles: data.settings.websiteLoginParticles ?? false,
+      websiteLoginCustomCss: data.settings.websiteLoginCustomCss ?? '',
+      website404Image: data.settings.website404Image ?? '',
+      website404Message: data.settings.website404Message ?? '',
     },
   });
 
@@ -185,64 +299,167 @@ function Form({ data }: { data: Response['/api/server/settings'] }) {
       websiteTitleLogo: values.websiteTitleLogo.trim() || null,
       websiteLoginBackground: values.websiteLoginBackground.trim() || null,
       websiteLoginBackgroundBlur: values.websiteLoginBackgroundBlur,
+      websiteLoginParticles: values.websiteLoginParticles,
+      websiteLoginCustomCss: values.websiteLoginCustomCss.trim() || null,
+      website404Image: values.website404Image.trim() || null,
+      website404Message: values.website404Message.trim() || null,
     };
     return settingsOnSubmit(navigate, form)(payload);
   };
 
   return (
     <form onSubmit={form.onSubmit(onSubmit)}>
-      <Group align='flex-start' gap='xl' style={{ flexWrap: 'wrap' }}>
-        {/* Controls */}
-        <Stack gap='md' style={{ flex: '1 1 320px', minWidth: 280 }}>
-          <TextInput
-            label='Site Title'
-            description='Shown inside the login card and browser tab'
-            placeholder='Zipline'
-            {...form.getInputProps('websiteTitle')}
-          />
+      <Tabs defaultValue='login'>
+        <Tabs.List mb='md'>
+          <Tabs.Tab value='login' leftSection={<IconLogin size='1rem' />}>
+            Login Page
+          </Tabs.Tab>
+          <Tabs.Tab value='404' leftSection={<IconError404 size='1rem' />}>
+            404 Page
+          </Tabs.Tab>
+        </Tabs.List>
 
-          <TextInput
-            label='Logo URL'
-            description='Image shown above the title. Leave blank for the default Z icon.'
-            placeholder='https://example.com/logo.png'
-            leftSection={<IconPhoto size='1rem' />}
-            {...form.getInputProps('websiteTitleLogo')}
-          />
+        <Tabs.Panel value='login'>
+          <Group align='flex-start' gap='xl' style={{ flexWrap: 'wrap' }}>
+            {/* Controls */}
+            <Stack gap='md' style={{ flex: '1 1 320px', minWidth: 280 }}>
+              <TextInput
+                label='Site Title'
+                description='Shown inside the login card and browser tab'
+                placeholder='Zipline'
+                {...form.getInputProps('websiteTitle')}
+              />
 
-          <TextInput
-            label='Background Image URL'
-            description='Full-screen background behind the login card (shown at 25% opacity).'
-            placeholder='https://example.com/bg.jpg'
-            leftSection={<IconPhoto size='1rem' />}
-            {...form.getInputProps('websiteLoginBackground')}
-          />
+              <TextInput
+                label='Logo URL'
+                description='Image shown above the title. Leave blank for the default Z icon.'
+                placeholder='https://example.com/logo.png'
+                leftSection={<IconPhoto size='1rem' />}
+                {...form.getInputProps('websiteTitleLogo')}
+              />
 
-          <Switch
-            label='Blur background'
-            description='Apply a 10px blur to the background image'
-            {...form.getInputProps('websiteLoginBackgroundBlur', { type: 'checkbox' })}
-          />
+              <TextInput
+                label='Background Image URL'
+                description='Full-screen background behind the login card (shown at 25% opacity).'
+                placeholder='https://example.com/bg.jpg'
+                leftSection={<IconPhoto size='1rem' />}
+                {...form.getInputProps('websiteLoginBackground')}
+              />
 
-          <Group mt='xs'>
-            <Button type='submit' leftSection={<IconDeviceFloppy size='1rem' />}>
-              Save
-            </Button>
+              <Switch
+                label='Blur background'
+                description='Apply a 10px blur to the background image'
+                {...form.getInputProps('websiteLoginBackgroundBlur', { type: 'checkbox' })}
+              />
+
+              <Switch
+                label='Particle animation'
+                description='Enable floating particle animation in the background'
+                {...form.getInputProps('websiteLoginParticles', { type: 'checkbox' })}
+              />
+
+              <Divider label='Advanced' />
+
+              <Textarea
+                label='Custom CSS'
+                description='Freeform CSS injected into the login page <style> tag. For advanced customization.'
+                placeholder='.login-card { border-radius: 24px; }'
+                minRows={4}
+                maxRows={12}
+                autosize
+                {...form.getInputProps('websiteLoginCustomCss')}
+              />
+
+              <Group mt='xs'>
+                <Button type='submit' leftSection={<IconDeviceFloppy size='1rem' />}>
+                  Save
+                </Button>
+              </Group>
+            </Stack>
+
+            {/* Live preview */}
+            <Stack gap='xs' style={{ flex: '1 1 320px', minWidth: 280 }}>
+              <Text size='sm' fw={600} c='dimmed' tt='uppercase' style={{ letterSpacing: '0.05em' }}>
+                Live preview
+              </Text>
+              <LoginPreview
+                title={form.values.websiteTitle}
+                logoUrl={form.values.websiteTitleLogo}
+                backgroundUrl={form.values.websiteLoginBackground}
+                blur={form.values.websiteLoginBackgroundBlur}
+                particles={form.values.websiteLoginParticles}
+                customCss={form.values.websiteLoginCustomCss}
+              />
+            </Stack>
           </Group>
-        </Stack>
+        </Tabs.Panel>
 
-        {/* Live preview */}
-        <Stack gap='xs' style={{ flex: '1 1 320px', minWidth: 280 }}>
-          <Text size='sm' fw={600} c='dimmed' tt='uppercase' style={{ letterSpacing: '0.05em' }}>
-            Live preview
-          </Text>
-          <LoginPreview
-            title={form.values.websiteTitle}
-            logoUrl={form.values.websiteTitleLogo}
-            backgroundUrl={form.values.websiteLoginBackground}
-            blur={form.values.websiteLoginBackgroundBlur}
-          />
-        </Stack>
-      </Group>
+        <Tabs.Panel value='404'>
+          <Stack gap='md' style={{ maxWidth: 600 }}>
+            <Text size='sm' c='dimmed'>
+              Customize the 404 error page that users see when they visit a non-existent URL.
+            </Text>
+
+            <TextInput
+              label='404 Image URL'
+              description='Optional image to display on the 404 page'
+              placeholder='https://example.com/404.png'
+              leftSection={<IconPhoto size='1rem' />}
+              {...form.getInputProps('website404Image')}
+            />
+
+            <Textarea
+              label='404 Message'
+              description='Custom message shown on the 404 page. Leave blank for the default message.'
+              placeholder="Oops! This page doesn't exist."
+              minRows={3}
+              maxRows={6}
+              autosize
+              {...form.getInputProps('website404Message')}
+            />
+
+            {/* 404 Preview */}
+            <Box
+              style={{
+                background: '#030712',
+                borderRadius: 12,
+                padding: '40px 20px',
+                textAlign: 'center',
+                border: '1px solid rgba(99,102,241,0.2)',
+              }}
+            >
+              {form.values.website404Image && (
+                <Box
+                  component='img'
+                  src={form.values.website404Image}
+                  alt='404'
+                  style={{
+                    maxWidth: 200,
+                    maxHeight: 200,
+                    marginBottom: 16,
+                    borderRadius: 8,
+                  }}
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              )}
+              <Title order={1} style={{ fontSize: '4rem', marginBottom: 8, color: '#6366f1' }}>
+                404
+              </Title>
+              <Text size='lg' c='dimmed'>
+                {form.values.website404Message.trim() || 'Page not found'}
+              </Text>
+            </Box>
+
+            <Group mt='xs'>
+              <Button type='submit' leftSection={<IconDeviceFloppy size='1rem' />}>
+                Save
+              </Button>
+            </Group>
+          </Stack>
+        </Tabs.Panel>
+      </Tabs>
     </form>
   );
 }
@@ -255,10 +472,10 @@ export default function LoginCustomiser() {
     <Paper withBorder p='md'>
       <Group mb='md' gap='xs'>
         <IconLogin size='1.4rem' />
-        <Title order={2}>Login Page Customiser</Title>
+        <Title order={2}>Page Customiser</Title>
       </Group>
       <Text c='dimmed' size='sm' mb='lg'>
-        Customise the login page appearance. Changes apply immediately after saving.
+        Customise the login and error page appearance. Changes apply immediately after saving.
       </Text>
       <Divider mb='lg' />
 

@@ -1,5 +1,5 @@
 import type { Response } from '@/lib/api/response';
-import { Button, JsonInput, LoadingOverlay, Stack, Switch, TextInput } from '@mantine/core';
+import { Button, JsonInput, LoadingOverlay, Stack, Switch, Textarea, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconDeviceFloppy } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
@@ -24,6 +24,8 @@ function Form({ data, isLoading }: { data: Response['/api/server/settings']; isL
     initialValues: {
       websiteTitle: data.settings.websiteTitle,
       websiteTitleLogo: data.settings.websiteTitleLogo,
+      websiteAnnouncement: data.settings.websiteAnnouncement || '',
+      websiteMotd: data.settings.websiteMotd || '',
       websiteExternalLinks: JSON.stringify(data.settings.websiteExternalLinks, null, 2),
       websiteLoginBackground: data.settings.websiteLoginBackground,
       websiteLoginBackgroundBlur: data.settings.websiteLoginBackgroundBlur,
@@ -73,6 +75,8 @@ function Form({ data, isLoading }: { data: Response['/api/server/settings']; isL
     sendValues.websiteThemeDark = values.websiteThemeDark.trim();
     sendValues.websiteThemeLight = values.websiteThemeLight.trim();
     sendValues.websiteTitle = values.websiteTitle.trim();
+    sendValues.websiteAnnouncement = values.websiteAnnouncement.trim() || null;
+    sendValues.websiteMotd = values.websiteMotd.trim() || null;
 
     sendValues.websiteLoginBackgroundBlur = values.websiteLoginBackgroundBlur;
 
@@ -94,6 +98,26 @@ function Form({ data, isLoading }: { data: Response['/api/server/settings']; isL
           description='The URL to use for the title logo. This is placed to the left of the title.'
           placeholder='https://example.com/logo.png'
           {...form.getInputProps('websiteTitleLogo')}
+        />
+
+        <Textarea
+          label='Announcement Banner'
+          description='A message displayed at the top of every page for all users. Dismissible per-session. Leave empty to hide.'
+          placeholder='Server maintenance scheduled for 2am EST...'
+          minRows={2}
+          maxRows={6}
+          autosize
+          {...form.getInputProps('websiteAnnouncement')}
+        />
+
+        <Textarea
+          label='Message of the Day (MOTD)'
+          description='A fun fact or message shown on the dashboard home page. Supports Markdown formatting.'
+          placeholder='💡 Did you know? You can drag and drop files to upload them!'
+          minRows={3}
+          maxRows={8}
+          autosize
+          {...form.getInputProps('websiteMotd')}
         />
 
         <JsonInput

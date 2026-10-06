@@ -6,6 +6,9 @@ export type EmbedData = {
   color?: string;
   siteName?: string;
   imageUrl?: string;
+  redirectUrl?: string;
+  redirectDelay?: number;
+  cardType?: 'website' | 'summary_large_image';
 };
 
 function decodeEmbedData(raw: string): EmbedData | null {
@@ -19,11 +22,14 @@ function decodeEmbedData(raw: string): EmbedData | null {
     const isShort = 't' in parsed || 'd' in parsed || 's' in parsed || 'i' in parsed;
     if (isShort) {
       return {
-        title:       parsed.t,
-        description: parsed.d,
-        color:       parsed.c,
-        siteName:    parsed.s,
-        imageUrl:    parsed.i,
+        title:        parsed.t,
+        description:  parsed.d,
+        color:        parsed.c,
+        siteName:     parsed.s,
+        imageUrl:     parsed.i,
+        redirectUrl:  parsed.r,
+        redirectDelay: parsed.rd,
+        cardType:     parsed.ct,
       };
     }
     return parsed as EmbedData;
@@ -43,24 +49,48 @@ function esc(str?: string): string {
 
 function buildEmbedHtml(d: EmbedData, pageUrl: string): string {
   const color = d.color && /^#[0-9a-fA-F]{3,8}$/.test(d.color) ? d.color : '#6366f1';
+  const cardType = d.cardType || 'website';
 
   const ogMeta = [
     d.title       ? `<meta property="og:title"       content="${esc(d.title)}" />`       : '',
     d.description ? `<meta property="og:description" content="${esc(d.description)}" />` : '',
     d.siteName    ? `<meta property="og:site_name"   content="${esc(d.siteName)}" />`    : '',
     d.imageUrl    ? `<meta property="og:image"       content="${esc(d.imageUrl)}" />`    : '',
-    d.imageUrl    ? `<meta name="twitter:card"       content="summary_large_image" />`   : '',
+    cardType === 'summary_large_image' && d.imageUrl
+                  ? `<meta name="twitter:card"       content="summary_large_image" />`
+                  : `<meta name="twitter:card"       content="summary" />`,
     d.imageUrl    ? `<meta name="twitter:image"      content="${esc(d.imageUrl)}" />`    : '',
                     `<meta property="og:url"         content="${esc(pageUrl)}" />`,
                     `<meta name="theme-color"        content="${esc(color)}" />`,
-                    `<meta property="og:type"        content="website" />`,
+                    `<meta property="og:type"        content="${esc(cardType === 'summary_large_image' ? 'website' : cardType)}" />`,
   ].filter(Boolean).join('\n    ');
+
+  // Auto-redirect script
+  const redirectScript = d.redirectUrl && d.redirectDelay
+    ? `
+    <script>
+      let countdown = ${d.redirectDelay};
+      const countdownEl = document.getElementById('countdown');
+      const interval = setInterval(() => {
+        countdown--;
+        if (countdownEl) countdownEl.textContent = countdown;
+        if (countdown <= 0) {
+          clearInterval(interval);
+          window.location.href = ${JSON.stringify(d.redirectUrl)};
+        }
+      }, 1000);
+    </script>`
+    : '';
 
   // Build inner card HTML pieces
   const siteNameHtml = d.siteName ? `<div class="site-name">${esc(d.siteName)}</div>` : '';
   const titleHtml    = d.title    ? `<div class="embed-title">${esc(d.title)}</div>`    : '';
   const descHtml     = d.description ? `<div class="embed-desc">${esc(d.description)}</div>` : '';
   const imageHtml    = d.imageUrl ? `<img class="embed-image" src="${esc(d.imageUrl)}" alt="" />` : '';
+  
+  const redirectBanner = d.redirectUrl
+    ? `<div class="redirect-banner">Redirecting in <span id="countdown">${d.redirectDelay || 5}</span> seconds...</div>`
+    : '';
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -77,7 +107,18 @@ function buildEmbedHtml(d: EmbedData, pageUrl: string): string {
       display:flex;align-items:center;justify-content:center;
       font-family:"gg sans","Noto Sans",system-ui,sans-serif;
       padding:16px;
+      flex-direction:column;
     }
+    .redirect-banner{
+      background:#f59e0b;
+      color:#000;
+      padding:12px 24px;
+      border-radius:8px;
+      font-weight:600;
+      margin-bottom:16px;
+      animation:pulse 1s infinite;
+    }
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
     .card{
       max-width:432px;width:100%;
       background:#2b2d3a;
@@ -92,12 +133,14 @@ function buildEmbedHtml(d: EmbedData, pageUrl: string): string {
   </style>
 </head>
 <body>
+  ${redirectBanner}
   <div class="card">
     ${siteNameHtml}
     ${titleHtml}
     ${descHtml}
     ${imageHtml}
   </div>
+  ${redirectScript}
 </body>
 </html>`;
 }
