@@ -200,16 +200,16 @@ export default typedPlugin(
         return res.type('text/html').send(buildPasswordPromptHtml(req.params.alias, link.label));
       }
 
+      // Increment views with IP deduplication
+      const clientIp = getClientIp(req);
+      trollStore.incrementViewsWithIp(req.params.alias, clientIp);
+
       // Handle redirect mode
       if (link.displayMode === 'redirect') {
-        const clientIp = getClientIp(req);
-        trollStore.incrementViewsWithIp(req.params.alias, clientIp);
         return res.redirect(302, link.mediaUrl);
       }
 
-      // Default fullscreen mode with IP dedup
-      const clientIp = getClientIp(req);
-      trollStore.incrementViewsWithIp(req.params.alias, clientIp);
+      // Default fullscreen mode
       return res.type('text/html').send(buildTrollHtml(link));
     });
 
