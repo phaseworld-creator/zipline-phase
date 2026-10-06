@@ -499,7 +499,6 @@ export default function DashboardTroll() {
               placeholder='Type and press Enter'
               data={allTags}
               searchable
-              creatable
               leftSection={<IconTag size='1rem' />}
               onCreate={(query: string) => {
                 form.setFieldValue('tags', [...form.values.tags, query]);
@@ -577,7 +576,6 @@ export default function DashboardTroll() {
               placeholder='Type and press Enter'
               data={allTags}
               searchable
-              creatable
               leftSection={<IconTag size='1rem' />}
               onCreate={(query: string) => {
                 editForm.setFieldValue('tags', [...editForm.values.tags, query]);

@@ -201,7 +201,7 @@ export default typedPlugin(
       }
 
       // Increment views with IP deduplication
-      const clientIp = getClientIp(req);
+      const clientIp: string = String(getClientIp(req));
       trollStore.incrementViewsWithIp(req.params.alias, clientIp);
 
       // Handle redirect mode
@@ -226,7 +226,7 @@ export default typedPlugin(
       }
 
       // Password correct, show content
-      const clientIp = getClientIp(req);
+      const clientIp: string = String(getClientIp(req));
       trollStore.incrementViewsWithIp(req.params.alias, clientIp);
 
       if (link.displayMode === 'redirect') {
