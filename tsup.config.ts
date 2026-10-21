@@ -33,6 +33,13 @@ export default defineConfig(async (_) => {
         for (const builtin of builtins) {
           await copyFile(builtin, builtin.replace('./src/', './build/'));
         }
+
+        console.log('[migrations] copying migrations...');
+        const migrations = await glob('./prisma/migrations/**/*.sql');
+        await mkdir('./build/prisma/migrations', { recursive: true });
+        for (const migration of migrations) {
+          await copyFile(migration, migration.replace('./prisma/', './build/prisma/'));
+        }
       },
     },
   ];
