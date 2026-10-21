@@ -12,6 +12,8 @@ export async function exists(path: PathLike): Promise<boolean> {
 }
 
 export function sanitizeFilename(name: string): string | null {
+  if (!name) return null;
+
   let decoded: string;
   try {
     decoded = decodeURIComponent(name);
@@ -19,6 +21,12 @@ export function sanitizeFilename(name: string): string | null {
     // If decoding fails, use the original name (it's not URL encoded)
     decoded = name;
   }
+
+  // Strip null bytes and other control characters (0x00-0x1F, 0x7F) that can break filesystem operations
+  decoded = decoded
+    .split('')
+    .filter((c) => c.charCodeAt(0) >= 0x20 && c.charCodeAt(0) !== 0x7f)
+    .join('');
 
   const normalized = normalize(decoded);
 
@@ -28,7 +36,12 @@ export function sanitizeFilename(name: string): string | null {
 
   if (normalized.includes('..' + sep) || normalized === '..') return null;
 
-  return basename(normalized);
+  const basenameName = basename(normalized);
+
+  // Reject empty basenames (e.g. filenames that were only slashes or control chars)
+  if (!basenameName) return null;
+
+  return basenameName;
 }
 
 export function sanitizeExtension(ext: string): string | null {
