@@ -88,6 +88,18 @@ export const rawConfig: any = {
       showUserSpecific: undefined,
     },
     versionChecking: undefined,
+    virusScanning: {
+      enabled: undefined,
+      provider: undefined,
+      virusTotalApiKey: undefined,
+    },
+    advancedSharing: {
+      enabled: undefined,
+      expireAfterViews: undefined,
+      expireAfterDownloads: undefined,
+      allowedIps: undefined,
+      blockedReferers: undefined,
+    },
   },
   invites: {
     enabled: undefined,
