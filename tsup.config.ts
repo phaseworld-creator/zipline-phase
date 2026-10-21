@@ -2,6 +2,7 @@ import glob from 'fast-glob';
 import { copyFile, mkdir } from 'fs/promises';
 import { replaceTscAliasPaths } from 'tsc-alias';
 import { defineConfig } from 'tsup';
+import { dirname } from 'path';
 
 export default defineConfig(async (_) => {
   return [
@@ -12,7 +13,12 @@ export default defineConfig(async (_) => {
       clean: true,
       sourcemap: true,
       entry: await glob('./src/**/*.ts', {
-        ignore: ['./src/**/*.d.ts', './src/components/**/*.ts', './src/client/**/*.(ts|tsx|html)'],
+        ignore: [
+          './src/**/*.d.ts',
+          './src/components/**/*.ts',
+          './src/client/**/*.(ts|tsx|html)',
+          './prisma/migrations/migration_lock.toml',
+        ],
       }),
       shims: false,
       outDir: 'build',
@@ -36,9 +42,10 @@ export default defineConfig(async (_) => {
 
         console.log('[migrations] copying migrations...');
         const migrations = await glob('./prisma/migrations/**/*.sql');
-        await mkdir('./build/prisma/migrations', { recursive: true });
         for (const migration of migrations) {
-          await copyFile(migration, migration.replace('./prisma/', './build/prisma/'));
+          const dest = migration.replace('./prisma/', './build/prisma/');
+          await mkdir(dirname(dest), { recursive: true });
+          await copyFile(migration, dest);
         }
       },
     },
