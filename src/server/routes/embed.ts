@@ -14,18 +14,6 @@ export type EmbedData = {
   componentEmbed?: unknown;
 };
 
-type ShortEmbed = {
-  t?: string;
-  d?: string;
-  c?: string;
-  s?: string;
-  i?: string;
-  r?: string;
-  rd?: number;
-  ct?: 'website' | 'summary_large_image';
-  ce?: unknown;
-};
-
 function decodeEmbedData(raw: string): EmbedData | null {
   try {
     const b64 = raw.replace(/-/g, '+').replace(/_/g, '/');

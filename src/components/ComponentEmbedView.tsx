@@ -41,7 +41,7 @@ function TextDisplay({ content }: { content: string }) {
 }
 
 function Section({ section }: { section: Extract<BuiltChild, { type: 9 }> }) {
-  const texts = section.components.map((t) => <TextDisplay key={t.id ?? Math.random()} content={t.content} />);
+  const texts = section.components.map((t, i) => <TextDisplay key={t.id ?? i} content={t.content} />);
 
   let accessory: React.ReactNode = null;
   if (section.accessory.type === 2) {
