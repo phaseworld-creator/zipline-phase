@@ -225,7 +225,7 @@ export async function onDelete(
   {
     user,
     file,
-  }: { user: User; file: File },
+  }: { user: User; file: Pick<import('../db/models/file').File, 'id' | 'name' | 'type' | 'size'> },
 ) {
   const webhookUrl = config.discord?.onDelete?.webhookUrl || config.discord?.webhookUrl;
   if (!webhookUrl) return logger.debug('no onDelete webhookUrl, skipping');
@@ -268,7 +268,7 @@ export async function onDelete(
     return;
   }
 
-  let response = buildResponse(parsed, file);
+  let response = buildResponse(parsed, file as unknown as File);
 
   if (!response) {
     response = {
