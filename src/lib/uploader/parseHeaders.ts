@@ -27,6 +27,11 @@ export type UploadHeaders = {
   'x-zipline-domain'?: string;
   'x-zipline-file-extension'?: string;
 
+  // Advanced sharing controls
+  'x-zipline-max-downloads'?: string;
+  'x-zipline-allowed-ips'?: string;
+  'x-zipline-blocked-referers'?: string;
+
   'content-range'?: string;
   'x-zipline-p-filename'?: string;
   'x-zipline-p-content-type'?: string;
@@ -42,12 +47,15 @@ export type UploadOptions = {
   format?: Config['files']['defaultFormat'];
   password?: string;
   maxViews?: number;
+  maxDownloads?: number;
   noJson?: boolean;
   addOriginalName?: boolean;
   extensionless?: boolean;
   oneTimeView?: boolean;
   encrypted?: boolean;
   dateOrganize?: boolean;
+  allowedIps?: string[];
+  blockedReferers?: string[];
 
   imageCompression?: {
     type?: CompressType;
@@ -212,6 +220,42 @@ export function parseHeaders(headers: UploadHeaders, fileConfig: Config['files']
     if (isNaN(num)) throwHeaderError('x-zipline-max-views', 'Invalid max views (NaN)');
 
     response.maxViews = num;
+  }
+
+  const maxDownloads = headers['x-zipline-max-downloads'];
+  if (maxDownloads) {
+    const num = Number(maxDownloads);
+    if (isNaN(num)) throwHeaderError('x-zipline-max-downloads', 'Invalid max downloads (NaN)');
+    if (num < 1) throwHeaderError('x-zipline-max-downloads', 'Invalid max downloads (must be >= 1)');
+
+    response.maxDownloads = num;
+  }
+
+  const allowedIps = headers['x-zipline-allowed-ips'];
+  if (allowedIps) {
+    const ips = allowedIps
+      .split(',')
+      .map((ip) => ip.trim())
+      .filter(Boolean);
+    if (!ips.length)
+      throwHeaderError('x-zipline-allowed-ips', 'Invalid allowed ips (must contain at least one ip)');
+
+    response.allowedIps = ips;
+  }
+
+  const blockedReferers = headers['x-zipline-blocked-referers'];
+  if (blockedReferers) {
+    const referers = blockedReferers
+      .split(',')
+      .map((r) => r.trim())
+      .filter(Boolean);
+    if (!referers.length)
+      throwHeaderError(
+        'x-zipline-blocked-referers',
+        'Invalid blocked referers (must contain at least one referer)',
+      );
+
+    response.blockedReferers = referers;
   }
 
   const noJson = headers['x-zipline-no-json'];

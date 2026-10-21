@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db';
+import { Prisma } from '@/prisma/client';
 import { administratorMiddleware } from '@/server/middleware/administrator';
 import { userMiddleware } from '@/server/middleware/user';
 import typedPlugin from '@/server/typedPlugin';
@@ -42,6 +43,9 @@ export default typedPlugin(
             perpage: z.coerce.number().min(1).max(100).default(25),
             action: z.string().optional(),
             actorId: z.string().optional(),
+            targetType: z.string().optional(),
+            createdAfter: z.string().optional(),
+            createdBefore: z.string().optional(),
           }),
           response: {
             200: z.object({
@@ -54,11 +58,14 @@ export default typedPlugin(
         preHandler: [userMiddleware, administratorMiddleware],
       },
       async (req, res) => {
-        const { page, perpage, action, actorId } = req.query;
+        const { page, perpage, action, actorId, targetType, createdAfter, createdBefore } = req.query;
 
-        const where = {
-          ...(action ? { action: { contains: action } } : {}),
+        const where: Prisma.AuditLogWhereInput = {
+          ...(action ? { action: { contains: action, mode: Prisma.QueryMode.insensitive } } : {}),
           ...(actorId ? { actorId } : {}),
+          ...(targetType ? { targetType } : {}),
+          ...(createdAfter ? { createdAt: { gte: new Date(createdAfter) } } : {}),
+          ...(createdBefore ? { createdAt: { lte: new Date(createdBefore) } } : {}),
         };
 
         const [total, logs] = await prisma.$transaction([

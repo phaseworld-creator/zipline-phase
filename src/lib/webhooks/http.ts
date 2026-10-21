@@ -91,7 +91,13 @@ export async function onShorten(config: Config, { user, url, link }: Parameters<
 
 export async function onDelete(
   config: Config,
-  { user, file }: { user: import('../db/models/user').User; file: { id: string; name: string; type: string; size: number } },
+  {
+    user,
+    file,
+  }: {
+    user: import('../db/models/user').User;
+    file: { id: string; name: string; type: string; size: number };
+  },
 ) {
   const url = config.httpWebhook?.onDelete;
   if (!url || !URL.canParse(url)) return;

@@ -29,9 +29,9 @@ async function streamToBuffer(stream: Readable): Promise<Buffer> {
 export default typedPlugin(
   async (server) => {
     server.post<{
-      Body: z.ZodTypeAny,
-      Querystring: z.ZodTypeAny,
-      Response: { 200: typeof downloadResponseSchema },
+      Body: z.ZodTypeAny;
+      Querystring: z.ZodTypeAny;
+      Response: { 200: typeof downloadResponseSchema };
     }>(
       PATH,
       {
@@ -125,7 +125,7 @@ export default typedPlugin(
         logger.info(`generated zip download for ${type} ${id}`, { userId: req.user.id });
 
         return res.send({ url });
-      }
+      },
     );
   },
   { name: PATH },

@@ -70,13 +70,7 @@ export default function DropzoneFile({
             </Text>
             <Group gap='xs'>
               {onEdit && file.type.startsWith('image/') && (
-                <Button
-                  size='compact-sm'
-                  variant='outline'
-                  color='blue'
-                  style={{ flex: 1 }}
-                  onClick={onEdit}
-                >
+                <Button size='compact-sm' variant='outline' color='blue' style={{ flex: 1 }} onClick={onEdit}>
                   Edit
                 </Button>
               )}

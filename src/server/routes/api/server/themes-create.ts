@@ -46,11 +46,12 @@ export default typedPlugin(
         const body = req.body;
 
         // Derive a filesystem-safe slug from the name
-        const slug = body.name
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '_')
-          .replace(/^_+|_+$/g, '')
-          .slice(0, 40) || 'custom_theme';
+        const slug =
+          body.name
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '_')
+            .replace(/^_+|_+$/g, '')
+            .slice(0, 40) || 'custom_theme';
 
         const dir = join(process.cwd(), THEMES_DIR);
         if (!(await exists(dir))) await mkdir(dir, { recursive: true });
@@ -102,9 +103,7 @@ export default typedPlugin(
         if (!(await exists(dir))) return res.send([]);
 
         const files = await readdir(dir);
-        const slugs = files
-          .filter((f) => f.endsWith('.theme.json'))
-          .map((f) => f.replace('.theme.json', ''));
+        const slugs = files.filter((f) => f.endsWith('.theme.json')).map((f) => f.replace('.theme.json', ''));
 
         return res.send(slugs);
       },

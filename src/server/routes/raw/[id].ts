@@ -1,4 +1,5 @@
 import { verifyAccessToken } from '@/lib/accessToken';
+import { checkAllowedIps, checkBlockedReferers, checkMaxDownloads } from '@/lib/access-control';
 import { ApiError } from '@/lib/api/errors';
 import { parseRange } from '@/lib/api/range';
 import { config } from '@/lib/config';
@@ -93,11 +94,36 @@ export const rawFileHandler = async (
     if (!valid) throw new ApiError(3018);
   }
 
+  // Check allowed IPs
+  if (file.allowedIps && !checkAllowedIps(req.ip ?? '', file.allowedIps)) {
+    logger.warn('access denied: IP not allowed', { ip: req.ip, file: file.id });
+    throw new ApiError(3019, 'Access denied: IP not allowed');
+  }
+
+  // Check blocked referers
+  if (file.blockedReferers) {
+    const referer = req.headers.referer;
+    if (referer && !checkBlockedReferers(referer, file.blockedReferers)) {
+      // Referer is not blocked, allow
+    } else if (referer) {
+      logger.warn('access denied: referer blocked', { referer, file: file.id });
+      throw new ApiError(3020, 'Access denied: referer blocked');
+    }
+  }
+
+  // Check max downloads
+  const downloadCount = file?.downloads ?? 0;
+  if (!checkMaxDownloads(downloadCount, file.maxDownloads)) {
+    logger.warn('access denied: max downloads exceeded', { file: file.id });
+    throw new ApiError(3021, 'Download limit exceeded');
+  }
+
   const size = file?.size || (await datasource.size(file?.name ?? id));
 
   // view stuff
   const now = Date.now();
   const isView = !req.headers.range || req.headers.range.startsWith('bytes=0');
+  const shouldDownload = req.query.download === 'true';
   const key = `${req.ip}-${req.headers['user-agent'] ?? 'unknown'}-${file.id}`;
   const last = viewsCache.get(key) || 0;
 
@@ -171,6 +197,18 @@ export const rawFileHandler = async (
     }
   };
 
+  const countDownload = async () => {
+    if (!file) return;
+    try {
+      await prisma.file.update({
+        where: { id: file.id },
+        data: { downloads: { increment: 1 } },
+      });
+    } catch (e) {
+      logger.error('failed to increment download counter', { id: file.id }).error(e as Error);
+    }
+  };
+
   const fileType = file?.type || 'application/octet-stream';
   const contentType = fileType.startsWith('text/') ? `${fileType}; charset=utf-8` : fileType;
 
@@ -181,6 +219,11 @@ export const rawFileHandler = async (
       if (!buf) return res.callNotFound();
 
       await countView();
+
+      // Count download only if download param is true and no range
+      if (shouldDownload && !req.headers.range) {
+        await countDownload();
+      }
 
       return res
         .type(contentType)
@@ -200,6 +243,11 @@ export const rawFileHandler = async (
     if (!buf) return res.callNotFound();
 
     await countView();
+
+    // Count as download for range requests (partial downloads)
+    if (shouldDownload || req.headers.range) {
+      await countDownload();
+    }
 
     return res
       .type(contentType)
@@ -221,6 +269,11 @@ export const rawFileHandler = async (
   if (!buf) return res.callNotFound();
 
   await countView();
+
+  // Count as download if download param is true
+  if (shouldDownload) {
+    await countDownload();
+  }
 
   return res
     .type(contentType)

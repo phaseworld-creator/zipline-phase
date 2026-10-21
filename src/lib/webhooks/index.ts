@@ -29,7 +29,10 @@ export function onShorten(config: Config, args: Parameters<typeof discordOnShort
   );
 }
 
-export function onDelete(config: Config, args: { user: User; file: Pick<File, 'id' | 'name' | 'type' | 'size'> }) {
+export function onDelete(
+  config: Config,
+  args: { user: User; file: Pick<File, 'id' | 'name' | 'type' | 'size'> },
+) {
   void Promise.all([discordOnDelete(config, args), httpOnDelete(config, args)]).catch((error) =>
     logger.error('delete webhook failed', { error: error instanceof Error ? error.message : error }),
   );

@@ -100,6 +100,31 @@ export const ENVS = [
 
   env('features.versionChecking', 'FEATURES_VERSION_CHECKING', 'boolean', true),
 
+  env('features.virusScanning.enabled', 'FEATURES_VIRUS_SCANNING_ENABLED', 'boolean', true),
+  env('features.virusScanning.provider', 'FEATURES_VIRUS_SCANNING_PROVIDER', 'string', true),
+  env('features.virusScanning.virusTotalApiKey', 'FEATURES_VIRUS_TOTAL_API_KEY', 'string', true),
+
+  env('features.advancedSharing.enabled', 'FEATURES_ADVANCED_SHARING_ENABLED', 'boolean', true),
+  env(
+    'features.advancedSharing.expireAfterViews',
+    'FEATURES_ADVANCED_SHARING_EXPIRE_AFTER_VIEWS',
+    'number',
+    true,
+  ),
+  env(
+    'features.advancedSharing.expireAfterDownloads',
+    'FEATURES_ADVANCED_SHARING_EXPIRE_AFTER_DOWNLOADS',
+    'number',
+    true,
+  ),
+  env('features.advancedSharing.allowedIps', 'FEATURES_ADVANCED_SHARING_ALLOWED_IPS', 'string[]', true),
+  env(
+    'features.advancedSharing.blockedReferers',
+    'FEATURES_ADVANCED_SHARING_BLOCKED_REFERERS',
+    'string[]',
+    true,
+  ),
+
   env('domains', 'DOMAINS', 'string[]', true),
 
   env('invites.enabled', 'INVITES_ENABLED', 'boolean', true),

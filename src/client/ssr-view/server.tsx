@@ -200,29 +200,36 @@ export async function render(
       : null;
 
   const ogTitle = showRichOg
-    ? (resolveField(user?.view?.embedTitle) || safeOriginalName || safeFilename)
-    : (safeOriginalName || safeFilename);
+    ? resolveField(user?.view?.embedTitle) || safeOriginalName || safeFilename
+    : safeOriginalName || safeFilename;
 
   const ogDescription = showRichOg ? resolveField(user?.view?.embedDescription) : null;
   const ogSiteName = showRichOg ? resolveField(user?.view?.embedSiteName) : null;
-  const ogColor    = showRichOg ? resolveField(user?.view?.embedColor)    : null;
+  const ogColor = showRichOg ? resolveField(user?.view?.embedColor) : null;
 
   const richMeta = [
     showMediaOg ? `<meta property="og:title" content="${ogTitle}" />` : '',
     ogDescription ? `<meta property="og:description" content="${ogDescription}" />` : '',
-    ogSiteName    ? `<meta property="og:site_name"    content="${ogSiteName}" />`    : '',
-    ogColor       ? `<meta name="theme-color"          content="${ogColor}" />`       : '',
+    ogSiteName ? `<meta property="og:site_name"    content="${ogSiteName}" />` : '',
+    ogColor ? `<meta name="theme-color"          content="${ogColor}" />` : '',
     showMediaOg ? `<meta name="twitter:card" content="summary_large_image" />` : '',
-    showMediaOg ? `<meta property="og:url"  content="${pageUrl}" />`            : '',
-  ].filter(Boolean).join('\n  ');
+    showMediaOg ? `<meta property="og:url"  content="${pageUrl}" />` : '',
+  ]
+    .filter(Boolean)
+    .join('\n  ');
 
-  const imageOg = showMediaOg && file.type?.startsWith('image') ? `
+  const imageOg =
+    showMediaOg && file.type?.startsWith('image')
+      ? `
     <meta property="og:type"  content="image" />
     <meta property="og:image" itemProp="image" content="${host}/raw/${safeFilename}" />
     <meta property="twitter:image"             content="${host}/raw/${safeFilename}" />
-  ` : '';
+  `
+      : '';
 
-  const videoOg = showMediaOg && file.type?.startsWith('video') ? `
+  const videoOg =
+    showMediaOg && file.type?.startsWith('video')
+      ? `
     ${file.thumbnail ? `<meta property="og:image" content="${host}/raw/${file.thumbnail.path}" />` : ''}
     <meta property="og:type"             content="video.other" />
     <meta property="og:video:url"        content="${host}/raw/${safeFilename}" />
@@ -230,9 +237,12 @@ export async function render(
     <meta property="og:video:type"       content="${safeType}" />
     <meta property="og:video:width"      content="1920" />
     <meta property="og:video:height"     content="1080" />
-  ` : '';
+  `
+      : '';
 
-  const audioOg = showMediaOg && file.type?.startsWith('audio') ? `
+  const audioOg =
+    showMediaOg && file.type?.startsWith('audio')
+      ? `
     <meta name="twitter:card"                       content="player" />
     <meta name="twitter:player"                     content="${host}/raw/${safeFilename}" />
     <meta name="twitter:player:stream"              content="${host}/raw/${safeFilename}" />
@@ -243,7 +253,8 @@ export async function render(
     <meta property="og:audio"            content="${host}/raw/${safeFilename}" />
     <meta property="og:audio:secure_url" content="${host}/raw/${safeFilename}" />
     <meta property="og:audio:type"       content="${safeType}" />
-  ` : '';
+  `
+      : '';
 
   const otherOg =
     showMediaOg &&

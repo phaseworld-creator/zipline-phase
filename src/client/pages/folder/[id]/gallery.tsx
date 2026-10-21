@@ -36,9 +36,7 @@ export async function loader({ params, request }: { params: Params<string>; requ
   const url = new URL(request.url);
   const page = url.searchParams.get('page') ?? '1';
 
-  const res = await fetch(
-    `/api/server/folder/${params.id}?page=${page}&perpage=60`,
-  );
+  const res = await fetch(`/api/server/folder/${params.id}?page=${page}&perpage=60`);
   if (!res.ok) throw new Response('Folder not found', { status: 404 });
   return {
     folderId: params.id!,
@@ -119,11 +117,7 @@ export function Component() {
         </Stack>
         <Group gap='xs'>
           <Tooltip label='Grid view'>
-            <ActionIcon
-              variant='light'
-              component={Link}
-              to={`/folder/${folderId}`}
-            >
+            <ActionIcon variant='light' component={Link} to={`/folder/${folderId}`}>
               <IconGridDots size='1rem' />
             </ActionIcon>
           </Tooltip>
@@ -185,7 +179,18 @@ export function Component() {
         overlayProps={{ blur: 4 }}
       >
         <Box pos='relative'>
-          <Group justify='space-between' p='xs' style={{ background: 'rgba(0,0,0,0.6)', position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }}>
+          <Group
+            justify='space-between'
+            p='xs'
+            style={{
+              background: 'rgba(0,0,0,0.6)',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              zIndex: 10,
+            }}
+          >
             <Text c='white' size='sm' truncate style={{ maxWidth: '60%' }}>
               {currentImage?.originalName ?? currentImage?.name}
               {'  '}
@@ -207,7 +212,14 @@ export function Component() {
                   </ActionIcon>
                 </Tooltip>
               )}
-              <ActionIcon variant='subtle' color='white' onClick={() => { setSlideshowActive(false); closeLightbox(); }}>
+              <ActionIcon
+                variant='subtle'
+                color='white'
+                onClick={() => {
+                  setSlideshowActive(false);
+                  closeLightbox();
+                }}
+              >
                 <IconX size='1rem' />
               </ActionIcon>
             </Group>
@@ -221,7 +233,18 @@ export function Component() {
             style={{ background: '#000' }}
           />
 
-          <Group justify='space-between' p='xs' style={{ background: 'rgba(0,0,0,0.6)', position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 10 }}>
+          <Group
+            justify='space-between'
+            p='xs'
+            style={{
+              background: 'rgba(0,0,0,0.6)',
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              zIndex: 10,
+            }}
+          >
             <ActionIcon variant='subtle' color='white' onClick={prev} disabled={imageFiles.length <= 1}>
               <IconArrowLeft size='1.2rem' />
             </ActionIcon>

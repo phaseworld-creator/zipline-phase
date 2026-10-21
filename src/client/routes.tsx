@@ -46,8 +46,11 @@ export const router = createBrowserRouter([
                 path: 'auth/setup',
                 lazy: () => import('./pages/auth/setup'),
               },
-               { path: 'auth/tos', lazy: () => import('./pages/auth/tos') },
-               { path: 'upload', lazy: () => import('./pages/public/upload').then((m) => ({ Component: m.default })) },
+              { path: 'auth/tos', lazy: () => import('./pages/auth/tos') },
+              {
+                path: 'upload',
+                lazy: () => import('./pages/public/upload').then((m) => ({ Component: m.default })),
+              },
             ],
           },
           {
@@ -85,9 +88,18 @@ export const router = createBrowserRouter([
                       { path: 'admin/users', lazy: () => import('./pages/dashboard/admin/users') },
                       { path: 'admin/troll', lazy: () => import('./pages/dashboard/admin/troll') },
                       { path: 'admin/api-docs', lazy: () => import('./pages/dashboard/admin/api-docs') },
-                      { path: 'admin/theme-maker', lazy: () => import('./pages/dashboard/admin/theme-maker') },
-                      { path: 'admin/login-customiser', lazy: () => import('./pages/dashboard/admin/login-customiser') },
-                      { path: 'admin/embed-builder', lazy: () => import('./pages/dashboard/admin/embed-builder') },
+                      {
+                        path: 'admin/theme-maker',
+                        lazy: () => import('./pages/dashboard/admin/theme-maker'),
+                      },
+                      {
+                        path: 'admin/login-customiser',
+                        lazy: () => import('./pages/dashboard/admin/login-customiser'),
+                      },
+                      {
+                        path: 'admin/embed-builder',
+                        lazy: () => import('./pages/dashboard/admin/embed-builder'),
+                      },
                       { path: 'admin/audit-logs', lazy: () => import('./pages/dashboard/admin/audit-logs') },
                       {
                         path: 'admin/users/:id/files',

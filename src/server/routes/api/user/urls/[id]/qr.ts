@@ -38,10 +38,7 @@ export default typedPlugin(
         });
         if (!url) throw new ApiError(9002);
 
-        if (
-          req.user.id !== url.userId &&
-          !canInteract(req.user.role, url.User?.role ?? 'USER')
-        )
+        if (req.user.id !== url.userId && !canInteract(req.user.role, url.User?.role ?? 'USER'))
           throw new ApiError(9002);
 
         const host = config.core.defaultDomain || req.headers.host || 'localhost';

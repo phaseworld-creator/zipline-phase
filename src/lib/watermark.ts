@@ -56,9 +56,7 @@ export async function applyWatermark(buffer: Buffer, options: WatermarkOptions):
   }
 }
 
-function positionToGravity(
-  position: WatermarkOptions['position'],
-): Gravity | undefined {
+function positionToGravity(position: WatermarkOptions['position']): Gravity | undefined {
   switch (position) {
     case 'top-left':
       return 'northwest';

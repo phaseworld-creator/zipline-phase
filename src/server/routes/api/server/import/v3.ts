@@ -68,8 +68,7 @@ export default typedPlugin(
           }
 
           // determines a users role
-          const role =
-            (user.super_administrator && 'ADMIN') || (user.administrator && 'ADMIN') || 'USER';
+          const role = (user.super_administrator && 'ADMIN') || (user.administrator && 'ADMIN') || 'USER';
 
           const existing = await prisma.user.findFirst({
             where: {

@@ -499,10 +499,7 @@ export default function Layout() {
                   {user?.username}
                   {isAdministrator(user?.role) ? ' · admin' : ''}
                 </Menu.Label>
-                <Menu.Item
-                  leftSection={<IconClipboardCopy size='1rem' />}
-                  onClick={copyToken}
-                >
+                <Menu.Item leftSection={<IconClipboardCopy size='1rem' />} onClick={copyToken}>
                   Copy token
                 </Menu.Item>
                 <Menu.Item color='red' leftSection={<IconRefreshDot size='1rem' />} onClick={refreshToken}>
@@ -517,7 +514,7 @@ export default function Layout() {
                 >
                   Settings
                 </Menu.Item>
-                {(user?.role === 'ADMIN') && (
+                {user?.role === 'ADMIN' && (
                   <Menu.Item
                     leftSection={<IconAdjustments size='1rem' />}
                     component={Link}

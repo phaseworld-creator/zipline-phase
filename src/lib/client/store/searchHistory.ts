@@ -24,8 +24,7 @@ export const useSearchHistoryStore = create<SearchHistoryStore>()(
         });
       },
 
-      remove: (query) =>
-        set((state) => ({ history: state.history.filter((h) => h !== query) })),
+      remove: (query) => set((state) => ({ history: state.history.filter((h) => h !== query) })),
 
       clear: () => set({ history: [] }),
     }),

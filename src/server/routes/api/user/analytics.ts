@@ -35,9 +35,7 @@ export default typedPlugin(
               ),
               downloadTrend: z.array(z.object({ date: z.string(), count: z.number() })),
               storageGrowth: z.array(z.object({ date: z.string(), bytes: z.number() })),
-              typeBreakdown: z.array(
-                z.object({ type: z.string(), count: z.number(), bytes: z.number() }),
-              ),
+              typeBreakdown: z.array(z.object({ type: z.string(), count: z.number(), bytes: z.number() })),
             }),
           },
           tags: ['auth'],

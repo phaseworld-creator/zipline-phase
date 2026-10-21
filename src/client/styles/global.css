@@ -5,32 +5,32 @@
 
 /* ---------- Tokens — dark (default) ---------- */
 :root {
-  --bg:           #0d0d0f;
-  --bg-2:         #131316;
-  --bg-3:         #1b1b1f;
-  --line:         #26262b;
-  --line-2:       #36363e;
-  --fg:           #f0efec;
-  --fg-2:         #a9a7a1;
-  --fg-3:         #6e6c67;
-  --accent:       #ff5b2e;
-  --accent-wash:  rgba(255, 91, 46, 0.12);
-  --signal:       #35c759;
+  --bg: #0d0d0f;
+  --bg-2: #131316;
+  --bg-3: #1b1b1f;
+  --line: #26262b;
+  --line-2: #36363e;
+  --fg: #f0efec;
+  --fg-2: #a9a7a1;
+  --fg-3: #6e6c67;
+  --accent: #ff5b2e;
+  --accent-wash: rgba(255, 91, 46, 0.12);
+  --signal: #35c759;
 
   /* Legacy aliases — kept for components that still reference them */
-  --bg-legacy:            var(--bg);
-  --text-main:            var(--fg);
-  --text-muted:           var(--fg-2);
-  --text-faint:           var(--fg-3);
-  --border:               var(--line);
-  --accent-primary:       var(--accent);
-  --surface-1:            var(--bg-2);
-  --surface-2:            var(--bg-3);
-  --surface-3:            var(--bg-3);
+  --bg-legacy: var(--bg);
+  --text-main: var(--fg);
+  --text-muted: var(--fg-2);
+  --text-faint: var(--fg-3);
+  --border: var(--line);
+  --accent-primary: var(--accent);
+  --surface-1: var(--bg-2);
+  --surface-2: var(--bg-3);
+  --surface-3: var(--bg-3);
 
   /* Radius — contract: 0 / 3px / 4px only on flat surfaces */
-  --radius-sm:    3px;
-  --radius-md:    4px;
+  --radius-sm: 3px;
+  --radius-md: 4px;
 
   /* Spacing scale */
   --sp-1: 8px;
@@ -78,7 +78,12 @@ body {
 }
 
 /* ---------- Typography ---------- */
-h1, h2, h3, h4, h5, h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
 .ph-heading {
   font-family: 'Space Grotesk', system-ui, sans-serif;
   font-weight: 600;

@@ -65,33 +65,38 @@ type SavedTemplate = {
 
 /* ─── Short-key encoding for the /embed route ──────────────────── */
 type ShortEmbed = {
-  a?: string; ai?: string;
-  t?: string; tu?: string;
+  a?: string;
+  ai?: string;
+  t?: string;
+  tu?: string;
   d?: string;
   c?: string;
   th?: string;
   i?: string;
-  ft?: string; fi?: string;
+  ft?: string;
+  fi?: string;
   f?: { n: string; v: string; il?: boolean }[];
-  r?: string; rd?: number;
+  r?: string;
+  rd?: number;
   ct?: CardType;
 };
 
 function toShort(data: EmbedData): ShortEmbed {
   const o: ShortEmbed = {};
-  if (data.authorName?.trim())    o.a  = data.authorName.trim();
+  if (data.authorName?.trim()) o.a = data.authorName.trim();
   if (data.authorIconUrl?.trim()) o.ai = data.authorIconUrl.trim();
-  if (data.title?.trim())         o.t  = data.title.trim();
-  if (data.titleUrl?.trim())      o.tu = data.titleUrl.trim();
-  if (data.description?.trim())   o.d  = data.description.trim();
-  if (data.color?.trim())         o.c  = data.color.trim();
-  if (data.thumbnailUrl?.trim())  o.th = data.thumbnailUrl.trim();
-  if (data.imageUrl?.trim())      o.i  = data.imageUrl.trim();
-  if (data.footerText?.trim())    o.ft = data.footerText.trim();
+  if (data.title?.trim()) o.t = data.title.trim();
+  if (data.titleUrl?.trim()) o.tu = data.titleUrl.trim();
+  if (data.description?.trim()) o.d = data.description.trim();
+  if (data.color?.trim()) o.c = data.color.trim();
+  if (data.thumbnailUrl?.trim()) o.th = data.thumbnailUrl.trim();
+  if (data.imageUrl?.trim()) o.i = data.imageUrl.trim();
+  if (data.footerText?.trim()) o.ft = data.footerText.trim();
   if (data.footerIconUrl?.trim()) o.fi = data.footerIconUrl.trim();
   const fields = data.fields.filter((f) => f.name.trim() && f.value.trim());
-  if (fields.length) o.f = fields.map((f) => ({ n: f.name.trim(), v: f.value.trim(), ...(f.inline ? { il: true } : {}) }));
-  if (data.redirectUrl?.trim())   o.r  = data.redirectUrl.trim();
+  if (fields.length)
+    o.f = fields.map((f) => ({ n: f.name.trim(), v: f.value.trim(), ...(f.inline ? { il: true } : {}) }));
+  if (data.redirectUrl?.trim()) o.r = data.redirectUrl.trim();
   if (data.redirectDelay && data.redirectDelay > 0) o.rd = data.redirectDelay;
   if (data.cardType && data.cardType !== 'website') o.ct = data.cardType;
   return o;
@@ -115,7 +120,15 @@ function buildEmbedUrl(data: EmbedData): string {
 function hexToInt(hex?: string): number | undefined {
   const h = hex?.replace('#', '');
   if (!h || !/^[0-9a-fA-F]{3,8}$/.test(h)) return undefined;
-  return parseInt(h.length === 3 ? h.split('').map((c) => c + c).join('') : h, 16);
+  return parseInt(
+    h.length === 3
+      ? h
+          .split('')
+          .map((c) => c + c)
+          .join('')
+      : h,
+    16,
+  );
 }
 
 function buildDiscohookUrl(data: EmbedData, embedUrl: string): string {
@@ -136,10 +149,10 @@ function buildDiscohookUrl(data: EmbedData, embedUrl: string): string {
   }
 
   if (data.description?.trim()) embed.description = data.description.trim();
-  if (colorInt !== undefined)   embed.color = colorInt;
+  if (colorInt !== undefined) embed.color = colorInt;
 
   if (data.thumbnailUrl?.trim()) embed.thumbnail = { url: data.thumbnailUrl.trim() };
-  if (data.imageUrl?.trim())     embed.image = { url: data.imageUrl.trim() };
+  if (data.imageUrl?.trim()) embed.image = { url: data.imageUrl.trim() };
 
   const fields = data.fields.filter((f) => f.name.trim() && f.value.trim());
   if (fields.length)
@@ -162,12 +175,15 @@ function buildDiscohookUrl(data: EmbedData, embedUrl: string): string {
 
 /* ─── Discord-accurate live preview ────────────────────────────── */
 function DiscordPreview({ data, embedUrl }: { data: EmbedData; embedUrl: string }) {
-  const accentColor =
-    data.color && /^#[0-9a-fA-F]{3,8}$/.test(data.color) ? data.color : '#6366f1';
+  const accentColor = data.color && /^#[0-9a-fA-F]{3,8}$/.test(data.color) ? data.color : '#6366f1';
 
   const hasContent =
-    data.authorName || data.title || data.description ||
-    data.thumbnailUrl || data.imageUrl || data.footerText ||
+    data.authorName ||
+    data.title ||
+    data.description ||
+    data.thumbnailUrl ||
+    data.imageUrl ||
+    data.footerText ||
     data.fields.some((f) => f.name.trim() && f.value.trim());
 
   if (!hasContent) {
@@ -231,9 +247,7 @@ function DiscordPreview({ data, embedUrl }: { data: EmbedData; embedUrl: string 
             }}
           />
           <Box style={{ flex: 1 }}>
-            <Text style={{ color: '#fff', fontSize: 14, fontWeight: 500, marginBottom: 6 }}>
-              You
-            </Text>
+            <Text style={{ color: '#fff', fontSize: 14, fontWeight: 500, marginBottom: 6 }}>You</Text>
 
             {/* embed card */}
             <Box
@@ -253,13 +267,17 @@ function DiscordPreview({ data, embedUrl }: { data: EmbedData; embedUrl: string 
                     <Box
                       component='img'
                       src={data.authorIconUrl}
-                      style={{ width: 20, height: 20, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                      style={{
+                        width: 20,
+                        height: 20,
+                        borderRadius: '50%',
+                        objectFit: 'cover',
+                        flexShrink: 0,
+                      }}
                       onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
                     />
                   )}
-                  <Text style={{ fontSize: 12, fontWeight: 600, color: '#b9bbbe' }}>
-                    {data.authorName}
-                  </Text>
+                  <Text style={{ fontSize: 12, fontWeight: 600, color: '#b9bbbe' }}>{data.authorName}</Text>
                 </Group>
               )}
 
@@ -332,7 +350,14 @@ function DiscordPreview({ data, embedUrl }: { data: EmbedData; embedUrl: string 
                       <Text style={{ fontSize: 12, fontWeight: 700, color: '#b9bbbe', marginBottom: 2 }}>
                         {field.name}
                       </Text>
-                      <Text style={{ fontSize: 13, color: '#b9bbbe', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                      <Text
+                        style={{
+                          fontSize: 13,
+                          color: '#b9bbbe',
+                          whiteSpace: 'pre-wrap',
+                          wordBreak: 'break-word',
+                        }}
+                      >
                         {field.value}
                       </Text>
                     </Box>
@@ -366,7 +391,13 @@ function DiscordPreview({ data, embedUrl }: { data: EmbedData; embedUrl: string 
                     <Box
                       component='img'
                       src={data.footerIconUrl}
-                      style={{ width: 16, height: 16, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                      style={{
+                        width: 16,
+                        height: 16,
+                        borderRadius: '50%',
+                        objectFit: 'cover',
+                        flexShrink: 0,
+                      }}
                       onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
                     />
                   )}
@@ -412,7 +443,7 @@ export default function SettingsEmbedBuilder() {
     },
   });
 
-  const embedUrl     = useMemo(() => buildEmbedUrl(form.values), [form.values]);
+  const embedUrl = useMemo(() => buildEmbedUrl(form.values), [form.values]);
   const discohookUrl = useMemo(() => buildDiscohookUrl(form.values, embedUrl), [form.values, embedUrl]);
 
   const addField = () => form.insertListItem('fields', { ...EMPTY_FIELD });
@@ -463,7 +494,9 @@ export default function SettingsEmbedBuilder() {
     <Paper withBorder p='md'>
       <Group gap='xs' mb='xs' align='center'>
         <Title order={2}>Embed Builder</Title>
-        <Badge color='indigo' variant='light' size='sm'>Phase</Badge>
+        <Badge color='indigo' variant='light' size='sm'>
+          Phase
+        </Badge>
       </Group>
       <Group gap={6} mb='md' align='center' wrap='nowrap'>
         <Text size='sm' c='dimmed'>
@@ -481,21 +514,19 @@ export default function SettingsEmbedBuilder() {
         >
           Open in discohook.app
         </Button>
-        <Text size='sm' c='dimmed'>button to preview exactly how Discord renders it.</Text>
+        <Text size='sm' c='dimmed'>
+          button to preview exactly how Discord renders it.
+        </Text>
       </Group>
       <Divider mb='lg' />
 
       <Group align='flex-start' gap='xl' style={{ flexWrap: 'wrap' }}>
-
         {/* ── Left: form ── */}
         <Stack gap='sm' style={{ flex: '1 1 300px', minWidth: 280 }}>
-
-          <Text size='xs' fw={700} tt='uppercase' c='dimmed' style={{ letterSpacing: '0.05em' }}>Author</Text>
-          <TextInput
-            label='Author name'
-            placeholder='Zipline'
-            {...form.getInputProps('authorName')}
-          />
+          <Text size='xs' fw={700} tt='uppercase' c='dimmed' style={{ letterSpacing: '0.05em' }}>
+            Author
+          </Text>
+          <TextInput label='Author name' placeholder='Zipline' {...form.getInputProps('authorName')} />
           <TextInput
             label='Author icon URL'
             placeholder='https://example.com/icon.png'
@@ -503,13 +534,11 @@ export default function SettingsEmbedBuilder() {
           />
 
           <Divider />
-          <Text size='xs' fw={700} tt='uppercase' c='dimmed' style={{ letterSpacing: '0.05em' }}>Body</Text>
+          <Text size='xs' fw={700} tt='uppercase' c='dimmed' style={{ letterSpacing: '0.05em' }}>
+            Body
+          </Text>
 
-          <TextInput
-            label='Title'
-            placeholder='Check this out!'
-            {...form.getInputProps('title')}
-          />
+          <TextInput label='Title' placeholder='Check this out!' {...form.getInputProps('title')} />
           <TextInput
             label='Title URL'
             description='Makes the title a clickable link'
@@ -530,12 +559,23 @@ export default function SettingsEmbedBuilder() {
             label='Accent color'
             description='Left border color'
             format='hex'
-            swatches={['#6366f1','#f43f5e','#10b981','#f59e0b','#3b82f6','#8b5cf6','#ec4899','#ffffff']}
+            swatches={[
+              '#6366f1',
+              '#f43f5e',
+              '#10b981',
+              '#f59e0b',
+              '#3b82f6',
+              '#8b5cf6',
+              '#ec4899',
+              '#ffffff',
+            ]}
             {...form.getInputProps('color')}
           />
 
           <Divider />
-          <Text size='xs' fw={700} tt='uppercase' c='dimmed' style={{ letterSpacing: '0.05em' }}>Images</Text>
+          <Text size='xs' fw={700} tt='uppercase' c='dimmed' style={{ letterSpacing: '0.05em' }}>
+            Images
+          </Text>
           <TextInput
             label='Thumbnail URL'
             description='Small image top-right of the embed'
@@ -551,8 +591,15 @@ export default function SettingsEmbedBuilder() {
 
           <Divider />
           <Group justify='space-between' align='center'>
-            <Text size='xs' fw={700} tt='uppercase' c='dimmed' style={{ letterSpacing: '0.05em' }}>Fields</Text>
-            <Button size='compact-xs' variant='light' leftSection={<IconPlus size='0.75rem' />} onClick={addField}>
+            <Text size='xs' fw={700} tt='uppercase' c='dimmed' style={{ letterSpacing: '0.05em' }}>
+              Fields
+            </Text>
+            <Button
+              size='compact-xs'
+              variant='light'
+              leftSection={<IconPlus size='0.75rem' />}
+              onClick={addField}
+            >
               Add field
             </Button>
           </Group>
@@ -560,17 +607,15 @@ export default function SettingsEmbedBuilder() {
           {form.values.fields.map((_, i) => (
             <Paper key={i} withBorder p='xs' radius='sm'>
               <Group justify='space-between' mb='xs'>
-                <Text size='xs' c='dimmed'>Field {i + 1}</Text>
+                <Text size='xs' c='dimmed'>
+                  Field {i + 1}
+                </Text>
                 <ActionIcon size='xs' color='red' variant='subtle' onClick={() => removeField(i)}>
                   <IconTrash size='0.75rem' />
                 </ActionIcon>
               </Group>
               <Stack gap='xs'>
-                <TextInput
-                  placeholder='Field name'
-                  size='xs'
-                  {...form.getInputProps(`fields.${i}.name`)}
-                />
+                <TextInput placeholder='Field name' size='xs' {...form.getInputProps(`fields.${i}.name`)} />
                 <Textarea
                   placeholder='Field value (multi-line supported)'
                   size='xs'
@@ -586,7 +631,13 @@ export default function SettingsEmbedBuilder() {
                     checked={form.values.fields[i].inline}
                     onChange={(e) => form.setFieldValue(`fields.${i}.inline`, e.target.checked)}
                   />
-                  <Text component='label' htmlFor={`inline-${i}`} size='xs' c='dimmed' style={{ cursor: 'pointer' }}>
+                  <Text
+                    component='label'
+                    htmlFor={`inline-${i}`}
+                    size='xs'
+                    c='dimmed'
+                    style={{ cursor: 'pointer' }}
+                  >
                     Inline (side-by-side with other inline fields)
                   </Text>
                 </Group>
@@ -595,8 +646,10 @@ export default function SettingsEmbedBuilder() {
           ))}
 
           <Divider />
-          <Text size='xs' fw={700} tt='uppercase' c='dimmed' style={{ letterSpacing: '0.05em' }}>Advanced</Text>
-          
+          <Text size='xs' fw={700} tt='uppercase' c='dimmed' style={{ letterSpacing: '0.05em' }}>
+            Advanced
+          </Text>
+
           <SegmentedControl
             data={[
               { label: 'Website Card', value: 'website' },
@@ -614,7 +667,7 @@ export default function SettingsEmbedBuilder() {
             placeholder='https://example.com/pranked'
             {...form.getInputProps('redirectUrl')}
           />
-          
+
           {form.values.redirectUrl && (
             <NumberInput
               label='Redirect delay (seconds)'
@@ -626,7 +679,9 @@ export default function SettingsEmbedBuilder() {
           )}
 
           <Divider />
-          <Text size='xs' fw={700} tt='uppercase' c='dimmed' style={{ letterSpacing: '0.05em' }}>Footer</Text>
+          <Text size='xs' fw={700} tt='uppercase' c='dimmed' style={{ letterSpacing: '0.05em' }}>
+            Footer
+          </Text>
           <TextInput
             label='Footer text'
             placeholder='Sent via Zipline'
@@ -640,7 +695,9 @@ export default function SettingsEmbedBuilder() {
 
           <Divider />
           <Group justify='space-between' align='center'>
-            <Text size='xs' fw={700} tt='uppercase' c='dimmed' style={{ letterSpacing: '0.05em' }}>Templates</Text>
+            <Text size='xs' fw={700} tt='uppercase' c='dimmed' style={{ letterSpacing: '0.05em' }}>
+              Templates
+            </Text>
             <Button
               size='compact-xs'
               variant='light'
@@ -658,7 +715,9 @@ export default function SettingsEmbedBuilder() {
                 <Paper key={idx} withBorder p='xs' radius='sm'>
                   <Group justify='space-between' wrap='nowrap'>
                     <Stack gap={2} style={{ flex: 1 }}>
-                      <Text size='sm' fw={600}>{template.name}</Text>
+                      <Text size='sm' fw={600}>
+                        {template.name}
+                      </Text>
                       <Text size='xs' c='dimmed'>
                         {new Date(template.createdAt).toLocaleDateString()}
                       </Text>
@@ -675,12 +734,7 @@ export default function SettingsEmbedBuilder() {
                         </ActionIcon>
                       </Tooltip>
                       <Tooltip label='Delete template'>
-                        <ActionIcon
-                          size='sm'
-                          variant='light'
-                          color='red'
-                          onClick={() => deleteTemplate(idx)}
-                        >
+                        <ActionIcon size='sm' variant='light' color='red' onClick={() => deleteTemplate(idx)}>
                           <IconTrash size='0.8rem' />
                         </ActionIcon>
                       </Tooltip>
@@ -696,7 +750,13 @@ export default function SettingsEmbedBuilder() {
           )}
 
           <Group justify='center' mt='xs'>
-            <ActionIcon variant='subtle' color='gray' size='sm' onClick={() => form.reset()} title='Reset all fields'>
+            <ActionIcon
+              variant='subtle'
+              color='gray'
+              size='sm'
+              onClick={() => form.reset()}
+              title='Reset all fields'
+            >
               <IconRefresh size='0.9rem' />
             </ActionIcon>
           </Group>
@@ -712,11 +772,7 @@ export default function SettingsEmbedBuilder() {
               onChange={(e) => setTemplateName(e.target.value)}
               data-autofocus
             />
-            <Button
-              fullWidth
-              leftSection={<IconDeviceFloppy size='1rem' />}
-              onClick={saveTemplate}
-            >
+            <Button fullWidth leftSection={<IconDeviceFloppy size='1rem' />} onClick={saveTemplate}>
               Save
             </Button>
           </Stack>
@@ -730,7 +786,9 @@ export default function SettingsEmbedBuilder() {
           <DiscordPreview data={form.values} embedUrl={embedUrl} />
 
           <Divider my='xs' />
-          <Text size='sm' fw={600}>Your embed URL</Text>
+          <Text size='sm' fw={600}>
+            Your embed URL
+          </Text>
           <Box
             style={{
               background: 'var(--mantine-color-dark-6)',
@@ -760,7 +818,15 @@ export default function SettingsEmbedBuilder() {
             </SafeCopyButton>
 
             <Tooltip label='Open embed URL in new tab'>
-              <ActionIcon variant='light' color='gray' size='sm' component='a' href={embedUrl} target='_blank' rel='noreferrer'>
+              <ActionIcon
+                variant='light'
+                color='gray'
+                size='sm'
+                component='a'
+                href={embedUrl}
+                target='_blank'
+                rel='noreferrer'
+              >
                 <IconExternalLink size='0.9rem' />
               </ActionIcon>
             </Tooltip>
@@ -782,9 +848,11 @@ export default function SettingsEmbedBuilder() {
 
           <Text size='xs' c='dimmed'>
             The <IconBrandDiscord size='0.7rem' style={{ verticalAlign: 'middle' }} /> button opens{' '}
-            <Anchor href='https://discohook.app/' target='_blank' size='xs'>discohook.app</Anchor>{' '}
-            pre-filled with your full embed — same fields, same colors, same layout — so you can see
-            exactly how Discord will render it before you share the link.
+            <Anchor href='https://discohook.app/' target='_blank' size='xs'>
+              discohook.app
+            </Anchor>{' '}
+            pre-filled with your full embed — same fields, same colors, same layout — so you can see exactly
+            how Discord will render it before you share the link.
           </Text>
         </Stack>
       </Group>

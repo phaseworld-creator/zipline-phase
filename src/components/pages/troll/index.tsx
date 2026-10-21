@@ -322,10 +322,11 @@ export default function DashboardTroll() {
   };
 
   // Filter links by tags
-  const filteredLinks = links?.filter((link) => {
-    if (tagFilter.length === 0) return true;
-    return tagFilter.some((tag) => link.tags?.includes(tag));
-  }) ?? [];
+  const filteredLinks =
+    links?.filter((link) => {
+      if (tagFilter.length === 0) return true;
+      return tagFilter.some((tag) => link.tags?.includes(tag));
+    }) ?? [];
 
   // Helper to check if link is expired
   const isExpired = (link: TrollLink) => {
@@ -355,16 +356,19 @@ export default function DashboardTroll() {
     const trollUrl = buildTrollUrl(randomLink.alias);
 
     // Copy to clipboard
-    navigator.clipboard.writeText(trollUrl).then(() => {
-      notifications.show({
-        title: '🎲 Surprise!',
-        message: `Copied "${randomLink.label}" link to clipboard`,
-        color: 'grape',
-        icon: <IconDice size='1rem' />,
+    navigator.clipboard
+      .writeText(trollUrl)
+      .then(() => {
+        notifications.show({
+          title: '🎲 Surprise!',
+          message: `Copied "${randomLink.label}" link to clipboard`,
+          color: 'grape',
+          icon: <IconDice size='1rem' />,
+        });
+      })
+      .catch(() => {
+        notifications.show({ message: 'Failed to copy to clipboard', color: 'red' });
       });
-    }).catch(() => {
-      notifications.show({ message: 'Failed to copy to clipboard', color: 'red' });
-    });
   };
 
   return (
@@ -414,7 +418,8 @@ export default function DashboardTroll() {
                       radius='md'
                       style={{
                         cursor: 'pointer',
-                        outline: selectedPreset?.id === p.id ? '2px solid var(--mantine-color-grape-5)' : undefined,
+                        outline:
+                          selectedPreset?.id === p.id ? '2px solid var(--mantine-color-grape-5)' : undefined,
                       }}
                       onClick={() => setSelectedPreset(p)}
                     >
@@ -619,8 +624,8 @@ export default function DashboardTroll() {
         </Badge>
       </Group>
       <Text c='dimmed' mb='lg'>
-        Create disguised prank links. Share <code>/data/alias</code> with someone — they see your chosen
-        media full-screen. Presets or custom URLs, your choice.
+        Create disguised prank links. Share <code>/data/alias</code> with someone — they see your chosen media
+        full-screen. Presets or custom URLs, your choice.
       </Text>
 
       {/* ── Active links ── */}
@@ -670,7 +675,10 @@ export default function DashboardTroll() {
         </Group>
       ) : !links || links.length === 0 ? (
         <Card withBorder radius='md' p='xl' ta='center'>
-          <IconGhost2Filled size='2.5rem' style={{ color: 'var(--mantine-color-grape-4)', marginBottom: 8 }} />
+          <IconGhost2Filled
+            size='2.5rem'
+            style={{ color: 'var(--mantine-color-grape-4)', marginBottom: 8 }}
+          />
           <Text c='dimmed'>No troll links yet. Create one above</Text>
         </Card>
       ) : filteredLinks.length === 0 ? (
@@ -689,14 +697,7 @@ export default function DashboardTroll() {
                 <Group justify='space-between' wrap='nowrap' gap='md'>
                   {/* Thumbnail */}
                   {previewSrc ? (
-                    <Image
-                      src={previewSrc}
-                      w={52}
-                      h={52}
-                      fit='cover'
-                      radius='md'
-                      style={{ flexShrink: 0 }}
-                    />
+                    <Image src={previewSrc} w={52} h={52} fit='cover' radius='md' style={{ flexShrink: 0 }} />
                   ) : (
                     <div
                       style={{
@@ -729,7 +730,12 @@ export default function DashboardTroll() {
                         </Badge>
                       )}
                       {link.password && (
-                        <Badge color='yellow' variant='light' size='xs' leftSection={<IconLock size='0.7rem' />}>
+                        <Badge
+                          color='yellow'
+                          variant='light'
+                          size='xs'
+                          leftSection={<IconLock size='0.7rem' />}
+                        >
                           locked
                         </Badge>
                       )}

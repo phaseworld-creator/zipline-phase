@@ -189,7 +189,10 @@ export async function onShorten(
 
 export async function onDelete(
   config: Config,
-  { user, file }: { user: User; file: Pick<import('../db/models/file').File, 'id' | 'name' | 'type' | 'size'> },
+  {
+    user,
+    file,
+  }: { user: User; file: Pick<import('../db/models/file').File, 'id' | 'name' | 'type' | 'size'> },
 ) {
   const webhookUrl = config.discord?.onDelete?.webhookUrl || config.discord?.webhookUrl;
   if (!webhookUrl) return logger.debug('no onDelete webhookUrl, skipping');

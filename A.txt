@@ -1,1 +1,14 @@
-A
+Based on my thorough analysis of the codebase, here are high-value features that are genuinely missing (not duplicates ofexisting functionality):
+
+
+3. Full-text content search — Currently only metadata search (name/type/tags). Add search inside text files, PDFs, documents using libraries like pdf-parse,  mammoth (DOCX), or integrate with Typesense/Meilisearch.
+4. Virus/malware scanning — Integrate ClamAV or VirusTotal API to scan uploaded files before they become publicly available. Critical for a file-sharing platform.
+6. Advanced sharing controls — Expand beyond basic password protection:
+- Links expire after X views/downloads
+- IP-based access limits
+- Referer-based blocking
+- Expiration by date AND usage count
+8. Bulk download as ZIP — Already have partial uploads; add "select all / select by folder / download as ZIP" for multiple files.
+9. File-type-specific browser viewers — Native renderers for markdown, code (with syntax highlighting), spreadsheets, presentations directly in /view/:id without downloading.
+10. Admin audit log filtering/search — Currently audit logs exist but admins can't search/filter them by action, actor, or date range efficiently.
+Which of these would you like to implement first? I can help you add the feature with proper Prisma schema changes, API routes, and frontend UI.

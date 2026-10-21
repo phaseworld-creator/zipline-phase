@@ -241,7 +241,9 @@ export const schema = z.object({
       enabled: z.boolean().default(false),
       text: z.string().nullable().default(null),
       image: z.string().nullable().default(null),
-      position: z.enum(['center', 'top-left', 'top-right', 'bottom-left', 'bottom-right', 'tile']).default('center'),
+      position: z
+        .enum(['center', 'top-left', 'top-right', 'bottom-left', 'bottom-right', 'tile'])
+        .default('center'),
       opacity: z.number().min(0).max(100).default(50),
     }),
     thumbnails: z.object({
@@ -256,6 +258,18 @@ export const schema = z.object({
       showUserSpecific: z.boolean().default(true),
     }),
     versionChecking: z.boolean().default(true),
+    virusScanning: z.object({
+      enabled: z.boolean().default(false),
+      provider: z.enum(['clamav', 'virustotal']).default('clamav'),
+      virusTotalApiKey: z.string().nullable().default(null),
+    }),
+    advancedSharing: z.object({
+      enabled: z.boolean().default(false),
+      expireAfterViews: z.number().nullable().default(null),
+      expireAfterDownloads: z.number().nullable().default(null),
+      allowedIps: z.array(z.string()).default([]),
+      blockedReferers: z.array(z.string()).default([]),
+    }),
   }),
   domains: z.array(z.string()).default([]),
   invites: z.object({

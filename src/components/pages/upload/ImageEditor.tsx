@@ -187,18 +187,10 @@ export default function ImageEditor({ file, onSave, onCancel }: ImageEditorProps
       )}
 
       <Group gap='xs'>
-        <Button
-          size='xs'
-          variant={mode === 'move' ? 'filled' : 'outline'}
-          onClick={() => setMode('move')}
-        >
+        <Button size='xs' variant={mode === 'move' ? 'filled' : 'outline'} onClick={() => setMode('move')}>
           Move
         </Button>
-        <Button
-          size='xs'
-          variant={mode === 'draw' ? 'filled' : 'outline'}
-          onClick={() => setMode('draw')}
-        >
+        <Button size='xs' variant={mode === 'draw' ? 'filled' : 'outline'} onClick={() => setMode('draw')}>
           Draw
         </Button>
         <Button
@@ -218,13 +210,7 @@ export default function ImageEditor({ file, onSave, onCancel }: ImageEditorProps
 
       {mode === 'draw' && (
         <Group gap='xs'>
-          <ColorInput
-            size='xs'
-            label='Color'
-            value={drawColor}
-            onChange={setDrawColor}
-            w={80}
-          />
+          <ColorInput size='xs' label='Color' value={drawColor} onChange={setDrawColor} w={80} />
           <NumberInput
             size='xs'
             label='Size'
@@ -238,13 +224,21 @@ export default function ImageEditor({ file, onSave, onCancel }: ImageEditorProps
       )}
 
       <Stack gap={2}>
-        <Text size='xs' c='dimmed'>Brightness</Text>
+        <Text size='xs' c='dimmed'>
+          Brightness
+        </Text>
         <Slider value={brightness} onChange={setBrightness} min={0} max={200} />
-        <Text size='xs' c='dimmed'>Contrast</Text>
+        <Text size='xs' c='dimmed'>
+          Contrast
+        </Text>
         <Slider value={contrast} onChange={setContrast} min={0} max={200} />
-        <Text size='xs' c='dimmed'>Rotation</Text>
+        <Text size='xs' c='dimmed'>
+          Rotation
+        </Text>
         <Slider value={rotation} onChange={setRotation} min={0} max={360} />
-        <Text size='xs' c='dimmed'>Scale</Text>
+        <Text size='xs' c='dimmed'>
+          Scale
+        </Text>
         <Slider value={scale} onChange={setScale} min={0.1} max={3} step={0.1} />
       </Stack>
 

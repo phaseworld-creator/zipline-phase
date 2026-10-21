@@ -220,7 +220,12 @@ const API_GROUPS: ApiGroup[] = [
         description: 'Create a shortened URL.',
         auth: true,
         body: [
-          { name: 'destination', type: 'string', required: true, description: 'The destination URL to shorten' },
+          {
+            name: 'destination',
+            type: 'string',
+            required: true,
+            description: 'The destination URL to shorten',
+          },
           { name: 'vanity', type: 'string', required: false, description: 'Custom slug (vanity URL)' },
           { name: 'maxViews', type: 'number', required: false, description: 'Auto-delete after N views' },
           { name: 'password', type: 'string', required: false, description: 'Password-protect the link' },
@@ -348,13 +353,24 @@ const API_GROUPS: ApiGroup[] = [
       {
         method: 'POST',
         path: '/api/troll',
-        description: 'Create a new troll link. Visitors to /troll/:alias see the configured media full-screen.',
+        description:
+          'Create a new troll link. Visitors to /troll/:alias see the configured media full-screen.',
         auth: true,
         adminOnly: true,
         body: [
           { name: 'alias', type: 'string', required: true, description: 'URL slug (letters, numbers, - _)' },
-          { name: 'mediaUrl', type: 'string (URL)', required: true, description: 'Direct media URL or YouTube watch link' },
-          { name: 'mediaType', type: 'image | gif | video | youtube', required: true, description: 'How to render the media' },
+          {
+            name: 'mediaUrl',
+            type: 'string (URL)',
+            required: true,
+            description: 'Direct media URL or YouTube watch link',
+          },
+          {
+            name: 'mediaType',
+            type: 'image | gif | video | youtube',
+            required: true,
+            description: 'How to render the media',
+          },
           { name: 'label', type: 'string', required: false, description: 'Friendly label for admin UI' },
         ],
         response: '{ id, alias, mediaUrl, mediaType, label, createdAt }',
@@ -408,8 +424,8 @@ function AuthInfo() {
             Bearer Token
           </Badge>
           <Text size='sm' c='dimmed'>
-            Pass your token via{' '}
-            <Code>Authorization: Bearer {'<token>'}</Code> header. Get your token from Dashboard → Settings.
+            Pass your token via <Code>Authorization: Bearer {'<token>'}</Code> header. Get your token from
+            Dashboard → Settings.
           </Text>
         </Group>
       </Stack>
@@ -466,7 +482,17 @@ function EndpointBlock({ ep }: { ep: ApiEndpoint }) {
                         <Code>{p.name}</Code>
                       </Table.Td>
                       <Table.Td c='dimmed'>{p.type}</Table.Td>
-                      <Table.Td>{p.required ? <Badge color='red' size='xs'>yes</Badge> : <Badge color='gray' size='xs'>no</Badge>}</Table.Td>
+                      <Table.Td>
+                        {p.required ? (
+                          <Badge color='red' size='xs'>
+                            yes
+                          </Badge>
+                        ) : (
+                          <Badge color='gray' size='xs'>
+                            no
+                          </Badge>
+                        )}
+                      </Table.Td>
                       <Table.Td c='dimmed'>{p.description}</Table.Td>
                     </Table.Tr>
                   ))}
@@ -497,7 +523,17 @@ function EndpointBlock({ ep }: { ep: ApiEndpoint }) {
                         <Code>{b.name}</Code>
                       </Table.Td>
                       <Table.Td c='dimmed'>{b.type}</Table.Td>
-                      <Table.Td>{b.required ? <Badge color='red' size='xs'>yes</Badge> : <Badge color='gray' size='xs'>no</Badge>}</Table.Td>
+                      <Table.Td>
+                        {b.required ? (
+                          <Badge color='red' size='xs'>
+                            yes
+                          </Badge>
+                        ) : (
+                          <Badge color='gray' size='xs'>
+                            no
+                          </Badge>
+                        )}
+                      </Table.Td>
                       <Table.Td c='dimmed'>{b.description}</Table.Td>
                     </Table.Tr>
                   ))}
@@ -546,7 +582,10 @@ function EndpointBlock({ ep }: { ep: ApiEndpoint }) {
 
 /* ─── Main component ─────────────────────────────────────────── */
 export default function DashboardApiDocs() {
-  const baseUrl = typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}` : 'https://your-instance.com';
+  const baseUrl =
+    typeof window !== 'undefined'
+      ? `${window.location.protocol}//${window.location.host}`
+      : 'https://your-instance.com';
 
   return (
     <Box>
@@ -559,8 +598,7 @@ export default function DashboardApiDocs() {
         </Badge>
       </Group>
       <Text c='dimmed' mb='lg'>
-        Full reference for the Zipline HTTP API. Base URL:{' '}
-        <Code>{baseUrl}</Code>
+        Full reference for the Zipline HTTP API. Base URL: <Code>{baseUrl}</Code>
       </Text>
 
       <AuthInfo />

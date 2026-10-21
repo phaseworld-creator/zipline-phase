@@ -206,9 +206,15 @@ export function Component() {
                 </a>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span className='status-dot' />
-                  <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 500 }}>Live</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 500 }}>
+                    Live
+                  </span>
                 </div>
-                <Link to='/auth/login' className='btn-primary' style={{ padding: '9px 20px', fontSize: '0.85rem' }}>
+                <Link
+                  to='/auth/login'
+                  className='btn-primary'
+                  style={{ padding: '9px 20px', fontSize: '0.85rem' }}
+                >
                   Sign in
                 </Link>
               </div>
@@ -219,9 +225,7 @@ export function Component() {
         {/* ── Hero ── */}
         <header>
           <div className='ph-container'>
-            <div
-              style={{ maxWidth: 780, margin: '0 auto', textAlign: 'center', padding: '20px 0 64px' }}
-            >
+            <div style={{ maxWidth: 780, margin: '0 auto', textAlign: 'center', padding: '20px 0 64px' }}>
               <div style={{ marginBottom: '24px' }}>
                 <span className='pill-badge'>
                   <i data-lucide='zap' style={{ width: 12, height: 12 }} />
@@ -311,7 +315,10 @@ export function Component() {
                 </a>
               </div>
 
-              <div className='pill' style={{ display: 'inline-flex', alignItems: 'center', padding: '14px 32px' }}>
+              <div
+                className='pill'
+                style={{ display: 'inline-flex', alignItems: 'center', padding: '14px 32px' }}
+              >
                 {[
                   { value: '10k+', label: 'Users' },
                   { value: '100%', label: 'Open Source' },
@@ -332,7 +339,12 @@ export function Component() {
                         {stat.value}
                       </div>
                       <div
-                        style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500, marginTop: 2 }}
+                        style={{
+                          fontSize: '0.75rem',
+                          color: 'var(--text-muted)',
+                          fontWeight: 500,
+                          marginTop: 2,
+                        }}
                       >
                         {stat.label}
                       </div>
@@ -398,33 +410,51 @@ export function Component() {
                 >
                   Drag & Drop Uploads
                 </h3>
-                <p style={{ color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: '24px', fontSize: '0.9rem' }}>
+                <p
+                  style={{
+                    color: 'var(--text-muted)',
+                    lineHeight: 1.7,
+                    marginBottom: '24px',
+                    fontSize: '0.9rem',
+                  }}
+                >
                   Upload any file type instantly with drag & drop, chunked uploads for large files, and custom
                   expiry times per upload.
                 </p>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {['Chunked large file support', 'Custom expiration per file', 'Password-protected files'].map(
-                    (f) => (
-                      <li
-                        key={f}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '10px',
-                          fontSize: '0.875rem',
-                          color: 'var(--text-muted)',
-                        }}
+                <ul
+                  style={{
+                    listStyle: 'none',
+                    padding: 0,
+                    margin: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                  }}
+                >
+                  {[
+                    'Chunked large file support',
+                    'Custom expiration per file',
+                    'Password-protected files',
+                  ].map((f) => (
+                    <li
+                      key={f}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        fontSize: '0.875rem',
+                        color: 'var(--text-muted)',
+                      }}
+                    >
+                      <span
+                        className='feature-icon'
+                        style={{ width: 22, height: 22, borderRadius: '50%', flexShrink: 0 }}
                       >
-                        <span
-                          className='feature-icon'
-                          style={{ width: 22, height: 22, borderRadius: '50%', flexShrink: 0 }}
-                        >
-                          <i data-lucide='check' style={{ width: 12, height: 12 }} />
-                        </span>
-                        {f}
-                      </li>
-                    ),
-                  )}
+                        <i data-lucide='check' style={{ width: 12, height: 12 }} />
+                      </span>
+                      {f}
+                    </li>
+                  ))}
                 </ul>
               </article>
 
@@ -451,11 +481,27 @@ export function Component() {
                 >
                   URL Shortener
                 </h3>
-                <p style={{ color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: '24px', fontSize: '0.9rem' }}>
-                  Turn any long URL into a short, shareable link. Track clicks, set vanity slugs, and manage all
-                  your links from one place.
+                <p
+                  style={{
+                    color: 'var(--text-muted)',
+                    lineHeight: 1.7,
+                    marginBottom: '24px',
+                    fontSize: '0.9rem',
+                  }}
+                >
+                  Turn any long URL into a short, shareable link. Track clicks, set vanity slugs, and manage
+                  all your links from one place.
                 </p>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <ul
+                  style={{
+                    listStyle: 'none',
+                    padding: 0,
+                    margin: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                  }}
+                >
                   {['Vanity / custom slugs', 'Click tracking', 'Enable or disable links'].map((f) => (
                     <li
                       key={f}
@@ -502,11 +548,27 @@ export function Component() {
                 >
                   Multi-user & Roles
                 </h3>
-                <p style={{ color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: '24px', fontSize: '0.9rem' }}>
-                  Invite friends or teammates with per-user quotas, role-based access control, and invite codes to
-                  keep your instance secure.
+                <p
+                  style={{
+                    color: 'var(--text-muted)',
+                    lineHeight: 1.7,
+                    marginBottom: '24px',
+                    fontSize: '0.9rem',
+                  }}
+                >
+                  Invite friends or teammates with per-user quotas, role-based access control, and invite
+                  codes to keep your instance secure.
                 </p>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <ul
+                  style={{
+                    listStyle: 'none',
+                    padding: 0,
+                    margin: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                  }}
+                >
                   {['Per-user storage quotas', 'Admin roles', 'Invite-only registration'].map((f) => (
                     <li
                       key={f}
@@ -553,31 +615,49 @@ export function Component() {
                 >
                   Flexible Storage
                 </h3>
-                <p style={{ color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: '24px', fontSize: '0.9rem' }}>
+                <p
+                  style={{
+                    color: 'var(--text-muted)',
+                    lineHeight: 1.7,
+                    marginBottom: '24px',
+                    fontSize: '0.9rem',
+                  }}
+                >
                   Store files locally or on any S3-compatible backend — AWS S3, Cloudflare R2, Backblaze B2,
                   MinIO, and more. Switch any time.
                 </p>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {['S3-compatible providers', 'Local disk storage', 'On-the-fly thumbnail generation'].map((f) => (
-                    <li
-                      key={f}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        fontSize: '0.875rem',
-                        color: 'var(--text-muted)',
-                      }}
-                    >
-                      <span
-                        className='feature-icon'
-                        style={{ width: 22, height: 22, borderRadius: '50%', flexShrink: 0 }}
+                <ul
+                  style={{
+                    listStyle: 'none',
+                    padding: 0,
+                    margin: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                  }}
+                >
+                  {['S3-compatible providers', 'Local disk storage', 'On-the-fly thumbnail generation'].map(
+                    (f) => (
+                      <li
+                        key={f}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          fontSize: '0.875rem',
+                          color: 'var(--text-muted)',
+                        }}
                       >
-                        <i data-lucide='check' style={{ width: 12, height: 12 }} />
-                      </span>
-                      {f}
-                    </li>
-                  ))}
+                        <span
+                          className='feature-icon'
+                          style={{ width: 22, height: 22, borderRadius: '50%', flexShrink: 0 }}
+                        >
+                          <i data-lucide='check' style={{ width: 12, height: 12 }} />
+                        </span>
+                        {f}
+                      </li>
+                    ),
+                  )}
                 </ul>
               </article>
 
@@ -626,35 +706,40 @@ export function Component() {
                     gap: '12px',
                   }}
                 >
-                  {['Discord OAuth2', 'GitHub OAuth2', 'Google OAuth2', 'Passkeys / WebAuthn', 'TOTP 2FA', 'Per-token scopes'].map(
-                    (f) => (
-                      <li
-                        key={f}
+                  {[
+                    'Discord OAuth2',
+                    'GitHub OAuth2',
+                    'Google OAuth2',
+                    'Passkeys / WebAuthn',
+                    'TOTP 2FA',
+                    'Per-token scopes',
+                  ].map((f) => (
+                    <li
+                      key={f}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        fontSize: '0.85rem',
+                        color: 'var(--text-muted)',
+                        background: 'var(--surface-2)',
+                        padding: '10px 14px',
+                        borderRadius: 'var(--radius-inner)',
+                        border: '1px solid var(--border)',
+                      }}
+                    >
+                      <span
                         style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          fontSize: '0.85rem',
-                          color: 'var(--text-muted)',
-                          background: 'var(--surface-2)',
-                          padding: '10px 14px',
-                          borderRadius: 'var(--radius-inner)',
-                          border: '1px solid var(--border)',
+                          width: 8,
+                          height: 8,
+                          borderRadius: '50%',
+                          background: 'linear-gradient(135deg, #818cf8, #f43f5e)',
+                          flexShrink: 0,
                         }}
-                      >
-                        <span
-                          style={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: '50%',
-                            background: 'linear-gradient(135deg, #818cf8, #f43f5e)',
-                            flexShrink: 0,
-                          }}
-                        />
-                        {f}
-                      </li>
-                    ),
-                  )}
+                      />
+                      {f}
+                    </li>
+                  ))}
                 </ul>
               </article>
             </div>
@@ -692,7 +777,12 @@ export function Component() {
                   Z
                 </div>
                 <span
-                  style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-muted)' }}
+                  style={{
+                    fontFamily: "'Syne', sans-serif",
+                    fontWeight: 700,
+                    fontSize: '0.95rem',
+                    color: 'var(--text-muted)',
+                  }}
                 >
                   Zipline — Open source file hosting
                 </span>

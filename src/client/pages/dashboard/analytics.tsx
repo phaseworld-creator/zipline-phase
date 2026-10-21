@@ -70,36 +70,19 @@ export function Component() {
     <Container my='lg' size='xl'>
       <Group justify='space-between' mb='lg'>
         <Title order={2}>My Analytics</Title>
-        <Select
-          value={days}
-          onChange={(v) => setDays(v ?? '30')}
-          data={RANGE_OPTIONS}
-          w={130}
-          size='sm'
-        />
+        <Select value={days} onChange={(v) => setDays(v ?? '30')} data={RANGE_OPTIONS} w={130} size='sm' />
       </Group>
 
       {/* Summary cards */}
       <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} mb='lg'>
         <StatCard label='Files' value={data?.topFiles.length ?? 0} />
-        <StatCard
-          label='Total Downloads'
-          value={data?.downloadTrend.reduce((a, d) => a + d.count, 0) ?? 0}
-        />
+        <StatCard label='Total Downloads' value={data?.downloadTrend.reduce((a, d) => a + d.count, 0) ?? 0} />
         <StatCard
           label='Peak Day'
-          value={
-            data?.downloadTrend.length
-              ? Math.max(...data.downloadTrend.map((d) => d.count))
-              : 0
-          }
+          value={data?.downloadTrend.length ? Math.max(...data.downloadTrend.map((d) => d.count)) : 0}
           suffix='downloads'
         />
-        <StatCard
-          label='Storage'
-          value={bytes(data?.storageGrowth?.at(-1)?.bytes ?? 0)}
-          raw
-        />
+        <StatCard label='Storage' value={bytes(data?.storageGrowth?.at(-1)?.bytes ?? 0)} raw />
       </SimpleGrid>
 
       <SimpleGrid cols={{ base: 1, md: 2 }} mb='lg'>
@@ -215,7 +198,13 @@ function StatCard({
         {label}
       </Text>
       <Text fz='xl' fw={700} mt={4}>
-        {raw ? value : typeof value === 'number' ? <NumberFormatter value={value} thousandSeparator /> : value}
+        {raw ? (
+          value
+        ) : typeof value === 'number' ? (
+          <NumberFormatter value={value} thousandSeparator />
+        ) : (
+          value
+        )}
         {suffix && (
           <Text span size='sm' c='dimmed' ml={4}>
             {suffix}
@@ -227,6 +216,14 @@ function StatCard({
 }
 
 const CHART_COLORS = [
-  'blue.6', 'teal.6', 'orange.6', 'grape.6', 'red.6',
-  'cyan.6', 'lime.6', 'yellow.6', 'indigo.6', 'pink.6',
+  'blue.6',
+  'teal.6',
+  'orange.6',
+  'grape.6',
+  'red.6',
+  'cyan.6',
+  'lime.6',
+  'yellow.6',
+  'indigo.6',
+  'pink.6',
 ];

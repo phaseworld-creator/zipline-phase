@@ -7,7 +7,7 @@ import { userMiddleware } from '@/server/middleware/user';
 import typedPlugin from '@/server/typedPlugin';
 import z from 'zod';
 
-export type FileSearchField = 'name' | 'originalName' | 'type' | 'tags' | 'id';
+export type FileSearchField = 'name' | 'originalName' | 'type' | 'tags' | 'id' | 'content';
 
 export type ApiUserFilesResponse = {
   page: File[];
@@ -29,12 +29,15 @@ export default typedPlugin(
           description:
             'List, filter, and search files for the authenticated user (or another user if permitted).',
           querystring: paginationQs.extend({
-            searchField: z.enum(['name', 'originalName', 'type', 'tags', 'id']).optional().default('name'),
+            searchField: z
+              .enum(['name', 'originalName', 'type', 'tags', 'id', 'content'])
+              .optional()
+              .default('name'),
             searchQuery: z.string().optional(),
             id: z.string().optional(),
             folder: z.string().optional(),
             typeFilter: z.string().optional(), // e.g. "image/,video/"  (comma-sep MIME prefixes)
-            createdAfter: z.string().optional(),  // ISO date string
+            createdAfter: z.string().optional(), // ISO date string
             createdBefore: z.string().optional(), // ISO date string
           }),
           response: {
@@ -42,7 +45,7 @@ export default typedPlugin(
               page: z.array(fileSchema),
               search: z
                 .object({
-                  field: z.enum(['name', 'originalName', 'type', 'tags', 'id']),
+                  field: z.enum(['name', 'originalName', 'type', 'tags', 'id', 'content']),
                   query: z.union([z.string(), z.array(z.string())]),
                 })
                 .optional(),
@@ -82,7 +85,10 @@ export default typedPlugin(
 
         // Build MIME-type prefix filter
         const typePrefixes = typeFilter
-          ? typeFilter.split(',').map((t) => t.trim()).filter(Boolean)
+          ? typeFilter
+              .split(',')
+              .map((t) => t.trim())
+              .filter(Boolean)
           : null;
 
         let folderId: string | null = null;
@@ -111,6 +117,32 @@ export default typedPlugin(
         });
 
         if (searchQuery) {
+          // Full-text content search
+          if (searchField === 'content') {
+            const incompleteIds = incompleteFiles.map((f) => f.metadata.file.id);
+            const where = {
+              userId: user.id,
+              content: { contains: searchQuery, mode: 'insensitive' as const },
+              id: { notIn: incompleteIds },
+            };
+
+            const total = await prisma.file.count({ where });
+            const contentResult = await prisma.file.findMany({
+              where,
+              select: fileSelect,
+              orderBy: { createdAt: 'desc' },
+              skip: (Number(page) - 1) * perpage,
+              take: perpage,
+            });
+
+            return res.send({
+              page: cleanFiles(contentResult),
+              search: { field: searchField, query: searchQuery },
+              total,
+              pages: Math.ceil(total / perpage),
+            });
+          }
+
           let tagFiles: string[] = [];
 
           if (searchField === 'tags') {
@@ -222,17 +254,19 @@ export default typedPlugin(
         const where = {
           userId: user.id,
           ...(Object.keys(createdAtFilter).length > 0 && { createdAt: createdAtFilter }),
-          ...(typePrefixes && typePrefixes.length > 0 && {
-            OR: typePrefixes.map((prefix) => ({ type: { startsWith: prefix } })),
-          }),
-          ...(filter === 'dashboard' && !typePrefixes && {
-            OR: [
-              { type: { startsWith: 'image/' } },
-              { type: { startsWith: 'video/' } },
-              { type: { startsWith: 'audio/' } },
-              { type: { startsWith: 'text/' } },
-            ],
-          }),
+          ...(typePrefixes &&
+            typePrefixes.length > 0 && {
+              OR: typePrefixes.map((prefix) => ({ type: { startsWith: prefix } })),
+            }),
+          ...(filter === 'dashboard' &&
+            !typePrefixes && {
+              OR: [
+                { type: { startsWith: 'image/' } },
+                { type: { startsWith: 'video/' } },
+                { type: { startsWith: 'audio/' } },
+                { type: { startsWith: 'text/' } },
+              ],
+            }),
           ...(favorite &&
             filter !== 'all' && {
               favorite: true,

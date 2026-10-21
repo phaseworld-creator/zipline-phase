@@ -28,9 +28,7 @@ export default function PublicUpload() {
   const { colorScheme } = useMantineColorScheme();
   const config = useConfig();
 
-  const [_options] = useUploadOptionsStore(
-    useShallow((state) => [state.options]),
-  );
+  const [_options] = useUploadOptionsStore(useShallow((state) => [state.options]));
 
   const [files, setFiles] = useState<File[]>([]);
   const [visibleCount, setVisibleCount] = useState(initialVisible);

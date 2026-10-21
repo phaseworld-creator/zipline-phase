@@ -132,20 +132,30 @@ function DiscordEmbedPreview({
             }}
           >
             {siteName && (
-              <Text style={{ color: '#dbdee1', fontSize: 12, marginBottom: 4 }}>
-                {resolveVar(siteName)}
-              </Text>
+              <Text style={{ color: '#dbdee1', fontSize: 12, marginBottom: 4 }}>{resolveVar(siteName)}</Text>
             )}
             {title && (
               <Text
-                style={{ color: '#00aff4', fontSize: 14, fontWeight: 600, marginBottom: 2, cursor: 'pointer' }}
+                style={{
+                  color: '#00aff4',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  marginBottom: 2,
+                  cursor: 'pointer',
+                }}
               >
                 {resolveVar(title)}
               </Text>
             )}
             {description && (
               <Text
-                style={{ color: '#dbdee1', fontSize: 14, marginTop: 4, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
+                style={{
+                  color: '#dbdee1',
+                  fontSize: 14,
+                  marginTop: 4,
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                }}
               >
                 {resolveVar(description)}
               </Text>

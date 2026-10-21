@@ -23,6 +23,8 @@ import { mapConcurrent } from '@/lib/mapConcurrent';
 import { runThumbnailWorkers } from '@/lib/tasks/run/thumbnails';
 import { parseHeaders, UploadHeaders } from '@/lib/uploader/parseHeaders';
 import { onUpload } from '@/lib/webhooks';
+import { extractTextContent } from '@/lib/text-extract';
+import { scanFile } from '@/lib/virus-scan';
 import { Prisma } from '@/prisma/client';
 import { userMiddleware } from '@/server/middleware/user';
 import typedPlugin from '@/server/typedPlugin';
@@ -263,7 +265,13 @@ export default typedPlugin(
             `file[${i}]`,
           ).mimetype;
 
-          let finalBuffer: Buffer | undefined = compressed?.buffer ?? (typeof file.filepath === 'string' ? await import('fs').then(fs => fs.promises.readFile(file.filepath)) : Buffer.isBuffer(file.filepath) ? file.filepath : undefined);
+          let finalBuffer: Buffer | undefined =
+            compressed?.buffer ??
+            (typeof file.filepath === 'string'
+              ? await import('fs').then((fs) => fs.promises.readFile(file.filepath))
+              : Buffer.isBuffer(file.filepath)
+                ? file.filepath
+                : undefined);
 
           // apply watermark if enabled and file is an image
           if (
@@ -304,7 +312,17 @@ export default typedPlugin(
 
         const password = options.password ? await hashPassword(options.password) : undefined;
         const uploads = prepared.map((item) => {
-          const { file, fileName, extension, mimetype, size, compressed, removedGps, originalName, watermarkedBuffer } = item as any;
+          const {
+            file,
+            fileName,
+            extension,
+            mimetype,
+            size,
+            compressed,
+            removedGps,
+            originalName,
+            watermarkedBuffer,
+          } = item as any;
 
           const data: Prisma.FileCreateInput = {
             name: `${fileName}${extension}`,
@@ -370,12 +388,52 @@ export default typedPlugin(
               throw new Error('No valid file data available');
             }
           }
-          
+
           await datasource.put(fileUpload.name, storageData, {
             mimetype: fileUpload.type,
           });
           if (typeof file.filepath === 'string' && datasource.name === 'local' && req.tmpUploads) {
             req.tmpUploads = req.tmpUploads.filter((path) => path !== file.filepath);
+          }
+
+          // Scan for malware before making the file available
+          if (config.features.virusScanning.enabled && typeof file.filepath === 'string') {
+            const scan = await scanFile(
+              file.filepath,
+              config.features.virusScanning.provider,
+              config.features.virusScanning.virusTotalApiKey,
+            );
+
+            if (!scan.clean) {
+              logger.warn('malware detected, deleting file', {
+                file: fileUpload.name,
+                threat: scan.threat,
+              });
+
+              await datasource.delete(fileUpload.name);
+              await prisma.file.delete({ where: { id: fileUpload.id } });
+
+              throw new ApiError(5004, `File rejected: malware detected (${scan.threat ?? 'unknown'})`);
+            }
+
+            if (scan.error) {
+              logger.warn('virus scan error, allowing file', { file: fileUpload.name, error: scan.error });
+            }
+          }
+
+          // Extract text content for full-text search
+          if (typeof file.filepath === 'string') {
+            try {
+              const { text } = await extractTextContent(file.filepath, fileUpload.type);
+              if (text && text.length > 0) {
+                await prisma.file.update({
+                  where: { id: fileUpload.id },
+                  data: { content: text },
+                });
+              }
+            } catch (err) {
+              logger.warn('text extraction failed', { error: String(err), file: fileUpload.name });
+            }
           }
 
           const urlPath =

@@ -1,6 +1,7 @@
 # Docker Helper Commands for Zipline
 
 ## Quick Start with Docker
+
 ```bash
 # Start Zipline containers (will auto-migrate on startup)
 pnpm docker:start
@@ -16,6 +17,7 @@ pnpm docker:restart
 ```
 
 ## Database Operations (Docker)
+
 ```bash
 # Manually run migrations inside Docker
 pnpm docker:migrate
@@ -28,6 +30,7 @@ pnpm docker:ctl
 ```
 
 ## Local Development (without Docker)
+
 ```bash
 # Build locally
 pnpm build
@@ -40,6 +43,7 @@ pnpm db:migrate
 ```
 
 ## Docker-Specific Commands
+
 ```bash
 # Build Docker images
 pnpm docker:build
@@ -63,15 +67,19 @@ pnpm docker:shell
 ## Troubleshooting
 
 ### Migration Issues in Docker
+
 If you see errors like "column does not exist":
 
 1. Check if migrations ran:
+
    ```bash
    pnpm docker:logs
    ```
+
    Look for: `[migrations] successfully applied X migration(s)`
 
 2. Manually run migrations:
+
    ```bash
    pnpm docker:migrate
    ```
@@ -82,12 +90,15 @@ If you see errors like "column does not exist":
    ```
 
 ### Database Connection Issues
+
 1. Check if PostgreSQL is running:
+
    ```bash
    docker compose ps
    ```
 
 2. Check database logs:
+
    ```bash
    docker compose logs postgresql
    ```
@@ -95,13 +106,16 @@ If you see errors like "column does not exist":
 3. Verify DATABASE_URL in your .env file
 
 ### Upload Issues
+
 If you see "invalid file name" errors after migrations, the database schema is likely outdated. Run:
+
 ```bash
 pnpm docker:migrate
 pnpm docker:restart
 ```
 
 ## Advanced Docker Commands
+
 ```bash
 # Get a shell inside the Zipline container
 docker compose exec zipline sh
@@ -133,6 +147,7 @@ The docker-compose.yml now uses sensible defaults:
 **Important:** Always set a strong `POSTGRESQL_PASSWORD` in your `.env` file for production!
 
 Example `.env`:
+
 ```env
 POSTGRESQL_USER=zipline
 POSTGRESQL_PASSWORD=your-secure-password-here

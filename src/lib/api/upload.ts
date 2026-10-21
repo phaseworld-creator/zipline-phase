@@ -133,11 +133,10 @@ export async function getFilename(
 
     let dateIncrement = 1;
 
-    while (
-      existing &&
-      (format === 'random' || format === 'date' || usedFallback)
-    ) {
-      fileName = usedFallback ? formatFileName('random') : formatFileName(format, originalName, dateIncrement++);
+    while (existing && (format === 'random' || format === 'date' || usedFallback)) {
+      fileName = usedFallback
+        ? formatFileName('random')
+        : formatFileName(format, originalName, dateIncrement++);
 
       // If fileName is still null/empty after trying to generate, use random as fallback
       if (!fileName) {

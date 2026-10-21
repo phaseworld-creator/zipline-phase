@@ -6,7 +6,18 @@ import { bytes } from '@/lib/bytes';
 import useLogin from '@/lib/client/hooks/useLogin';
 import { useSettingsStore } from '@/lib/client/store/settings';
 import { isAdministrator } from '@/lib/role';
-import { Alert, Button, Group, Paper, ScrollArea, SimpleGrid, Skeleton, Table, Text, Title } from '@mantine/core';
+import {
+  Alert,
+  Button,
+  Group,
+  Paper,
+  ScrollArea,
+  SimpleGrid,
+  Skeleton,
+  Table,
+  Text,
+  Title,
+} from '@mantine/core';
 import {
   IconBulb,
   IconDeviceSdCard,
@@ -58,7 +69,9 @@ export default function DashboardHome() {
             },
           }}
         >
-          <Text size='sm' style={{ whiteSpace: 'pre-wrap' }}>{motd}</Text>
+          <Text size='sm' style={{ whiteSpace: 'pre-wrap' }}>
+            {motd}
+          </Text>
         </Alert>
       )}
 

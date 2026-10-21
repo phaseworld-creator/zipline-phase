@@ -4,7 +4,11 @@ import { lintStep } from './lint';
 run(
   'build',
 
-  step('format', 'oxfmt --check', () => process.env.SKIP_FORMAT !== 'true' && process.env.ZIPLINE_BUILD !== 'true'),
+  step(
+    'format',
+    'oxfmt --check',
+    () => process.env.SKIP_FORMAT !== 'true' && process.env.ZIPLINE_BUILD !== 'true',
+  ),
   lintStep,
   step('prisma', 'prisma generate'),
   step('typecheck', 'tsc', () => !process.argv.includes('--skip')),

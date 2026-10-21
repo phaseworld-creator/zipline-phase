@@ -22,14 +22,14 @@ function decodeEmbedData(raw: string): EmbedData | null {
     const isShort = 't' in parsed || 'd' in parsed || 's' in parsed || 'i' in parsed;
     if (isShort) {
       return {
-        title:        parsed.t,
-        description:  parsed.d,
-        color:        parsed.c,
-        siteName:     parsed.s,
-        imageUrl:     parsed.i,
-        redirectUrl:  parsed.r,
+        title: parsed.t,
+        description: parsed.d,
+        color: parsed.c,
+        siteName: parsed.s,
+        imageUrl: parsed.i,
+        redirectUrl: parsed.r,
         redirectDelay: parsed.rd,
-        cardType:     parsed.ct,
+        cardType: parsed.ct,
       };
     }
     return parsed as EmbedData;
@@ -40,11 +40,7 @@ function decodeEmbedData(raw: string): EmbedData | null {
 
 function esc(str?: string): string {
   if (!str) return '';
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+  return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function buildEmbedHtml(d: EmbedData, pageUrl: string): string {
@@ -52,22 +48,25 @@ function buildEmbedHtml(d: EmbedData, pageUrl: string): string {
   const cardType = d.cardType || 'website';
 
   const ogMeta = [
-    d.title       ? `<meta property="og:title"       content="${esc(d.title)}" />`       : '',
+    d.title ? `<meta property="og:title"       content="${esc(d.title)}" />` : '',
     d.description ? `<meta property="og:description" content="${esc(d.description)}" />` : '',
-    d.siteName    ? `<meta property="og:site_name"   content="${esc(d.siteName)}" />`    : '',
-    d.imageUrl    ? `<meta property="og:image"       content="${esc(d.imageUrl)}" />`    : '',
+    d.siteName ? `<meta property="og:site_name"   content="${esc(d.siteName)}" />` : '',
+    d.imageUrl ? `<meta property="og:image"       content="${esc(d.imageUrl)}" />` : '',
     cardType === 'summary_large_image' && d.imageUrl
-                  ? `<meta name="twitter:card"       content="summary_large_image" />`
-                  : `<meta name="twitter:card"       content="summary" />`,
-    d.imageUrl    ? `<meta name="twitter:image"      content="${esc(d.imageUrl)}" />`    : '',
-                    `<meta property="og:url"         content="${esc(pageUrl)}" />`,
-                    `<meta name="theme-color"        content="${esc(color)}" />`,
-                    `<meta property="og:type"        content="${esc(cardType === 'summary_large_image' ? 'website' : cardType)}" />`,
-  ].filter(Boolean).join('\n    ');
+      ? `<meta name="twitter:card"       content="summary_large_image" />`
+      : `<meta name="twitter:card"       content="summary" />`,
+    d.imageUrl ? `<meta name="twitter:image"      content="${esc(d.imageUrl)}" />` : '',
+    `<meta property="og:url"         content="${esc(pageUrl)}" />`,
+    `<meta name="theme-color"        content="${esc(color)}" />`,
+    `<meta property="og:type"        content="${esc(cardType === 'summary_large_image' ? 'website' : cardType)}" />`,
+  ]
+    .filter(Boolean)
+    .join('\n    ');
 
   // Auto-redirect script
-  const redirectScript = d.redirectUrl && d.redirectDelay
-    ? `
+  const redirectScript =
+    d.redirectUrl && d.redirectDelay
+      ? `
     <script>
       let countdown = ${d.redirectDelay};
       const countdownEl = document.getElementById('countdown');
@@ -80,14 +79,14 @@ function buildEmbedHtml(d: EmbedData, pageUrl: string): string {
         }
       }, 1000);
     </script>`
-    : '';
+      : '';
 
   // Build inner card HTML pieces
   const siteNameHtml = d.siteName ? `<div class="site-name">${esc(d.siteName)}</div>` : '';
-  const titleHtml    = d.title    ? `<div class="embed-title">${esc(d.title)}</div>`    : '';
-  const descHtml     = d.description ? `<div class="embed-desc">${esc(d.description)}</div>` : '';
-  const imageHtml    = d.imageUrl ? `<img class="embed-image" src="${esc(d.imageUrl)}" alt="" />` : '';
-  
+  const titleHtml = d.title ? `<div class="embed-title">${esc(d.title)}</div>` : '';
+  const descHtml = d.description ? `<div class="embed-desc">${esc(d.description)}</div>` : '';
+  const imageHtml = d.imageUrl ? `<img class="embed-image" src="${esc(d.imageUrl)}" alt="" />` : '';
+
   const redirectBanner = d.redirectUrl
     ? `<div class="redirect-banner">Redirecting in <span id="countdown">${d.redirectDelay || 5}</span> seconds...</div>`
     : '';

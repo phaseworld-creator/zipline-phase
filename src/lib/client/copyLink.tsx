@@ -20,7 +20,11 @@ function execCommandFallback(text: string) {
   document.body.appendChild(ta);
   ta.focus();
   ta.select();
-  try { document.execCommand('copy'); } catch { /* nothing we can do */ }
+  try {
+    document.execCommand('copy');
+  } catch {
+    /* nothing we can do */
+  }
   document.body.removeChild(ta);
 }
 

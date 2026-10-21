@@ -221,7 +221,14 @@ export default typedPlugin(
             featuresWatermarkEnabled: z.boolean(),
             featuresWatermarkText: z.string().nullable(),
             featuresWatermarkImage: z.string().nullable(),
-            featuresWatermarkPosition: z.enum(['center', 'top-left', 'top-right', 'bottom-left', 'bottom-right', 'tile']),
+            featuresWatermarkPosition: z.enum([
+              'center',
+              'top-left',
+              'top-right',
+              'bottom-left',
+              'bottom-right',
+              'tile',
+            ]),
             featuresWatermarkOpacity: z.number().min(0).max(100),
 
             featuresThumbnailsEnabled: z.boolean(),

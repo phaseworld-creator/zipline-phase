@@ -65,10 +65,9 @@ export default function UploadFile({ title, folder }: { title?: string; folder?:
       if (!e.clipboardData.items[i].type.startsWith('image')) return;
       const blob = e.clipboardData.items[i].getAsFile();
       if (!blob) return;
-      const file =
-        blob.name
-          ? blob
-          : new File([blob], `clipboard-${Date.now()}.png`, { type: blob.type || 'image/png' });
+      const file = blob.name
+        ? blob
+        : new File([blob], `clipboard-${Date.now()}.png`, { type: blob.type || 'image/png' });
       setFiles((prev) => [...prev, file]);
       setVisibleCount(initialVisible);
       showNotification({ message: `Image ${file.name} pasted from clipboard`, color: 'blue' });
@@ -79,7 +78,9 @@ export default function UploadFile({ title, folder }: { title?: string; folder?:
     const effectiveFiles = files.map((f, i) => editedFiles.get(i) ?? f);
     const maxBytes = config.chunks.enabled && bytes(config.chunks.max);
     const partialUploads: File[] = maxBytes ? effectiveFiles.filter((file) => file.size >= maxBytes) : [];
-    const normalUploads: File[] = maxBytes ? effectiveFiles.filter((file) => file.size < maxBytes) : effectiveFiles;
+    const normalUploads: File[] = maxBytes
+      ? effectiveFiles.filter((file) => file.size < maxBytes)
+      : effectiveFiles;
     const hasBoth = normalUploads.length > 0 && partialUploads.length > 0;
 
     let uploadedNormal: Awaited<ReturnType<typeof uploadFiles>> = null;
@@ -257,11 +258,7 @@ export default function UploadFile({ title, folder }: { title?: string; folder?:
                   return next;
                 });
               }}
-              onEdit={
-                file.type.startsWith('image/')
-                  ? () => setEditingIndex(i)
-                  : undefined
-              }
+              onEdit={file.type.startsWith('image/') ? () => setEditingIndex(i) : undefined}
             />
           </Grid.Col>
         ))}

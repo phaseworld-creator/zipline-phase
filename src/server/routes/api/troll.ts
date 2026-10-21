@@ -29,7 +29,11 @@ export default typedPlugin(
         schema: {
           tags: ['admin'],
           body: z.object({
-            alias: z.string().min(1).max(64).regex(/^[\w-]+$/, 'Only letters, numbers, - and _ allowed'),
+            alias: z
+              .string()
+              .min(1)
+              .max(64)
+              .regex(/^[\w-]+$/, 'Only letters, numbers, - and _ allowed'),
             mediaUrl: z.string().url(),
             mediaType: z.enum(MEDIA_TYPES),
             label: z.string().max(80).default(''),

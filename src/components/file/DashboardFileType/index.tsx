@@ -16,15 +16,34 @@ import {
   Text,
 } from '@mantine/core';
 import type { Icon } from '@tabler/icons-react';
-import { IconPlayerPlay, IconShieldLockFilled, IconLock, IconFlame } from '@tabler/icons-react';
+import {
+  IconPlayerPlay,
+  IconShieldLockFilled,
+  IconLock,
+  IconFlame,
+  IconTable,
+  IconFileText,
+} from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import fileIcon from '../fileIcon';
 import FileZoomModal from './FileZoomModal';
 import FullscreenFrame from './FullscreenFrame';
 import useFileContents from './useFileContent';
 import useFileUrls, { isDbFile } from './useFileUrls';
+import SpreadsheetViewer from './SpreadsheetViewer';
+import DocxViewer from './DocxViewer';
 
-export function Placeholder({ text, Icon, extra, ...props }: { text: string; Icon: Icon; extra?: React.ReactNode; onClick?: () => void }) {
+export function Placeholder({
+  text,
+  Icon,
+  extra,
+  ...props
+}: {
+  text: string;
+  Icon: Icon;
+  extra?: React.ReactNode;
+  onClick?: () => void;
+}) {
   return (
     <Center py='xs' style={{ height: '100%', width: '100%', cursor: 'pointer' }} {...props}>
       <Stack align='center'>
@@ -264,6 +283,23 @@ export default function DashboardFileType({
     );
   }
 
+  // Spreadsheet viewer (XLSX, CSV) - check before text type since CSV is text/csv
+  const isSpreadsheet =
+    file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+    ['xlsx', 'csv'].includes(extension);
+
+  if (isSpreadsheet) {
+    if (!fileUrl) return <Loader />;
+    return show ? (
+      <FullscreenFrame fullscreen={fullscreen}>
+        <SpreadsheetViewer fileUrl={fileUrl} />
+      </FullscreenFrame>
+    ) : (
+      <Placeholder text={`Click to view spreadsheet ${file.name}`} Icon={IconTable} />
+    );
+  }
+
+  // DOCX viewer
   if (type === 'text') {
     if (!show) return <Placeholder text={`Click to view text ${file.name}`} Icon={fileIcon(file.type)} />;
 
@@ -326,6 +362,21 @@ export default function DashboardFileType({
       )
     ) : (
       <Placeholder text={`Click to view PDF ${file.name}`} Icon={fileIcon(file.type)} />
+    );
+  }
+
+  // DOCX viewer
+  if (
+    file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+    extension === 'docx'
+  ) {
+    if (!fileUrl) return <Loader />;
+    return show ? (
+      <FullscreenFrame fullscreen={fullscreen}>
+        <DocxViewer fileUrl={fileUrl} />
+      </FullscreenFrame>
+    ) : (
+      <Placeholder text={`Click to view document ${file.name}`} Icon={IconFileText} />
     );
   }
 

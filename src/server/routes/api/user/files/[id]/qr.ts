@@ -32,10 +32,7 @@ export default typedPlugin(
         });
         if (!file) throw new ApiError(4000);
 
-        if (
-          req.user.id !== file.userId &&
-          !canInteract(req.user.role, file.User?.role ?? 'USER')
-        )
+        if (req.user.id !== file.userId && !canInteract(req.user.role, file.User?.role ?? 'USER'))
           throw new ApiError(4000);
 
         const host = config.core.defaultDomain || req.headers.host || 'localhost';

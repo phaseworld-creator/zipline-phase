@@ -312,11 +312,16 @@ model File {
   type         String
   views        Int     @default(0)
   maxViews     Int?
+  downloads    Int     @default(0)
+  maxDownloads Int?
+  allowedIps   String[] @default([])
+  blockedReferers String[] @default([])
   favorite     Boolean @default(false)
   password     String?
   anonymous    Boolean @default(false)
   encrypted    Boolean @default(false)
   oneTimeView  Boolean @default(false)
+  content      String?   // extracted text content for full-text search
 
   tags Tag[]
 

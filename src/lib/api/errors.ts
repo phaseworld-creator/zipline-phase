@@ -97,6 +97,8 @@ export const API_ERRORS = {
   3017: 'OAuth login is not allowed for this account',
   3018: 'Invalid access token provided.',
   3019: 'You cannot modify this user',
+  3020: 'Access denied: referer blocked',
+  3021: 'Download limit exceeded',
 
   // 4xxx, not founds
   4000: 'File not found',
@@ -116,6 +118,7 @@ export const API_ERRORS = {
   5000: 'File size exceeds the configured limit',
   5001: 'File is too large',
   5002: 'Storage quota exceeded',
+  5004: 'Malware detected in uploaded file',
 
   // 6xxx, internal errors
   6000: 'Failed to delete invite',

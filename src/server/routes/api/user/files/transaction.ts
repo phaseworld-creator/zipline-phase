@@ -44,7 +44,7 @@ export default typedPlugin(
             favorite: z.boolean().optional(),
             folder: z.string().optional(),
             tags: z.array(z.string()).optional(), // add/set tags on all files
-            clearFolder: z.boolean().optional(),  // remove from folder
+            clearFolder: z.boolean().optional(), // remove from folder
           }),
           response: {
             200: z.object({

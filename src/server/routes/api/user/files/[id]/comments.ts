@@ -63,10 +63,7 @@ export default typedPlugin(
         });
         if (!file) throw new ApiError(4000);
 
-        if (
-          req.user.id !== file.userId &&
-          !canInteract(req.user.role, file.User?.role ?? 'USER')
-        )
+        if (req.user.id !== file.userId && !canInteract(req.user.role, file.User?.role ?? 'USER'))
           throw new ApiError(4000);
 
         const { page, perpage } = req.query;
@@ -117,10 +114,7 @@ export default typedPlugin(
         });
         if (!file) throw new ApiError(4000);
 
-        if (
-          req.user.id !== file.userId &&
-          !canInteract(req.user.role, file.User?.role ?? 'USER')
-        )
+        if (req.user.id !== file.userId && !canInteract(req.user.role, file.User?.role ?? 'USER'))
           throw new ApiError(4000);
 
         const comment = await prisma.fileComment.create({

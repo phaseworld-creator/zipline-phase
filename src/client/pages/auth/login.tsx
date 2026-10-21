@@ -223,8 +223,8 @@ export default function Login() {
       {!isHttps && config.returnHttps && (
         <Box pos='fixed' top={10} left='50%' style={{ transform: 'translateX(-50%)', zIndex: 10 }}>
           <Text size='sm' c='red' ta='center'>
-            You are accessing this instance through an <b>insecure</b> context but the server is configured
-            to use HTTPS. Click <Anchor onClick={() => setSecureModal(true)}>here</Anchor> to learn more.
+            You are accessing this instance through an <b>insecure</b> context but the server is configured to
+            use HTTPS. Click <Anchor onClick={() => setSecureModal(true)}>here</Anchor> to learn more.
           </Text>
         </Box>
       )}
@@ -322,7 +322,9 @@ export default function Login() {
             >
               {config.website.title ?? 'Zipline'}
             </h1>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', margin: 0 }}>Sign in to your account</p>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', margin: 0 }}>
+              Sign in to your account
+            </p>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -369,10 +371,7 @@ export default function Login() {
                     />
                   )}
                   {config.oauthEnabled.oidc && (
-                    <ExternalAuthButton
-                      provider='OIDC'
-                      leftSection={<IconCircleKeyFilled size='1.1rem' />}
-                    />
+                    <ExternalAuthButton provider='OIDC' leftSection={<IconCircleKeyFilled size='1.1rem' />} />
                   )}
                 </Group>
 
@@ -389,7 +388,9 @@ export default function Login() {
           </div>
         </div>
 
-        <p style={{ marginTop: '24px', color: 'var(--text-faint)', fontSize: '0.75rem', textAlign: 'center' }}>
+        <p
+          style={{ marginTop: '24px', color: 'var(--text-faint)', fontSize: '0.75rem', textAlign: 'center' }}
+        >
           Zipline — Open source file hosting
         </p>
       </div>

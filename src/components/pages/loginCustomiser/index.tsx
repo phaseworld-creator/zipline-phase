@@ -53,7 +53,7 @@ function ParticleCanvas() {
 
     function animate() {
       if (!canvas || !ctx) return;
-      
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Update and draw particles
@@ -151,8 +151,7 @@ function LoginPreview({
         style={{
           position: 'absolute',
           inset: 0,
-          backgroundImage:
-            'radial-gradient(circle, rgba(99,102,241,0.15) 1px, transparent 1px)',
+          backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.15) 1px, transparent 1px)',
           backgroundSize: '28px 28px',
           zIndex: 0,
         }}
@@ -185,8 +184,7 @@ function LoginPreview({
           width: '100%',
           maxWidth: 340,
           padding: '32px 28px',
-          background:
-            'linear-gradient(135deg, rgba(129,140,248,0.06) 0%, rgba(3,7,18,0.85) 100%)',
+          background: 'linear-gradient(135deg, rgba(129,140,248,0.06) 0%, rgba(3,7,18,0.85) 100%)',
           border: '1px solid rgba(99,102,241,0.18)',
           borderRadius: 16,
           backdropFilter: 'blur(12px)',
@@ -269,9 +267,7 @@ function LoginPreview({
       </Box>
 
       {/* Custom CSS injection (for preview) */}
-      {customCss && (
-        <style dangerouslySetInnerHTML={{ __html: customCss }} />
-      )}
+      {customCss && <style dangerouslySetInnerHTML={{ __html: customCss }} />}
     </Box>
   );
 }

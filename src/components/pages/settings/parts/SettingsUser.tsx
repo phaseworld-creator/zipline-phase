@@ -93,9 +93,15 @@ function Form({ user, setUser, token }: { user: User; setUser: (u: User) => void
       const MAX = 256;
       let { width, height } = img;
       if (width > height) {
-        if (width > MAX) { height = Math.round((height * MAX) / width); width = MAX; }
+        if (width > MAX) {
+          height = Math.round((height * MAX) / width);
+          width = MAX;
+        }
       } else {
-        if (height > MAX) { width = Math.round((width * MAX) / height); height = MAX; }
+        if (height > MAX) {
+          width = Math.round((width * MAX) / height);
+          height = MAX;
+        }
       }
 
       const canvas = document.createElement('canvas');
@@ -214,7 +220,9 @@ function Form({ user, setUser, token }: { user: User; setUser: (u: User) => void
 
       {/* ── Avatar ── */}
       <Box mb='md'>
-        <Text size='sm' fw={600} mb='xs'>Profile Picture</Text>
+        <Text size='sm' fw={600} mb='xs'>
+          Profile Picture
+        </Text>
         <Group gap='md' align='flex-end'>
           <Avatar
             src={avatarPreview ?? currentAvatar ?? null}
@@ -227,12 +235,7 @@ function Form({ user, setUser, token }: { user: User; setUser: (u: User) => void
           <Stack gap='xs'>
             <FileButton resetRef={resetRef} onChange={handleAvatarFile} accept='image/*'>
               {(props) => (
-                <Button
-                  {...props}
-                  size='xs'
-                  variant='light'
-                  leftSection={<IconPhoto size='0.85rem' />}
-                >
+                <Button {...props} size='xs' variant='light' leftSection={<IconPhoto size='0.85rem' />}>
                   Choose image
                 </Button>
               )}
@@ -297,8 +300,8 @@ function Form({ user, setUser, token }: { user: User; setUser: (u: User) => void
               mb='xs'
               styles={{ message: { fontSize: '0.8rem' } }}
             >
-              The reset key permanently deletes all users and restores first-time setup mode.
-              Keep it private — anyone with it and access to your URL can wipe the instance.
+              The reset key permanently deletes all users and restores first-time setup mode. Keep it private
+              — anyone with it and access to your URL can wipe the instance.
             </Alert>
             <Box
               style={{
@@ -309,7 +312,9 @@ function Form({ user, setUser, token }: { user: User; setUser: (u: User) => void
             >
               <Group gap='xs' mb={4}>
                 <IconLock size='0.85rem' style={{ color: 'var(--mantine-color-dimmed)' }} />
-                <Text size='xs' fw={600} c='dimmed'>Reset Key</Text>
+                <Text size='xs' fw={600} c='dimmed'>
+                  Reset Key
+                </Text>
               </Group>
               <Group gap='xs' align='center'>
                 <Code
@@ -322,15 +327,18 @@ function Form({ user, setUser, token }: { user: User; setUser: (u: User) => void
                   }}
                   onClick={() => setResetKeyShown((v) => !v)}
                 >
-                  {resetKey
-                    ? (resetKeyShown ? resetKey : '•'.repeat(32) + ' [click to reveal]')
-                    : 'Loading…'}
+                  {resetKey ? (resetKeyShown ? resetKey : '•'.repeat(32) + ' [click to reveal]') : 'Loading…'}
                 </Code>
                 {resetKey && (
                   <SafeCopyButton value={resetKey} timeout={1500}>
                     {({ copied, copy }) => (
                       <Tooltip label={copied ? 'Copied!' : 'Copy reset key'}>
-                        <ActionIcon size='sm' variant='subtle' color={copied ? 'teal' : 'gray'} onClick={copy}>
+                        <ActionIcon
+                          size='sm'
+                          variant='subtle'
+                          color={copied ? 'teal' : 'gray'}
+                          onClick={copy}
+                        >
                           {copied ? <IconCheck size='0.85rem' /> : <IconCopy size='0.85rem' />}
                         </ActionIcon>
                       </Tooltip>
@@ -348,8 +356,12 @@ function Form({ user, setUser, token }: { user: User; setUser: (u: User) => void
                 }}
               >
                 <Group gap='xs' mb={4}>
-                  <Text size='xs' fw={600} c='dimmed'>Reset URL</Text>
-                  <Text size='xs' c='dimmed'>(visit this to wipe the instance)</Text>
+                  <Text size='xs' fw={600} c='dimmed'>
+                    Reset URL
+                  </Text>
+                  <Text size='xs' c='dimmed'>
+                    (visit this to wipe the instance)
+                  </Text>
                 </Group>
                 <Group gap='xs' align='center'>
                   <Code
@@ -360,13 +372,20 @@ function Form({ user, setUser, token }: { user: User; setUser: (u: User) => void
                       letterSpacing: '0.03em',
                     }}
                   >
-                    {resetKeyShown ? resetUrl : `${typeof window !== 'undefined' ? window.location.origin : ''}/api/admin/reset/[hidden]`}
+                    {resetKeyShown
+                      ? resetUrl
+                      : `${typeof window !== 'undefined' ? window.location.origin : ''}/api/admin/reset/[hidden]`}
                   </Code>
                   {resetKey && (
                     <SafeCopyButton value={resetUrl} timeout={1500}>
                       {({ copied, copy }) => (
                         <Tooltip label={copied ? 'Copied!' : 'Copy reset URL'}>
-                          <ActionIcon size='sm' variant='subtle' color={copied ? 'teal' : 'gray'} onClick={copy}>
+                          <ActionIcon
+                            size='sm'
+                            variant='subtle'
+                            color={copied ? 'teal' : 'gray'}
+                            onClick={copy}
+                          >
                             {copied ? <IconCheck size='0.85rem' /> : <IconCopy size='0.85rem' />}
                           </ActionIcon>
                         </Tooltip>

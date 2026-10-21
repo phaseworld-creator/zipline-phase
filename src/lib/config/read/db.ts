@@ -66,6 +66,16 @@ export const DATABASE_TO_PROP = {
 
   featuresVersionChecking: 'features.versionChecking',
 
+  featuresVirusScanningEnabled: 'features.virusScanning.enabled',
+  featuresVirusScanningProvider: 'features.virusScanning.provider',
+  featuresVirusScanningVirusTotalApiKey: 'features.virusScanning.virusTotalApiKey',
+
+  featuresAdvancedSharingEnabled: 'features.advancedSharing.enabled',
+  featuresAdvancedSharingExpireAfterViews: 'features.advancedSharing.expireAfterViews',
+  featuresAdvancedSharingExpireAfterDownloads: 'features.advancedSharing.expireAfterDownloads',
+  featuresAdvancedSharingAllowedIps: 'features.advancedSharing.allowedIps',
+  featuresAdvancedSharingBlockedReferers: 'features.advancedSharing.blockedReferers',
+
   invitesEnabled: 'invites.enabled',
   invitesLength: 'invites.length',
 

@@ -25,16 +25,22 @@ export function interactableRoles(current?: Role): Role[] {
 
 export function roleName(role?: Role) {
   switch (role) {
-    case 'ADMIN': return 'Admin';
-    case 'USER':  return 'User';
-    default:      return 'User';
+    case 'ADMIN':
+      return 'Admin';
+    case 'USER':
+      return 'User';
+    default:
+      return 'User';
   }
 }
 
 export function roleRank(role?: Role): number {
   switch (role) {
-    case 'ADMIN': return 2;
-    case 'USER':  return 1;
-    default:      return 0;
+    case 'ADMIN':
+      return 2;
+    case 'USER':
+      return 1;
+    default:
+      return 0;
   }
 }

@@ -33,8 +33,8 @@ const publicUploadResponseSchema = z.object({
 export default typedPlugin(
   async (server) => {
     server.post<{
-      Headers: UploadHeaders,
-      Response: { 200: typeof publicUploadResponseSchema },
+      Headers: UploadHeaders;
+      Response: { 200: typeof publicUploadResponseSchema };
     }>(
       PATH,
       {
@@ -43,12 +43,14 @@ export default typedPlugin(
           consumes: ['multipart/form-data'],
           response: {
             200: z.object({
-              files: z.array(z.object({
-                id: z.string(),
-                name: z.string(),
-                type: z.string(),
-                url: z.string(),
-              })),
+              files: z.array(
+                z.object({
+                  id: z.string(),
+                  name: z.string(),
+                  type: z.string(),
+                  url: z.string(),
+                }),
+              ),
             }),
           },
         },
@@ -66,7 +68,8 @@ export default typedPlugin(
 
         const totalFileSize = files.reduce((acc, x) => acc + x.file.bytesRead, 0);
         const quotaCheck = await checkQuota(null, totalFileSize, files.length);
-        if (quotaCheck !== true) throw new ApiError(5002, typeof quotaCheck === 'string' ? quotaCheck : undefined);
+        if (quotaCheck !== true)
+          throw new ApiError(5002, typeof quotaCheck === 'string' ? quotaCheck : undefined);
 
         const response: ApiPublicUploadResponse = {
           files: [],
@@ -75,7 +78,7 @@ export default typedPlugin(
         const reservedNames = new Set<string>();
         const format = options.format || config.files.defaultFormat;
         const filesBefore: {
-          file: typeof files[0];
+          file: (typeof files)[0];
           fileName: string;
           extension: string;
           mimetype: string;
@@ -144,7 +147,7 @@ export default typedPlugin(
         });
 
         return res.send(response);
-      }
+      },
     );
   },
   { name: PATH },

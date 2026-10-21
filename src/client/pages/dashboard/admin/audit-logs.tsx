@@ -2,17 +2,7 @@
  * /dashboard/admin/audit-logs — paginated audit log viewer for admins.
  */
 import { fetchApi } from '@/lib/fetchApi';
-import {
-  Badge,
-  Container,
-  Group,
-  Loader,
-  Pagination,
-  Table,
-  Text,
-  TextInput,
-  Title,
-} from '@mantine/core';
+import { Badge, Container, Group, Loader, Pagination, Table, Text, TextInput, Title } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconSearch, IconShieldCheck } from '@tabler/icons-react';
 import { useState } from 'react';
@@ -69,7 +59,10 @@ export function Component() {
           placeholder='Filter by action…'
           leftSection={<IconSearch size='1rem' />}
           value={actionFilter}
-          onChange={(e) => { setActionFilter(e.currentTarget.value); setPage(1); }}
+          onChange={(e) => {
+            setActionFilter(e.currentTarget.value);
+            setPage(1);
+          }}
           w={220}
           size='sm'
         />
@@ -100,11 +93,7 @@ export function Component() {
                     </Text>
                   </Table.Td>
                   <Table.Td>
-                    <Badge
-                      color={ACTION_COLORS[log.action] ?? 'gray'}
-                      variant='light'
-                      size='sm'
-                    >
+                    <Badge color={ACTION_COLORS[log.action] ?? 'gray'} variant='light' size='sm'>
                       {log.action}
                     </Badge>
                   </Table.Td>
@@ -113,12 +102,20 @@ export function Component() {
                   </Table.Td>
                   <Table.Td>
                     <Text size='xs' c='dimmed'>
-                      {log.targetType && <Badge size='xs' mr={4}>{log.targetType}</Badge>}
+                      {log.targetType && (
+                        <Badge size='xs' mr={4}>
+                          {log.targetType}
+                        </Badge>
+                      )}
                       {log.targetId}
                     </Text>
                   </Table.Td>
                   <Table.Td>
-                    <Text size='xs' c='dimmed' style={{ fontFamily: 'monospace', maxWidth: 300, wordBreak: 'break-all' }}>
+                    <Text
+                      size='xs'
+                      c='dimmed'
+                      style={{ fontFamily: 'monospace', maxWidth: 300, wordBreak: 'break-all' }}
+                    >
                       {JSON.stringify(log.meta)}
                     </Text>
                   </Table.Td>

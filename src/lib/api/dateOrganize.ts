@@ -12,8 +12,7 @@ export async function getOrCreateDateFolder(userId: string): Promise<string> {
 
   // Year folder
   let yearFolder = await prisma.folder.findFirst({ where: { userId, name: year, parentId: null } });
-  if (!yearFolder)
-    yearFolder = await prisma.folder.create({ data: { userId, name: year } });
+  if (!yearFolder) yearFolder = await prisma.folder.create({ data: { userId, name: year } });
 
   // Month folder
   let monthFolder = await prisma.folder.findFirst({

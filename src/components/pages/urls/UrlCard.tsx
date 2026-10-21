@@ -55,36 +55,36 @@ export default function UrlCard({
                   </Menu.Target>
                 </Group>
 
-              <Menu.Dropdown>
-                <Menu.Item
-                  leftSection={<IconCopy size='1rem' />}
-                  onClick={() => copyUrl(url, config, clipboard)}
-                >
-                  Copy short link
-                </Menu.Item>
-                <Menu.Item
-                  leftSection={<IconCopy size='1rem' />}
-                  onClick={() => clipboard.copy(url.destination.trim())}
-                >
-                  Copy destination
-                </Menu.Item>
-                <Menu.Item leftSection={<IconQrcode size='1rem' />} onClick={() => setQrOpen(url)}>
-                  Show QR code
-                </Menu.Item>
-                <Menu.Item leftSection={<IconPencil size='1rem' />} onClick={() => setSelectedUrl(url)}>
-                  Edit
-                </Menu.Item>
-                <Menu.Item
-                  leftSection={<IconTrashFilled size='1rem' />}
-                  color='red'
-                  onClick={() => deleteUrl(warnDeletion, url)}
-                >
-                  Delete
-                </Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
+                <Menu.Dropdown>
+                  <Menu.Item
+                    leftSection={<IconCopy size='1rem' />}
+                    onClick={() => copyUrl(url, config, clipboard)}
+                  >
+                    Copy short link
+                  </Menu.Item>
+                  <Menu.Item
+                    leftSection={<IconCopy size='1rem' />}
+                    onClick={() => clipboard.copy(url.destination.trim())}
+                  >
+                    Copy destination
+                  </Menu.Item>
+                  <Menu.Item leftSection={<IconQrcode size='1rem' />} onClick={() => setQrOpen(url)}>
+                    Show QR code
+                  </Menu.Item>
+                  <Menu.Item leftSection={<IconPencil size='1rem' />} onClick={() => setSelectedUrl(url)}>
+                    Edit
+                  </Menu.Item>
+                  <Menu.Item
+                    leftSection={<IconTrashFilled size='1rem' />}
+                    color='red'
+                    onClick={() => deleteUrl(warnDeletion, url)}
+                  >
+                    Delete
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+            </Group>
           </Group>
-        </Group>
         </Card.Section>
 
         <Card.Section inheritPadding py='xs'>

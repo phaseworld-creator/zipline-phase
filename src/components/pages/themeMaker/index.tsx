@@ -62,15 +62,29 @@ type ThemeDraft = {
 
 /* ─── Defaults ───────────────────────────────────────────────── */
 const DEFAULT_DARK_SHADES: ColorShades = [
-  '#f8fafc', '#94a3b8', '#475569', '#334155',
-  '#1e293b', '#0f172a', '#0d1220', '#080d18',
-  '#050810', '#030712',
+  '#f8fafc',
+  '#94a3b8',
+  '#475569',
+  '#334155',
+  '#1e293b',
+  '#0f172a',
+  '#0d1220',
+  '#080d18',
+  '#050810',
+  '#030712',
 ];
 
 const DEFAULT_PRIMARY_SHADES: ColorShades = [
-  '#f0f0ff', '#e0e0fe', '#c7c8fd', '#a5a8fb',
-  '#818cf8', '#6366f1', '#4f46e5', '#4338ca',
-  '#3730a3', '#312e81',
+  '#f0f0ff',
+  '#e0e0fe',
+  '#c7c8fd',
+  '#a5a8fb',
+  '#818cf8',
+  '#6366f1',
+  '#4f46e5',
+  '#4338ca',
+  '#3730a3',
+  '#312e81',
 ];
 
 const INITIAL: ThemeDraft = {
@@ -92,8 +106,30 @@ const PRESETS: { label: string; draft: Partial<ThemeDraft> }[] = [
     draft: {
       colorScheme: 'dark',
       mainBackgroundColor: '#030712',
-      primaryShades: ['#f0f0ff','#e0e0fe','#c7c8fd','#a5a8fb','#818cf8','#6366f1','#4f46e5','#4338ca','#3730a3','#312e81'] as ColorShades,
-      darkShades: ['#f8fafc','#94a3b8','#475569','#334155','#1e293b','#0f172a','#0d1220','#080d18','#050810','#030712'] as ColorShades,
+      primaryShades: [
+        '#f0f0ff',
+        '#e0e0fe',
+        '#c7c8fd',
+        '#a5a8fb',
+        '#818cf8',
+        '#6366f1',
+        '#4f46e5',
+        '#4338ca',
+        '#3730a3',
+        '#312e81',
+      ] as ColorShades,
+      darkShades: [
+        '#f8fafc',
+        '#94a3b8',
+        '#475569',
+        '#334155',
+        '#1e293b',
+        '#0f172a',
+        '#0d1220',
+        '#080d18',
+        '#050810',
+        '#030712',
+      ] as ColorShades,
     },
   },
   {
@@ -140,97 +176,97 @@ const PRESETS: { label: string; draft: Partial<ThemeDraft> }[] = [
       fontFamily: "'Space Grotesk', system-ui, sans-serif",
       headingFontFamily: "'Space Grotesk', system-ui, sans-serif",
       extraCss: [
-        "/* ── PhaseWorld Site theme ── */",
+        '/* ── PhaseWorld Site theme ── */',
         "@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Newsreader:ital,wght@0,400;0,500;1,400&family=Space+Mono:wght@400;700&display=swap');",
-        "",
-        "/* Token layer — matches the PhaseWorld UI contract */",
+        '',
+        '/* Token layer — matches the PhaseWorld UI contract */',
         ":root, [data-mantine-color-scheme='dark'] {",
-        "  --pw-bg:          #0d0d0f;",
-        "  --pw-bg-2:        #131316;",
-        "  --pw-bg-3:        #1b1b1f;",
-        "  --pw-line:        #26262b;",
-        "  --pw-line-2:      #36363e;",
-        "  --pw-fg:          #f0efec;",
-        "  --pw-fg-2:        #a9a7a1;",
-        "  --pw-fg-3:        #6e6c67;",
-        "  --pw-accent:      #ff5b2e;",
-        "  --pw-accent-wash: rgba(255,91,46,.12);",
-        "  --pw-signal:      #35c759;",
-        "}",
-        "",
-        "/* Override Mantine surface variables to use the PhaseWorld palette */",
+        '  --pw-bg:          #0d0d0f;',
+        '  --pw-bg-2:        #131316;',
+        '  --pw-bg-3:        #1b1b1f;',
+        '  --pw-line:        #26262b;',
+        '  --pw-line-2:      #36363e;',
+        '  --pw-fg:          #f0efec;',
+        '  --pw-fg-2:        #a9a7a1;',
+        '  --pw-fg-3:        #6e6c67;',
+        '  --pw-accent:      #ff5b2e;',
+        '  --pw-accent-wash: rgba(255,91,46,.12);',
+        '  --pw-signal:      #35c759;',
+        '}',
+        '',
+        '/* Override Mantine surface variables to use the PhaseWorld palette */',
         "[data-mantine-color-scheme='dark'] {",
-        "  --mantine-color-body:           var(--pw-bg);",
-        "  --mantine-color-dark-filled:     var(--pw-bg-2);",
-        "  --mantine-color-dark-hover:      var(--pw-bg-3);",
-        "  --mantine-color-dark-text:       var(--pw-fg);",
-        "  --mantine-color-default-border:  var(--pw-line);",
-        "}",
-        "",
-        "/* Hard-edge structure: no shadows, no gradients on flat content */",
-        ".mantine-Paper-root { box-shadow: none !important; }",
-        ".mantine-Paper-root[data-with-border] { border-color: var(--pw-line) !important; }",
-        "",
-        "/* Typography — serif for prose, mono stays mono */",
+        '  --mantine-color-body:           var(--pw-bg);',
+        '  --mantine-color-dark-filled:     var(--pw-bg-2);',
+        '  --mantine-color-dark-hover:      var(--pw-bg-3);',
+        '  --mantine-color-dark-text:       var(--pw-fg);',
+        '  --mantine-color-default-border:  var(--pw-line);',
+        '}',
+        '',
+        '/* Hard-edge structure: no shadows, no gradients on flat content */',
+        '.mantine-Paper-root { box-shadow: none !important; }',
+        '.mantine-Paper-root[data-with-border] { border-color: var(--pw-line) !important; }',
+        '',
+        '/* Typography — serif for prose, mono stays mono */',
         "body { font-family: 'Space Grotesk', system-ui, sans-serif; }",
         ".mantine-Text-root { font-family: 'Space Grotesk', system-ui, sans-serif; }",
         "p, .pw-prose { font-family: 'Newsreader', Georgia, serif; font-size: 17px; line-height: 1.7; }",
         "code, kbd, .mantine-Code-root, .mantine-Badge-root { font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: .04em; }",
-        "",
-        "/* Accent — focus ring must always use --pw-accent */",
-        "*:focus-visible { outline: 2px solid var(--pw-accent) !important; outline-offset: 2px !important; }",
-        "::selection { background: var(--pw-accent); color: var(--pw-bg); }",
-        "",
-        "/* Radius clamp — nothing above 4px on flat surfaces */",
-        ".mantine-Button-root, .mantine-Badge-root, .mantine-TextInput-input,",
-        ".mantine-PasswordInput-input, .mantine-Select-input, .mantine-Textarea-input {",
-        "  border-radius: 3px !important;",
-        "}",
-        ".mantine-Paper-root { border-radius: 4px !important; }",
-        ".mantine-NavLink-root { border-radius: 3px !important; }",
-        "",
-        "/* Accent primary button */",
+        '',
+        '/* Accent — focus ring must always use --pw-accent */',
+        '*:focus-visible { outline: 2px solid var(--pw-accent) !important; outline-offset: 2px !important; }',
+        '::selection { background: var(--pw-accent); color: var(--pw-bg); }',
+        '',
+        '/* Radius clamp — nothing above 4px on flat surfaces */',
+        '.mantine-Button-root, .mantine-Badge-root, .mantine-TextInput-input,',
+        '.mantine-PasswordInput-input, .mantine-Select-input, .mantine-Textarea-input {',
+        '  border-radius: 3px !important;',
+        '}',
+        '.mantine-Paper-root { border-radius: 4px !important; }',
+        '.mantine-NavLink-root { border-radius: 3px !important; }',
+        '',
+        '/* Accent primary button */',
         ".mantine-Button-root[data-variant='filled'] {",
-        "  background: var(--pw-accent) !important;",
-        "  color: #fff !important;",
-        "}",
+        '  background: var(--pw-accent) !important;',
+        '  color: #fff !important;',
+        '}',
         ".mantine-Button-root[data-variant='filled']:hover {",
-        "  background: #e04820 !important;",
-        "}",
-        "",
-        "/* Nav active state — accent line, no fill */",
-        ".mantine-NavLink-root[data-active] {",
-        "  background: var(--pw-accent-wash) !important;",
-        "  border-left: 2px solid var(--pw-accent);",
-        "  color: var(--pw-fg) !important;",
-        "}",
-        "",
-        "/* Links */",
-        "a, .mantine-Anchor-root { color: var(--pw-fg-2); text-decoration: none; }",
-        "a:hover, .mantine-Anchor-root:hover { color: var(--pw-accent); }",
-        "",
-        "/* No pill badges — square them */",
-        ".mantine-Badge-root { border-radius: 3px !important; letter-spacing: .08em; font-size: 11px; text-transform: uppercase; }",
-        "",
-        "/* Table hairlines only */",
-        ".mantine-Table-root thead tr th { border-bottom: 1px solid var(--pw-line) !important; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--pw-fg-3); }",
-        ".mantine-Table-root tbody tr td { border-bottom: 1px solid var(--pw-line) !important; font-size: 14px; }",
-        ".mantine-Table-root tbody tr:hover td { background: var(--pw-bg-3) !important; }",
-        "",
-        "/* Dividers use the line token */",
-        ".mantine-Divider-root { border-color: var(--pw-line) !important; }",
-        "",
-        "/* Inputs — 1px border, no fill glow */",
-        ".mantine-TextInput-input, .mantine-PasswordInput-input,",
-        ".mantine-Select-input, .mantine-Textarea-input {",
-        "  background: var(--pw-bg-2) !important;",
-        "  border-color: var(--pw-line-2) !important;",
-        "  color: var(--pw-fg) !important;",
-        "}",
-        ".mantine-TextInput-input:focus, .mantine-PasswordInput-input:focus,",
-        ".mantine-Select-input:focus, .mantine-Textarea-input:focus {",
-        "  border-color: var(--pw-accent) !important;",
-        "}",
+        '  background: #e04820 !important;',
+        '}',
+        '',
+        '/* Nav active state — accent line, no fill */',
+        '.mantine-NavLink-root[data-active] {',
+        '  background: var(--pw-accent-wash) !important;',
+        '  border-left: 2px solid var(--pw-accent);',
+        '  color: var(--pw-fg) !important;',
+        '}',
+        '',
+        '/* Links */',
+        'a, .mantine-Anchor-root { color: var(--pw-fg-2); text-decoration: none; }',
+        'a:hover, .mantine-Anchor-root:hover { color: var(--pw-accent); }',
+        '',
+        '/* No pill badges — square them */',
+        '.mantine-Badge-root { border-radius: 3px !important; letter-spacing: .08em; font-size: 11px; text-transform: uppercase; }',
+        '',
+        '/* Table hairlines only */',
+        '.mantine-Table-root thead tr th { border-bottom: 1px solid var(--pw-line) !important; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--pw-fg-3); }',
+        '.mantine-Table-root tbody tr td { border-bottom: 1px solid var(--pw-line) !important; font-size: 14px; }',
+        '.mantine-Table-root tbody tr:hover td { background: var(--pw-bg-3) !important; }',
+        '',
+        '/* Dividers use the line token */',
+        '.mantine-Divider-root { border-color: var(--pw-line) !important; }',
+        '',
+        '/* Inputs — 1px border, no fill glow */',
+        '.mantine-TextInput-input, .mantine-PasswordInput-input,',
+        '.mantine-Select-input, .mantine-Textarea-input {',
+        '  background: var(--pw-bg-2) !important;',
+        '  border-color: var(--pw-line-2) !important;',
+        '  color: var(--pw-fg) !important;',
+        '}',
+        '.mantine-TextInput-input:focus, .mantine-PasswordInput-input:focus,',
+        '.mantine-Select-input:focus, .mantine-Textarea-input:focus {',
+        '  border-color: var(--pw-accent) !important;',
+        '}',
       ].join('\n'),
     },
   },
@@ -239,8 +275,30 @@ const PRESETS: { label: string; draft: Partial<ThemeDraft> }[] = [
     draft: {
       colorScheme: 'dark',
       mainBackgroundColor: '#0d0020',
-      primaryShades: ['#faf5ff','#f3e8ff','#e9d5ff','#d8b4fe','#c084fc','#a855f7','#9333ea','#7e22ce','#6b21a8','#581c87'] as ColorShades,
-      darkShades: ['#faf5ff','#e9d5ff','#6b21a8','#4c1d95','#3b0764','#2e1065','#1e0a3c','#150828','#0d0020','#060012'] as ColorShades,
+      primaryShades: [
+        '#faf5ff',
+        '#f3e8ff',
+        '#e9d5ff',
+        '#d8b4fe',
+        '#c084fc',
+        '#a855f7',
+        '#9333ea',
+        '#7e22ce',
+        '#6b21a8',
+        '#581c87',
+      ] as ColorShades,
+      darkShades: [
+        '#faf5ff',
+        '#e9d5ff',
+        '#6b21a8',
+        '#4c1d95',
+        '#3b0764',
+        '#2e1065',
+        '#1e0a3c',
+        '#150828',
+        '#0d0020',
+        '#060012',
+      ] as ColorShades,
     },
   },
   {
@@ -248,8 +306,30 @@ const PRESETS: { label: string; draft: Partial<ThemeDraft> }[] = [
     draft: {
       colorScheme: 'dark',
       mainBackgroundColor: '#1a0a0a',
-      primaryShades: ['#fff1f2','#ffe4e6','#fecdd3','#fda4af','#fb7185','#f43f5e','#e11d48','#be123c','#9f1239','#881337'] as ColorShades,
-      darkShades: ['#fff1f2','#fecdd3','#9f1239','#7f1d1d','#450a0a','#300505','#200303','#150202','#1a0a0a','#0d0000'] as ColorShades,
+      primaryShades: [
+        '#fff1f2',
+        '#ffe4e6',
+        '#fecdd3',
+        '#fda4af',
+        '#fb7185',
+        '#f43f5e',
+        '#e11d48',
+        '#be123c',
+        '#9f1239',
+        '#881337',
+      ] as ColorShades,
+      darkShades: [
+        '#fff1f2',
+        '#fecdd3',
+        '#9f1239',
+        '#7f1d1d',
+        '#450a0a',
+        '#300505',
+        '#200303',
+        '#150202',
+        '#1a0a0a',
+        '#0d0000',
+      ] as ColorShades,
     },
   },
   {
@@ -257,8 +337,30 @@ const PRESETS: { label: string; draft: Partial<ThemeDraft> }[] = [
     draft: {
       colorScheme: 'dark',
       mainBackgroundColor: '#021018',
-      primaryShades: ['#f0fdfa','#ccfbf1','#99f6e4','#5eead4','#2dd4bf','#14b8a6','#0d9488','#0f766e','#115e59','#134e4a'] as ColorShades,
-      darkShades: ['#f0fdfa','#99f6e4','#0f766e','#134e4a','#052e2e','#021a1a','#021418','#011010','#010c0e','#010809'] as ColorShades,
+      primaryShades: [
+        '#f0fdfa',
+        '#ccfbf1',
+        '#99f6e4',
+        '#5eead4',
+        '#2dd4bf',
+        '#14b8a6',
+        '#0d9488',
+        '#0f766e',
+        '#115e59',
+        '#134e4a',
+      ] as ColorShades,
+      darkShades: [
+        '#f0fdfa',
+        '#99f6e4',
+        '#0f766e',
+        '#134e4a',
+        '#052e2e',
+        '#021a1a',
+        '#021418',
+        '#011010',
+        '#010c0e',
+        '#010809',
+      ] as ColorShades,
     },
   },
   {
@@ -266,8 +368,30 @@ const PRESETS: { label: string; draft: Partial<ThemeDraft> }[] = [
     draft: {
       colorScheme: 'light',
       mainBackgroundColor: '#f8fafc',
-      primaryShades: ['#eff6ff','#dbeafe','#bfdbfe','#93c5fd','#60a5fa','#3b82f6','#2563eb','#1d4ed8','#1e40af','#1e3a8a'] as ColorShades,
-      darkShades: ['#ffffff','#f8fafc','#f1f5f9','#e2e8f0','#cbd5e1','#94a3b8','#64748b','#475569','#334155','#1e293b'] as ColorShades,
+      primaryShades: [
+        '#eff6ff',
+        '#dbeafe',
+        '#bfdbfe',
+        '#93c5fd',
+        '#60a5fa',
+        '#3b82f6',
+        '#2563eb',
+        '#1d4ed8',
+        '#1e40af',
+        '#1e3a8a',
+      ] as ColorShades,
+      darkShades: [
+        '#ffffff',
+        '#f8fafc',
+        '#f1f5f9',
+        '#e2e8f0',
+        '#cbd5e1',
+        '#94a3b8',
+        '#64748b',
+        '#475569',
+        '#334155',
+        '#1e293b',
+      ] as ColorShades,
     },
   },
 ];
@@ -284,7 +408,9 @@ function ShadeEditor({
 }) {
   return (
     <Box>
-      <Text size='sm' fw={600} mb={6}>{label}</Text>
+      <Text size='sm' fw={600} mb={6}>
+        {label}
+      </Text>
       <Group gap={6} wrap='nowrap'>
         {shades.map((c, i) => (
           <Tooltip key={i} label={`[${i}] ${c}`} position='top'>
@@ -336,8 +462,12 @@ function LivePreview({ draft }: { draft: ThemeDraft }) {
               {draft.name}
             </Text>
             <Group gap='xs'>
-              <Badge color={draft.primaryColor} variant='light'>Live</Badge>
-              <Button size='xs' radius={draft.defaultRadius}>Action</Button>
+              <Badge color={draft.primaryColor} variant='light'>
+                Live
+              </Badge>
+              <Button size='xs' radius={draft.defaultRadius}>
+                Action
+              </Button>
             </Group>
           </Group>
         </Paper>
@@ -367,7 +497,9 @@ function LivePreview({ draft }: { draft: ThemeDraft }) {
                 { label: 'Links', value: '37' },
               ].map(({ label, value }) => (
                 <Paper key={label} withBorder p='sm' radius='md'>
-                  <Text size='xs' c='dimmed'>{label}</Text>
+                  <Text size='xs' c='dimmed'>
+                    {label}
+                  </Text>
                   <Text fw={700} size='xl' style={{ fontFamily: draft.headingFontFamily }}>
                     {value}
                   </Text>
@@ -377,18 +509,30 @@ function LivePreview({ draft }: { draft: ThemeDraft }) {
 
             {/* Buttons showcase */}
             <Paper withBorder p='sm' radius='md'>
-              <Text size='xs' fw={600} c='dimmed' mb='xs'>Buttons</Text>
+              <Text size='xs' fw={600} c='dimmed' mb='xs'>
+                Buttons
+              </Text>
               <Group gap='xs'>
-                <Button size='xs' radius={draft.defaultRadius}>Primary</Button>
-                <Button size='xs' variant='outline' radius={draft.defaultRadius}>Outline</Button>
-                <Button size='xs' variant='subtle' radius={draft.defaultRadius}>Subtle</Button>
-                <Button size='xs' color='red' radius={draft.defaultRadius}>Danger</Button>
+                <Button size='xs' radius={draft.defaultRadius}>
+                  Primary
+                </Button>
+                <Button size='xs' variant='outline' radius={draft.defaultRadius}>
+                  Outline
+                </Button>
+                <Button size='xs' variant='subtle' radius={draft.defaultRadius}>
+                  Subtle
+                </Button>
+                <Button size='xs' color='red' radius={draft.defaultRadius}>
+                  Danger
+                </Button>
               </Group>
             </Paper>
 
             {/* Table */}
             <Paper withBorder p='sm' radius='md'>
-              <Text size='xs' fw={600} c='dimmed' mb='xs'>Table</Text>
+              <Text size='xs' fw={600} c='dimmed' mb='xs'>
+                Table
+              </Text>
               <Table striped highlightOnHover fz='xs'>
                 <Table.Thead>
                   <Table.Tr>
@@ -398,11 +542,19 @@ function LivePreview({ draft }: { draft: ThemeDraft }) {
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                  {[['photo.png', '2.1 MB', 'image'], ['video.mp4', '48 MB', 'video'], ['doc.pdf', '340 KB', 'document']].map(([n, s, t]) => (
+                  {[
+                    ['photo.png', '2.1 MB', 'image'],
+                    ['video.mp4', '48 MB', 'video'],
+                    ['doc.pdf', '340 KB', 'document'],
+                  ].map(([n, s, t]) => (
                     <Table.Tr key={n}>
                       <Table.Td>{n}</Table.Td>
                       <Table.Td>{s}</Table.Td>
-                      <Table.Td><Badge size='xs' variant='light'>{t}</Badge></Table.Td>
+                      <Table.Td>
+                        <Badge size='xs' variant='light'>
+                          {t}
+                        </Badge>
+                      </Table.Td>
                     </Table.Tr>
                   ))}
                 </Table.Tbody>
@@ -526,7 +678,11 @@ export default function DashboardThemeMaker() {
       notifications.show({ message: 'Failed to delete theme', color: 'red' });
       return;
     }
-    notifications.show({ message: `Theme "${slug}" deleted`, color: 'orange', icon: <IconTrash size='1rem' /> });
+    notifications.show({
+      message: `Theme "${slug}" deleted`,
+      color: 'orange',
+      icon: <IconTrash size='1rem' />,
+    });
     globalMutate('/api/server/themes/custom');
     globalMutate('/api/server/themes');
   };
@@ -539,7 +695,9 @@ export default function DashboardThemeMaker() {
       <Group gap='sm' mb='xs'>
         <IconPalette size='1.5rem' style={{ color: 'var(--mantine-color-violet-4)' }} />
         <Title order={1}>Theme Maker</Title>
-        <Badge color='violet' variant='light'>Live Preview</Badge>
+        <Badge color='violet' variant='light'>
+          Live Preview
+        </Badge>
       </Group>
       <Text c='dimmed' mb='lg'>
         Design a custom theme, preview it live, then save it to the server or export as JSON.
@@ -548,18 +706,14 @@ export default function DashboardThemeMaker() {
       <SimpleGrid cols={{ base: 1, lg: 2 }} spacing='lg'>
         {/* ── Left: editor ── */}
         <Stack gap='md'>
-
           {/* Presets */}
           <Paper withBorder p='sm' radius='md'>
-            <Text size='sm' fw={600} mb='xs'>Start from a preset</Text>
+            <Text size='sm' fw={600} mb='xs'>
+              Start from a preset
+            </Text>
             <Group gap='xs'>
               {PRESETS.map((p) => (
-                <Button
-                  key={p.label}
-                  size='xs'
-                  variant='light'
-                  onClick={() => applyPreset(p)}
-                >
+                <Button key={p.label} size='xs' variant='light' onClick={() => applyPreset(p)}>
                   {p.label}
                 </Button>
               ))}
@@ -574,10 +728,14 @@ export default function DashboardThemeMaker() {
           {/* Editor tabs */}
           <Tabs value={activeTab} onChange={(v) => setActiveTab(v ?? 'colors')}>
             <Tabs.List>
-              <Tabs.Tab value='colors' leftSection={<IconPaintFilled size='0.9rem' />}>Colors</Tabs.Tab>
+              <Tabs.Tab value='colors' leftSection={<IconPaintFilled size='0.9rem' />}>
+                Colors
+              </Tabs.Tab>
               <Tabs.Tab value='typography'>Typography</Tabs.Tab>
               <Tabs.Tab value='misc'>Misc</Tabs.Tab>
-              <Tabs.Tab value='css' leftSection={<IconCode size='0.9rem' />}>Extra CSS</Tabs.Tab>
+              <Tabs.Tab value='css' leftSection={<IconCode size='0.9rem' />}>
+                Extra CSS
+              </Tabs.Tab>
               <Tabs.Tab value='json'>JSON</Tabs.Tab>
             </Tabs.List>
 
@@ -606,7 +764,9 @@ export default function DashboardThemeMaker() {
                     label='Primary color key'
                     description='Name used in colors object (e.g. "violet", "teal")'
                     value={draft.primaryColor}
-                    onChange={(e) => set('primaryColor', e.currentTarget.value.toLowerCase().replace(/\s/g, ''))}
+                    onChange={(e) =>
+                      set('primaryColor', e.currentTarget.value.toLowerCase().replace(/\s/g, ''))
+                    }
                   />
                   <ColorInput
                     label='Background color'
@@ -687,8 +847,8 @@ export default function DashboardThemeMaker() {
             <Tabs.Panel value='css' pt='sm'>
               <Stack gap='xs'>
                 <Text size='xs' c='dimmed'>
-                  Raw CSS injected into the page as a &lt;style&gt; tag when this theme is active.
-                  Use for Google Font @import, variable overrides, or custom scrollbar styles.
+                  Raw CSS injected into the page as a &lt;style&gt; tag when this theme is active. Use for
+                  Google Font @import, variable overrides, or custom scrollbar styles.
                 </Text>
                 <Textarea
                   value={draft.extraCss}
@@ -705,8 +865,8 @@ export default function DashboardThemeMaker() {
             <Tabs.Panel value='json' pt='sm'>
               <Stack gap='xs'>
                 <Text size='xs' c='dimmed'>
-                  This is the JSON that will be saved as a <Code>.theme.json</Code> file.
-                  You can place it manually in the <Code>./themes/</Code> directory.
+                  This is the JSON that will be saved as a <Code>.theme.json</Code> file. You can place it
+                  manually in the <Code>./themes/</Code> directory.
                 </Text>
                 <ScrollArea h={340}>
                   <Code block ff='monospace' style={{ fontSize: '0.75rem', whiteSpace: 'pre' }}>
@@ -729,20 +889,11 @@ export default function DashboardThemeMaker() {
             >
               Save to server
             </Button>
-            <Button
-              leftSection={<IconDownload size='1rem' />}
-              variant='outline'
-              onClick={exportJson}
-            >
+            <Button leftSection={<IconDownload size='1rem' />} variant='outline' onClick={exportJson}>
               Export JSON
             </Button>
             <Tooltip label={copied ? 'Copied!' : 'Copy JSON'}>
-              <ActionIcon
-                variant='outline'
-                size='lg'
-                color={copied ? 'teal' : 'gray'}
-                onClick={copyJson}
-              >
+              <ActionIcon variant='outline' size='lg' color={copied ? 'teal' : 'gray'} onClick={copyJson}>
                 {copied ? <IconCheck size='1rem' /> : <IconCopy size='1rem' />}
               </ActionIcon>
             </Tooltip>
@@ -758,12 +909,7 @@ export default function DashboardThemeMaker() {
                 {savedSlugs.map((slug) => (
                   <Group key={slug} justify='space-between'>
                     <Code>{slug}</Code>
-                    <ActionIcon
-                      variant='light'
-                      color='red'
-                      size='sm'
-                      onClick={() => deleteFromServer(slug)}
-                    >
+                    <ActionIcon variant='light' color='red' size='sm' onClick={() => deleteFromServer(slug)}>
                       <IconTrash size='0.85rem' />
                     </ActionIcon>
                   </Group>

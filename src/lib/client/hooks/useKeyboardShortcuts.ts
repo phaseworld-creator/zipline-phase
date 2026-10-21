@@ -11,40 +11,53 @@ import { useNavigate } from 'react-router-dom';
  * G then R           → navigate to URLs
  * G then H           → navigate to dashboard home
  */
-export function useKeyboardShortcuts(opts?: {
-  onSearch?: () => void;
-}) {
+export function useKeyboardShortcuts(opts?: { onSearch?: () => void }) {
   const navigate = useNavigate();
 
   useHotkeys([
     // Focus search
     ['mod+slash', () => opts?.onSearch?.()],
     // Navigate shortcuts (non-input contexts only)
-    ['u', (e) => {
-      if (isInputActive()) return;
-      e.preventDefault();
-      navigate('/dashboard/upload/file');
-    }],
-    ['g f', (e) => {
-      if (isInputActive()) return;
-      e.preventDefault();
-      navigate('/dashboard/files');
-    }],
-    ['g o', (e) => {
-      if (isInputActive()) return;
-      e.preventDefault();
-      navigate('/dashboard/folders');
-    }],
-    ['g r', (e) => {
-      if (isInputActive()) return;
-      e.preventDefault();
-      navigate('/dashboard/urls');
-    }],
-    ['g h', (e) => {
-      if (isInputActive()) return;
-      e.preventDefault();
-      navigate('/dashboard');
-    }],
+    [
+      'u',
+      (e) => {
+        if (isInputActive()) return;
+        e.preventDefault();
+        navigate('/dashboard/upload/file');
+      },
+    ],
+    [
+      'g f',
+      (e) => {
+        if (isInputActive()) return;
+        e.preventDefault();
+        navigate('/dashboard/files');
+      },
+    ],
+    [
+      'g o',
+      (e) => {
+        if (isInputActive()) return;
+        e.preventDefault();
+        navigate('/dashboard/folders');
+      },
+    ],
+    [
+      'g r',
+      (e) => {
+        if (isInputActive()) return;
+        e.preventDefault();
+        navigate('/dashboard/urls');
+      },
+    ],
+    [
+      'g h',
+      (e) => {
+        if (isInputActive()) return;
+        e.preventDefault();
+        navigate('/dashboard');
+      },
+    ],
   ]);
 }
 
@@ -53,9 +66,6 @@ function isInputActive(): boolean {
   if (!active) return false;
   const tag = active.tagName.toLowerCase();
   return (
-    tag === 'input' ||
-    tag === 'textarea' ||
-    tag === 'select' ||
-    (active as HTMLElement).isContentEditable
+    tag === 'input' || tag === 'textarea' || tag === 'select' || (active as HTMLElement).isContentEditable
   );
 }

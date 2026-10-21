@@ -22,6 +22,7 @@ It is a full-stack file / URL sharing platform:
 - `zipline-ctl` is a CLI (`src/ctl`) for server management.
 
 The custom "Phase" logic lives alongside the upstream code:
+
 - `src/lib/trollStore.ts` + `src/server/routes/troll.ts` + `src/server/routes/api/troll.ts` + the
   `troll` admin page — a prank-link system.
 - `src/server/routes/embed.ts` + `SettingsEmbedBuilder.tsx` — a custom OG/Discord embed builder.
@@ -36,6 +37,7 @@ The custom "Phase" logic lives alongside the upstream code:
 ## Features
 
 ### Upstream Zipline features (inherited)
+
 - Quick Docker setup + configuration
 - Upload any file; folders; tags; URL shortening
 - Embeds; Discord + HTTP webhooks; OAuth2 (Discord/GitHub/Google/OIDC)
@@ -46,6 +48,7 @@ The custom "Phase" logic lives alongside the upstream code:
 - Local and S3 datasources; rate limiting
 
 ### Phase-edition additions
+
 - **Troll prank links** (admin only): create disguised full-screen links under `/data/<alias>` that
   render an image, gif, video, or YouTube embed. Comes with a preset library (Rickroll, Nyan Cat,
   Trollface, Doge, Bonk, Pikachu, Spinning Horse, Shrek) or a custom URL. Links are persisted to
@@ -64,12 +67,14 @@ The custom "Phase" logic lives alongside the upstream code:
 ---
 
 ## Tech stack
+
 - **Backend:** Fastify 5, Prisma 7 + PostgreSQL, Zod (typed routes), sharp (images), argon2,
   `@simplewebauthn`, `@aws-sdk/client-s3`
 - **Frontend:** React 19, React Router 7, Mantine 9, SWR, zustand, Vite 8
 - **Tooling:** TypeScript 7, oxlint + oxfmt, tsup, pnpm, Nix/Flake dev shell, Docker
 
 ## Key commands
+
 ```bash
 pnpm install        # install deps
 pnpm dev            # dev server (hot reload)
@@ -81,6 +86,7 @@ pnpm db:migrate     # create a prisma migration
 ```
 
 ## Project layout
+
 ```
 src/server   Fastify server: routes, plugins, middleware, startup
 src/client   React SPA: pages, components, hooks

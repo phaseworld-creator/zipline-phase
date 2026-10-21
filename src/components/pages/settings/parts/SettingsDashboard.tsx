@@ -9,32 +9,58 @@ const renderThemeOption =
   (themes: ReturnType<typeof useThemes>) =>
   ({ option }: { option: { value: string; label: string } }) => {
     const theme = themes.find((t) => t.id === option.value);
-    
+
     // Extract color swatches from theme
     const getSwatches = () => {
       if (!theme || option.value === 'system') return null;
-      
+
       const colors = theme.colors || {};
       const primaryColor = theme.primaryColor || 'violet';
       const primaryShade = colors[primaryColor]?.[5] || colors[primaryColor]?.[4];
-      
+
       // Try to get a secondary color (first non-primary, non-dark color)
-      const colorKeys = Object.keys(colors).filter(k => k !== 'dark' && k !== primaryColor);
+      const colorKeys = Object.keys(colors).filter((k) => k !== 'dark' && k !== primaryColor);
       const secondaryColor = colorKeys[0];
-      const secondaryShade = secondaryColor ? colors[secondaryColor]?.[5] || colors[secondaryColor]?.[4] : null;
-      
+      const secondaryShade = secondaryColor
+        ? colors[secondaryColor]?.[5] || colors[secondaryColor]?.[4]
+        : null;
+
       // Background color
       const bgColor = theme.mainBackgroundColor || (theme.colorScheme === 'dark' ? '#1a1b1e' : '#ffffff');
-      
+
       return (
         <Group gap={3}>
           {primaryShade && (
-            <Box style={{ width: 14, height: 14, borderRadius: 2, background: primaryShade, border: '1px solid rgba(0,0,0,0.1)' }} />
+            <Box
+              style={{
+                width: 14,
+                height: 14,
+                borderRadius: 2,
+                background: primaryShade,
+                border: '1px solid rgba(0,0,0,0.1)',
+              }}
+            />
           )}
           {secondaryShade && (
-            <Box style={{ width: 14, height: 14, borderRadius: 2, background: secondaryShade, border: '1px solid rgba(0,0,0,0.1)' }} />
+            <Box
+              style={{
+                width: 14,
+                height: 14,
+                borderRadius: 2,
+                background: secondaryShade,
+                border: '1px solid rgba(0,0,0,0.1)',
+              }}
+            />
           )}
-          <Box style={{ width: 14, height: 14, borderRadius: 2, background: bgColor, border: '1px solid rgba(0,0,0,0.2)' }} />
+          <Box
+            style={{
+              width: 14,
+              height: 14,
+              borderRadius: 2,
+              background: bgColor,
+              border: '1px solid rgba(0,0,0,0.2)',
+            }}
+          />
         </Group>
       );
     };

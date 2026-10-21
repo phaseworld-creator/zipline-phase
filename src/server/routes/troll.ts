@@ -228,7 +228,9 @@ export default typedPlugin(
       const isValid = await trollStore.verifyPassword(req.params.alias, password);
 
       if (!isValid) {
-        return res.type('text/html').send(buildPasswordPromptHtml(req.params.alias, typedLink.label, '❌ Incorrect password'));
+        return res
+          .type('text/html')
+          .send(buildPasswordPromptHtml(req.params.alias, typedLink.label, '❌ Incorrect password'));
       }
 
       // Password correct, show content

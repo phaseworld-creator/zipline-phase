@@ -5,11 +5,7 @@ export interface EncryptedPayload {
 }
 
 export async function generateKey(): Promise<CryptoKey> {
-  return crypto.subtle.generateKey(
-    { name: 'AES-GCM', length: 256 },
-    true,
-    ['encrypt', 'decrypt'],
-  );
+  return crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
 }
 
 export async function exportKey(key: CryptoKey): Promise<string> {
@@ -19,13 +15,10 @@ export async function exportKey(key: CryptoKey): Promise<string> {
 
 export async function importKey(rawKey: string): Promise<CryptoKey> {
   const binary = Uint8Array.from(atob(rawKey), (c) => c.charCodeAt(0));
-  return crypto.subtle.importKey(
-    'raw',
-    binary,
-    { name: 'AES-GCM', length: 256 },
-    true,
-    ['encrypt', 'decrypt'],
-  );
+  return crypto.subtle.importKey('raw', binary, { name: 'AES-GCM', length: 256 }, true, [
+    'encrypt',
+    'decrypt',
+  ]);
 }
 
 export async function encryptFile(file: File): Promise<{ encrypted: ArrayBuffer; key: string; iv: string }> {
@@ -33,11 +26,7 @@ export async function encryptFile(file: File): Promise<{ encrypted: ArrayBuffer;
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const encoded = new Uint8Array(await file.arrayBuffer());
 
-  const encrypted = await crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv },
-    key,
-    encoded,
-  );
+  const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, encoded);
 
   return {
     encrypted,

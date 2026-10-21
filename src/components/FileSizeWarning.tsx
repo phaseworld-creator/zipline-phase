@@ -8,7 +8,7 @@ import { IconAlertTriangle } from '@tabler/icons-react';
 
 type Props = {
   files: File[];
-  maxFileSize: string;       // e.g. "100mb"
+  maxFileSize: string; // e.g. "100mb"
   remainingQuotaBytes?: number | null; // null = unlimited
 };
 
@@ -42,12 +42,7 @@ export default function FileSizeWarning({ files, maxFileSize, remainingQuotaByte
   if (!warnings.length) return null;
 
   return (
-    <Alert
-      color='yellow'
-      icon={<IconAlertTriangle size='1rem' />}
-      title='File size warning'
-      mt='sm'
-    >
+    <Alert color='yellow' icon={<IconAlertTriangle size='1rem' />} title='File size warning' mt='sm'>
       <List size='sm' spacing={4}>
         {warnings.map((w, i) => (
           <List.Item key={i}>
