@@ -156,6 +156,7 @@ export const schema = z.object({
     thumbnailsInterval: intervalSchema('30min'),
     metricsInterval: intervalSchema('30min'),
     cleanThumbnailsInterval: intervalSchema('1d'),
+    deleteOnVersionUpdate: z.boolean().default(true),
   }),
   files: z.object({
     route: z.string().startsWith('/').min(1).trim().toLowerCase().default('/u'),

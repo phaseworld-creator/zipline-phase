@@ -17,6 +17,7 @@ export const DATABASE_TO_PROP = {
   tasksThumbnailsInterval: 'tasks.thumbnailsInterval',
   tasksMetricsInterval: 'tasks.metricsInterval',
   tasksCleanThumbnailsInterval: 'tasks.cleanThumbnailsInterval',
+  tasksDeleteOnVersionUpdate: 'tasks.deleteOnVersionUpdate',
 
   filesRoute: 'files.route',
   filesLength: 'files.length',

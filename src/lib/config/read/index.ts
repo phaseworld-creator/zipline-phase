@@ -34,6 +34,7 @@ export const rawConfig: any = {
     thumbnailsInterval: undefined,
     metricsInterval: undefined,
     cleanThumbnailsInterval: undefined,
+    deleteOnVersionUpdate: undefined,
   },
   files: {
     route: undefined,

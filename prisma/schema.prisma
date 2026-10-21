@@ -30,6 +30,7 @@ model Zipline {
   tasksThumbnailsInterval   String @default("30m")
   tasksMetricsInterval      String @default("30m")
   tasksCleanThumbnailsInterval      String @default("1d")
+  tasksDeleteOnVersionUpdate        Boolean @default(true)
 
   filesRoute                    String   @default("/u")
   filesLength                   Int      @default(6)

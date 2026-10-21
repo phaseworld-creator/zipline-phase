@@ -1,9 +1,15 @@
 import { bytes } from '@/lib/bytes';
 import { datasource } from '@/lib/datasource';
 import { IntervalTask } from '..';
+import { config } from '@/lib/config';
 
 export default function deleteFiles(prisma: typeof globalThis.__db__) {
   return async function (this: IntervalTask) {
+    if (!config.tasks.deleteOnVersionUpdate) {
+      this.logger.warn('deleteOnVersionUpdate is disabled, skipping deletion of expired files');
+      return;
+    }
+
     const expiredFiles = await prisma.file.findMany({
       where: {
         deletesAt: {
