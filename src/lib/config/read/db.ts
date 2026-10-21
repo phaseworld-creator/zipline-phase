@@ -145,22 +145,26 @@ export const DATABASE_TO_PROP = {
   discordOnUploadAvatarUrl: 'discord.onUpload.avatarUrl',
   discordOnUploadContent: 'discord.onUpload.content',
   discordOnUploadEmbed: 'discord.onUpload.embed',
+  discordOnUploadComponentEmbed: 'discord.onUpload.componentEmbed',
 
   discordOnShortenWebhookUrl: 'discord.onShorten.webhookUrl',
   discordOnShortenUsername: 'discord.onShorten.username',
   discordOnShortenAvatarUrl: 'discord.onShorten.avatarUrl',
   discordOnShortenContent: 'discord.onShorten.content',
   discordOnShortenEmbed: 'discord.onShorten.embed',
+  discordOnShortenComponentEmbed: 'discord.onShorten.componentEmbed',
 
   discordOnDeleteWebhookUrl: 'discord.onDelete.webhookUrl',
   discordOnDeleteUsername: 'discord.onDelete.username',
   discordOnDeleteAvatarUrl: 'discord.onDelete.avatarUrl',
   discordOnDeleteContent: 'discord.onDelete.content',
+  discordOnDeleteComponentEmbed: 'discord.onDelete.componentEmbed',
 
   discordOnSignupWebhookUrl: 'discord.onSignup.webhookUrl',
   discordOnSignupUsername: 'discord.onSignup.username',
   discordOnSignupAvatarUrl: 'discord.onSignup.avatarUrl',
   discordOnSignupContent: 'discord.onSignup.content',
+  discordOnSignupComponentEmbed: 'discord.onSignup.componentEmbed',
 
   pwaEnabled: 'pwa.enabled',
   pwaTitle: 'pwa.title',

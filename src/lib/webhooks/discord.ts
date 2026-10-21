@@ -6,6 +6,10 @@ import { User } from '../db/models/user';
 import { log } from '../logger';
 import { Url } from '../db/models/url';
 import { parserMetrics } from '../parser/metrics';
+import {
+  serializeDiscordComponentEmbed,
+  type DiscordComponentEmbed,
+} from '../discord/component-embed';
 
 const logger = log('webhooks').c('discord');
 
@@ -35,6 +39,8 @@ export type WebhooksExecuteBody = {
         } | null;
       }[]
     | null;
+  components?: unknown[];
+  flags?: number;
 };
 
 export function hexString(value?: string | null): number | null {
@@ -46,13 +52,18 @@ export function hexString(value?: string | null): number | null {
 
 export function parseContent(
   config: Config,
-  content: DiscordContent | null,
+  content: DiscordContent | null | undefined,
   value: ParseValue,
-): (DiscordContent & { raw: string }) | null {
+): (DiscordContent & { raw: string; value: ParseValue }) | null {
   if (!content) return null;
   if (!value.link) return null;
 
   return {
+    webhookUrl: config.discord?.webhookUrl ?? content.webhookUrl,
+    username: (config.discord?.username ?? content.username) || 'Zipline',
+    avatarUrl:
+      (config.discord?.avatarUrl ?? content.avatarUrl) ||
+      'https://raw.githubusercontent.com/diced/zipline/9b60147e112ec5b70170500b85c75ea621f41d03/public/zipline.png',
     content: content.content ? parseString(content.content, value) : null,
     embed: content.embed
       ? {
@@ -66,13 +77,29 @@ export function parseContent(
           url: content.embed.url,
         }
       : null,
-    avatarUrl:
-      (config.discord?.avatarUrl ?? content.avatarUrl) ||
-      'https://raw.githubusercontent.com/diced/zipline/9b60147e112ec5b70170500b85c75ea621f41d03/public/zipline.png',
-    username: (config.discord?.username ?? content.username) || 'Zipline',
-    webhookUrl: config.discord?.webhookUrl ?? content.webhookUrl,
+    componentEmbed: content.componentEmbed ?? null,
     raw: value.link.raw || '{unknown_property}',
+    value,
   };
+}
+
+function buildComponents(componentEmbed: DiscordComponentEmbed | null, value: ParseValue): unknown[] | undefined {
+  if (!componentEmbed || !componentEmbed.enabled) return undefined;
+
+  const payload = serializeDiscordComponentEmbed(componentEmbed, value);
+  if (!payload) return undefined;
+
+  try {
+    const parsed = JSON.parse(payload);
+    return parsed?.component ? [parsed.component] : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function withComponents(url: string): string {
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}with_components=true`;
 }
 
 export function buildResponse(
@@ -86,28 +113,32 @@ export function buildResponse(
   const image = file ? file.type.startsWith('image/') : false;
   const video = file ? file.type.startsWith('video/') : false;
 
-  return {
-    username: content.username,
-    avatar_url: content.avatarUrl,
-    content: content.content,
-    embeds: content.embed
+  // Discord does not allow mixing embeds and components V2
+  const hasComponents = !!content.componentEmbed && !!content.componentEmbed.enabled;
+  const embeds = hasComponents
+    ? null
+    : content.embed
       ? [
           {
             title: content.embed.title,
             description: content.embed.description,
-            color: hexString(content.embed.color),
-            timestamp: content.embed.timestamp ? (<Date>(file! || url!).createdAt).toISOString() : null,
-            footer: content.embed.footer
-              ? {
-                  text: content.embed.footer,
-                }
-              : null,
+            color: content.embed.color ? parseInt(content.embed.color.replace(/^#/, ''), 16) : null,
+            timestamp: content.embed.timestamp ? new Date((file! || url!).createdAt as Date).toISOString() : null,
+            footer: content.embed.footer ? { text: content.embed.footer } : null,
             thumbnail: image && content.embed.thumbnail ? { url: content.raw } : null,
             image: image && content.embed.imageOrVideo ? { url: content.raw } : null,
             video: video && content.embed.imageOrVideo ? { url: content.raw } : null,
           },
         ]
-      : null,
+      : null;
+
+  return {
+    username: content.username,
+    avatar_url: content.avatarUrl,
+    content: content.content,
+    embeds,
+    components: hasComponents ? buildComponents(content.componentEmbed, content.value) : undefined,
+    flags: hasComponents ? 32768 : undefined,
   };
 }
 
@@ -129,7 +160,8 @@ export async function onUpload(
   if (!response) return logger.debug('no response somehow, no webhook executed');
   logger.c('onUpload').debug('sending webhook', { response: JSON.stringify(response) });
 
-  const res = await fetch(content.webhookUrl!, {
+  const fetchUrl = response?.flags ? withComponents(content.webhookUrl!) : content.webhookUrl;
+  const res = await fetch(fetchUrl!, {
     method: 'POST',
     body: JSON.stringify(response),
     headers: {
@@ -171,7 +203,8 @@ export async function onShorten(
   if (!response) return logger.debug('no response somehow, no webhook executed');
   logger.c('onShorten').debug('sending webhook', { response: JSON.stringify(response) });
 
-  const res = await fetch(content.webhookUrl!, {
+  const fetchUrl = response?.flags ? withComponents(content.webhookUrl!) : content.webhookUrl;
+  const res = await fetch(fetchUrl!, {
     method: 'POST',
     body: JSON.stringify(response),
     headers: {
@@ -192,7 +225,7 @@ export async function onDelete(
   {
     user,
     file,
-  }: { user: User; file: Pick<import('../db/models/file').File, 'id' | 'name' | 'type' | 'size'> },
+  }: { user: User; file: File },
 ) {
   const webhookUrl = config.discord?.onDelete?.webhookUrl || config.discord?.webhookUrl;
   if (!webhookUrl) return logger.debug('no onDelete webhookUrl, skipping');
@@ -202,21 +235,53 @@ export async function onDelete(
     config.discord?.onDelete?.avatarUrl ||
     config.discord?.avatarUrl ||
     'https://raw.githubusercontent.com/diced/zipline/9b60147e112ec5b70170500b85c75ea621f41d03/public/zipline.png';
-  const content = config.discord?.onDelete?.content
-    ? String(config.discord.onDelete.content)
-        .replace('{filename}', file.name)
-        .replace('{user}', user.username)
-    : null;
+  const fallbackContent =
+    config.discord?.onDelete?.content
+      ? String(config.discord.onDelete.content).replace('{filename}', file.name).replace('{user}', user.username)
+      : `File \`${file.name}\` was deleted by **${user.username}**.`;
 
-  const body: WebhooksExecuteBody = {
-    username,
-    avatar_url: avatarUrl,
-    content: content || `File \`${file.name}\` was deleted by **${user.username}**.`,
+  const parseValue: ParseValue = {
+    user: { ...user, oauthProviders: undefined, passkeys: undefined } as unknown as Omit<User, 'oauthProviders' | 'passkeys'>,
+    file: {
+      ...file,
+      originalName: file.name,
+      name: file.name,
+    } as unknown as File,
   };
 
-  const res = await fetch(webhookUrl, {
+  const parsed = parseContent(config, config.discord?.onDelete, parseValue);
+
+  if (!parsed) {
+    const body: WebhooksExecuteBody = {
+      username,
+      avatar_url: avatarUrl,
+      content: fallbackContent,
+    };
+
+    const res = await fetch(webhookUrl, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!res.ok) logger.c('onDelete').error('webhook failed', { status: res.status });
+    return;
+  }
+
+  let response = buildResponse(parsed, file);
+
+  if (!response) {
+    response = {
+      username,
+      avatar_url: avatarUrl,
+      content: fallbackContent,
+    };
+  }
+
+  const fetchUrl = response?.flags ? withComponents(webhookUrl) : webhookUrl;
+  const res = await fetch(fetchUrl, {
     method: 'POST',
-    body: JSON.stringify(body),
+    body: JSON.stringify(response),
     headers: { 'Content-Type': 'application/json' },
   });
 
@@ -235,19 +300,48 @@ export async function onSignup(
     config.discord?.onSignup?.avatarUrl ||
     config.discord?.avatarUrl ||
     'https://raw.githubusercontent.com/diced/zipline/9b60147e112ec5b70170500b85c75ea621f41d03/public/zipline.png';
-  const content = config.discord?.onSignup?.content
-    ? String(config.discord.onSignup.content).replace('{user}', user.username)
-    : null;
+  const fallbackContent =
+    config.discord?.onSignup?.content
+      ? String(config.discord.onSignup.content).replace('{user}', user.username)
+      : `New user **${user.username}** just registered.`;
 
-  const body: WebhooksExecuteBody = {
-    username,
-    avatar_url: avatarUrl,
-    content: content || `New user **${user.username}** just registered.`,
+  const parseValue: ParseValue = {
+    user: { ...user, oauthProviders: undefined, passkeys: undefined } as unknown as Omit<User, 'oauthProviders' | 'passkeys'>,
   };
 
-  const res = await fetch(webhookUrl, {
+  const parsed = parseContent(config, config.discord?.onSignup, parseValue);
+
+  if (!parsed) {
+    const body: WebhooksExecuteBody = {
+      username,
+      avatar_url: avatarUrl,
+      content: fallbackContent,
+    };
+
+    const res = await fetch(webhookUrl, {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!res.ok) logger.c('onSignup').error('webhook failed', { status: res.status });
+    return;
+  }
+
+  let response = buildResponse(parsed);
+
+  if (!response) {
+    response = {
+      username,
+      avatar_url: avatarUrl,
+      content: fallbackContent,
+    };
+  }
+
+  const fetchUrl = response?.flags ? withComponents(webhookUrl) : webhookUrl;
+  const res = await fetch(fetchUrl, {
     method: 'POST',
-    body: JSON.stringify(body),
+    body: JSON.stringify(response),
     headers: { 'Content-Type': 'application/json' },
   });
 

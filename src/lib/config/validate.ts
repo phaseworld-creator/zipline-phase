@@ -5,6 +5,7 @@ import { ParsedConfig } from './read';
 import { PROP_TO_ENV } from './read/env';
 import { checkOutput, COMPRESS_TYPES } from '../compress';
 import ms, { StringValue } from 'ms';
+import { discordComponentEmbedSchema } from '../discord/component-embed';
 
 declare global {
   // oxlint-disable-next-line typescript/no-namespace
@@ -86,6 +87,7 @@ export const discordContent = z
       })
       .nullable()
       .default(null),
+    componentEmbed: discordComponentEmbedSchema.nullable().default(null),
   })
   .nullable()
   .default(null);
