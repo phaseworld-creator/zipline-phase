@@ -209,7 +209,7 @@ export default typedPlugin(
 
       // Handle redirect mode
       if (typedLink.displayMode === 'redirect') {
-        return res.redirect(302, typedLink.mediaUrl);
+        return res.redirect(typedLink.mediaUrl);
       }
 
       // Default fullscreen mode
@@ -226,7 +226,7 @@ export default typedPlugin(
       // Verify password
       const password = (req.body as any)?.password || '';
       const isValid = await trollStore.verifyPassword(req.params.alias, password);
-      
+
       if (!isValid) {
         return res.type('text/html').send(buildPasswordPromptHtml(req.params.alias, typedLink.label, '❌ Incorrect password'));
       }
@@ -236,7 +236,7 @@ export default typedPlugin(
       trollStore.incrementViewsWithIp(req.params.alias, clientIp as string);
 
       if (typedLink.displayMode === 'redirect') {
-        return res.redirect(302, typedLink.mediaUrl);
+        return res.redirect(typedLink.mediaUrl);
       }
 
       return res.type('text/html').send(buildTrollHtml(typedLink));
