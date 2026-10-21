@@ -1,4 +1,6 @@
 import typedPlugin from '@/server/typedPlugin';
+import { buildDiscordComponentEmbed } from '@/lib/discord/component-embed';
+import { renderComponentsToHtml, componentEmbedStyles } from '@/lib/discord/component-html';
 
 export type EmbedData = {
   title?: string;
@@ -9,6 +11,19 @@ export type EmbedData = {
   redirectUrl?: string;
   redirectDelay?: number;
   cardType?: 'website' | 'summary_large_image';
+  componentEmbed?: unknown;
+};
+
+type ShortEmbed = {
+  t?: string;
+  d?: string;
+  c?: string;
+  s?: string;
+  i?: string;
+  r?: string;
+  rd?: number;
+  ct?: 'website' | 'summary_large_image';
+  ce?: unknown;
 };
 
 function decodeEmbedData(raw: string): EmbedData | null {
@@ -30,6 +45,7 @@ function decodeEmbedData(raw: string): EmbedData | null {
         redirectUrl: parsed.r,
         redirectDelay: parsed.rd,
         cardType: parsed.ct,
+        componentEmbed: parsed.ce,
       };
     }
     return parsed as EmbedData;
@@ -46,6 +62,11 @@ function esc(str?: string): string {
 function buildEmbedHtml(d: EmbedData, pageUrl: string): string {
   const color = d.color && /^#[0-9a-fA-F]{3,8}$/.test(d.color) ? d.color : '#6366f1';
   const cardType = d.cardType || 'website';
+
+  const builtComponents = d.componentEmbed
+    ? buildDiscordComponentEmbed(d.componentEmbed, {})
+    : null;
+  const componentHtml = builtComponents ? renderComponentsToHtml(builtComponents) : '';
 
   const ogMeta = [
     d.title ? `<meta property="og:title"       content="${esc(d.title)}" />` : '',
@@ -98,6 +119,7 @@ function buildEmbedHtml(d: EmbedData, pageUrl: string): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${esc(d.title) || 'Embed'}</title>
   ${ogMeta}
+  ${componentHtml ? componentEmbedStyles : ''}
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html,body{
@@ -129,16 +151,24 @@ function buildEmbedHtml(d: EmbedData, pageUrl: string): string {
     .embed-title{font-size:15px;font-weight:700;color:#7289da;margin-bottom:4px;word-break:break-word}
     .embed-desc{font-size:14px;color:#b9bbbe;line-height:1.375;margin-bottom:4px;white-space:pre-wrap;word-break:break-word}
     .embed-image{display:block;max-width:100%;max-height:280px;border-radius:4px;margin-top:8px;object-fit:contain}
+    .embed-card{
+      max-width:720px;width:100%;
+      background:#2b2d3a;
+      border-left:4px solid ${color};
+      border-radius:4px;
+      padding:8px 12px 8px 12px;
+      margin-bottom:16px;
+    }
   </style>
 </head>
 <body>
   ${redirectBanner}
-  <div class="card">
+  ${componentHtml ? `<div class="embed-card">${componentHtml}</div>` : `<div class="card">
     ${siteNameHtml}
     ${titleHtml}
     ${descHtml}
     ${imageHtml}
-  </div>
+  </div>`}
   ${redirectScript}
 </body>
 </html>`;

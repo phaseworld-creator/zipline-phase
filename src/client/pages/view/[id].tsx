@@ -7,6 +7,7 @@ import { User } from '@/lib/db/models/user';
 import { parseString } from '@/lib/parser';
 import { type parserMetrics } from '@/lib/parser/metrics';
 import { formatRootUrl } from '@/lib/url';
+import ComponentEmbedView from '@/components/ComponentEmbedView';
 import {
   ActionIcon,
   Anchor,
@@ -36,6 +37,7 @@ type SsrData = {
   token?: string | null;
   metrics?: Awaited<ReturnType<typeof parserMetrics>>;
   filesRoute?: string;
+  componentEmbed?: React.ReactNode | string | object;
 };
 
 export default function ViewFileId() {
@@ -48,7 +50,7 @@ export default function ViewFileId() {
 
   if (!data) return null;
 
-  const { file, password, code, user, host, metrics, filesRoute, token } = data;
+  const { file, password, code, user, host, metrics, filesRoute, token, componentEmbed } = data;
 
   return password && !token ? (
     <Modal onClose={() => {}} opened={true} withCloseButton={false} centered title='Password required'>
@@ -216,6 +218,21 @@ export default function ViewFileId() {
           </Group>
 
           <DashboardFileType allowZoom file={file as unknown as File} token={token} show />
+
+          {componentEmbed && (
+            <ComponentEmbedView
+              config={componentEmbed}
+              parseValue={{
+                file: file as unknown as File,
+                user: user as User,
+                link: {
+                  returned: `${host}${formatRootUrl(filesRoute ?? '/u', file.name!)}`,
+                  raw: `${host}/raw/${file.name}`,
+                },
+                ...metrics,
+              }}
+            />
+          )}
 
           {user?.view!.content && (
             <Typography>

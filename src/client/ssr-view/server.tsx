@@ -164,6 +164,7 @@ export async function render(
     metrics,
     filesRoute: zConfig.files.route,
     config,
+    componentEmbed: (user?.view as Record<string, unknown> | undefined)?.componentEmbed ?? null,
   };
 
   const routes = createRoutes(themes, defaultTheme);

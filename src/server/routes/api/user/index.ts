@@ -64,6 +64,7 @@ export default typedPlugin(
                 showMimetype: z.boolean().optional(),
                 showTags: z.boolean().optional(),
                 showFolder: z.boolean().optional(),
+                componentEmbed: z.unknown().optional(),
               })
               .partial()
               .optional(),
@@ -134,7 +135,7 @@ export default typedPlugin(
             ...(req.body.avatar !== undefined && { avatar: req.body.avatar || null }),
             ...(req.body.view && {
               view: {
-                ...req.user.view,
+                ...(req.user.view as any),
                 ...(req.body.view.enabled !== undefined && { enabled: req.body.view.enabled || false }),
                 ...(req.body.view.disableTextFiles !== undefined && {
                   disableTextFiles: req.body.view.disableTextFiles || false,
@@ -168,6 +169,9 @@ export default typedPlugin(
                 ...(req.body.view.showTags !== undefined && { showTags: req.body.view.showTags || false }),
                 ...(req.body.view.showFolder !== undefined && {
                   showFolder: req.body.view.showFolder || false,
+                }),
+                ...(req.body.view.componentEmbed !== undefined && {
+                  componentEmbed: req.body.view.componentEmbed ?? null,
                 }),
               },
             }),

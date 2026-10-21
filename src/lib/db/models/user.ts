@@ -57,6 +57,9 @@ export const userViewSchema = z
     embedDescription: z.string().nullish(),
     embedColor: z.string().nullish(),
     embedSiteName: z.string().nullish(),
+    componentEmbed: z
+      .unknown()
+      .default(null),
   })
   .partial();
 

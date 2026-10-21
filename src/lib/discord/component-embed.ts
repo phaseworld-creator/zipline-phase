@@ -98,7 +98,7 @@ export type DiscordButton = z.infer<typeof discordButtonSchema>;
 export type DiscordComponentEmbedChild = z.infer<typeof discordComponentEmbedChildSchema>;
 export type DiscordComponentEmbed = z.infer<typeof discordComponentEmbedSchema>;
 
-type BuiltButton = {
+export type BuiltButton = {
   type: 2;
   id?: number;
   style: 5;
@@ -108,7 +108,7 @@ type BuiltButton = {
   disabled?: boolean;
 };
 
-type BuiltChild =
+export type BuiltChild =
   | { type: 1; id?: number; components: BuiltButton[] }
   | {
       type: 9;
@@ -291,6 +291,26 @@ function isValidBuiltPayload(payload: BuiltChild[]) {
   }
 
   return galleryItems <= 10;
+}
+
+export function buildDiscordComponentEmbed(
+  config: unknown,
+  parseValue: ParseValue,
+): BuiltChild[] | null {
+  const result = discordComponentEmbedSchema.safeParse(config);
+  if (
+    !result.success ||
+    !result.data.enabled ||
+    componentCount(result.data) > 40 ||
+    !hasUniqueIds(result.data)
+  ) {
+    return null;
+  }
+
+  const components = result.data.components.map((component) => buildChild(component, parseValue));
+  if (!isValidBuiltPayload(components)) return null;
+
+  return components;
 }
 
 export function serializeDiscordComponentEmbed(config: unknown, parseValue: ParseValue) {
