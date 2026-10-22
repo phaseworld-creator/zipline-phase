@@ -160,8 +160,8 @@ export async function onUpload(
   if (!response) return logger.debug('no response somehow, no webhook executed');
   logger.c('onUpload').debug('sending webhook', { response: JSON.stringify(response) });
 
-  const fetchUrl = response?.flags ? withComponents(content.webhookUrl!) : content.webhookUrl;
-  const res = await fetch(fetchUrl!, {
+  const fetchUrl = response?.flags ? withComponents(webhookUrl) : webhookUrl;
+  const res = await fetch(fetchUrl, {
     method: 'POST',
     body: JSON.stringify(response),
     headers: {
@@ -203,8 +203,8 @@ export async function onShorten(
   if (!response) return logger.debug('no response somehow, no webhook executed');
   logger.c('onShorten').debug('sending webhook', { response: JSON.stringify(response) });
 
-  const fetchUrl = response?.flags ? withComponents(content.webhookUrl!) : content.webhookUrl;
-  const res = await fetch(fetchUrl!, {
+  const fetchUrl = response?.flags ? withComponents(webhookUrl) : webhookUrl;
+  const res = await fetch(fetchUrl, {
     method: 'POST',
     body: JSON.stringify(response),
     headers: {
