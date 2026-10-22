@@ -59,10 +59,12 @@ export function registerHandlers(server: FastifyInstance, mode: string) {
     } else {
       console.error(error);
 
+      const errorMessage = error instanceof Error ? error.message : String(error);
       return res.status(500).send({
         code: 9000,
-        error: 'E9000: Internal Server Error',
+        error: `E9000: Internal Server Error${errorMessage ? `: ${errorMessage}` : ''}`,
         statusCode: 500,
+        ...(process.env.NODE_ENV === 'development' && { details: error.stack }),
       });
     }
   });
