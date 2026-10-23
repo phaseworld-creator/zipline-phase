@@ -102,6 +102,21 @@ export default typedPlugin(
 
         const created = [];
         for (const item of filesBefore) {
+          let storageData: Buffer | string;
+          if (typeof item.file.filepath === 'string') {
+            storageData = item.file.filepath;
+          } else if (Buffer.isBuffer(item.file.filepath)) {
+            storageData = item.file.filepath;
+          } else if (item.file.file) {
+            const chunks: Buffer[] = [];
+            for await (const chunk of item.file.file) {
+              chunks.push(chunk);
+            }
+            storageData = Buffer.concat(chunks);
+          } else {
+            throw new ApiError(1063, 'Unable to retrieve file data');
+          }
+
           const file = await prisma.file.create({
             data: {
               name: `${item.fileName}${item.extension}`,
@@ -112,7 +127,7 @@ export default typedPlugin(
             select: fileSelect,
           });
 
-          await datasource.put(file.name, item.file.filepath, { mimetype: file.type });
+          await datasource.put(file.name, storageData, { mimetype: file.type });
 
           const domain = `${config.core.returnHttpsUrls ? 'https' : 'http'}://${req.headers.host}`;
           const url = `${domain}${config.files.route}/${encodeURIComponent(file.name)}`;

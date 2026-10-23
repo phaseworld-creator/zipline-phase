@@ -271,7 +271,15 @@ export default typedPlugin(
               ? await import('fs').then((fs) => fs.promises.readFile(file.filepath))
               : Buffer.isBuffer(file.filepath)
                 ? file.filepath
-                : undefined);
+                : file.file
+                  ? await (async () => {
+                      const chunks: Buffer[] = [];
+                      for await (const chunk of file.file) {
+                        chunks.push(chunk);
+                      }
+                      return Buffer.concat(chunks);
+                    })()
+                  : undefined);
 
           // apply watermark if enabled and file is an image
           if (
@@ -384,8 +392,15 @@ export default typedPlugin(
               storageData = await fs.promises.readFile(file.filepath);
             } else if (Buffer.isBuffer(file.filepath)) {
               storageData = file.filepath;
+            } else if (file.file) {
+              // Fallback: read from the file stream
+              const chunks: Buffer[] = [];
+              for await (const chunk of file.file) {
+                chunks.push(chunk);
+              }
+              storageData = Buffer.concat(chunks);
             } else {
-              throw new Error('No valid file data available');
+              throw new ApiError(1063, 'Unable to retrieve file data');
             }
           }
 
