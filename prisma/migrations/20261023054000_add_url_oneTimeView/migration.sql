@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Url" ADD COLUMN IF NOT EXISTS "oneTimeView" BOOLEAN NOT NULL DEFAULT false;
