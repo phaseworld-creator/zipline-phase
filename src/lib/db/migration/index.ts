@@ -70,15 +70,43 @@ export async function runMigrations() {
     logger.info('applying pending migrations...');
     const { appliedMigrationNames } = await migrate.applyMigrations();
     migrationIds = appliedMigrationNames;
-  } catch (e) {
-    logger.error('Failed to apply migrations:');
-    logger.error(e instanceof Error ? e.message : String(e));
-    if (e instanceof Error && e.stack) {
-      logger.error(e.stack);
-    }
+  } catch (e: any) {
+    if (
+      e?.code === 'P3018' ||
+      e?.message?.includes('Migration failed to apply') ||
+      e?.message?.includes('already exists')
+    ) {
+      logger.warn('migration failed, attempting to resolve...');
+      await migrate.stop();
+      const { resolveMigrationState } = await import('@prisma/migrate');
+      const result = await resolveMigrationState(validatedConfig);
+      if (result?.errors) {
+        logger.error('migration resolution failed:', result.errors);
+        process.exit(1);
+      }
+      logger.info('migration state resolved, retrying...');
+      const migrate2 = await Migrate.setup({
+        schemaEngineConfig: config,
+        baseDir,
+        migrationsDirPath,
+        schemaContext,
+      });
+      try {
+        const retryResult = await migrate2.applyMigrations();
+        migrationIds = retryResult.appliedMigrationNames;
+      } finally {
+        await migrate2.stop();
+      }
+    } else {
+      logger.error('Failed to apply migrations:');
+      logger.error(e instanceof Error ? e.message : String(e));
+      if (e instanceof Error && e.stack) {
+        logger.error(e.stack);
+      }
 
-    await migrate.stop();
-    process.exit(1);
+      await migrate.stop();
+      process.exit(1);
+    }
   } finally {
     await migrate.stop();
   }
