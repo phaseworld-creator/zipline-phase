@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "File" ADD COLUMN "allowedIps" TEXT[] DEFAULT ARRAY[]::TEXT[];
+ALTER TABLE "File" ADD COLUMN "blockedReferers" TEXT[] DEFAULT ARRAY[]::TEXT[];
+ALTER TABLE "File" ADD COLUMN "maxDownloads" INTEGER;
+ALTER TABLE "File" ADD COLUMN "oneTimeView" BOOLEAN NOT NULL DEFAULT false;
