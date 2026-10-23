@@ -43,7 +43,7 @@ async function resolveFailedMigrations(
       }
     }
   } catch (resolveErr) {
-    logger.error('Failed to resolve migration state:', String(resolveErr));
+    logger.error(`Failed to resolve migration state: ${String(resolveErr)}`);
     throw resolveErr;
   }
 
@@ -132,7 +132,7 @@ export async function runMigrations() {
           schemaContext,
         );
       } catch (resolveErr) {
-        logger.error('Auto-resolve failed:', String(resolveErr));
+        logger.error(`Auto-resolve failed: ${String(resolveErr)}`);
         await migrate.stop();
         process.exit(1);
       }
