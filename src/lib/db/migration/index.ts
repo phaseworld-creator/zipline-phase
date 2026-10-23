@@ -2,6 +2,7 @@ import migratePkg from '@prisma/migrate';
 import { defineConfig } from 'prisma/config';
 import prismaInternals from '@prisma/internals';
 import { log } from '@/lib/logger';
+import { prisma } from '@/lib/db';
 
 import ensureDatabaseExistsPkg from '@prisma/migrate/dist/utils/ensureDatabaseExists.js';
 
@@ -14,6 +15,51 @@ const {
   loadSchemaContext,
   validatePrismaConfigWithDatasource,
 } = prismaInternals;
+
+async function resolveFailedMigrations(
+  migrate: any,
+  config: any,
+  baseDir: string,
+  migrationsDirPath: string,
+  schemaContext: any,
+) {
+  const logger = log('migrations');
+
+  // Use Prisma Client to mark failed migrations as rolled back
+  try {
+    const failedMigrations = await prisma.$queryRawUnsafe<{ migration_name: string }[]>(
+      `SELECT migration_name FROM _prisma_migrations 
+       WHERE applied = false AND finished_at IS NOT NULL AND rolled_back_at IS NULL`,
+    );
+
+    if (failedMigrations.length > 0) {
+      logger.warn(`found ${failedMigrations.length} failed migration(s), marking as rolled back...`);
+      for (const mig of failedMigrations) {
+        await prisma.$executeRawUnsafe(
+          `UPDATE _prisma_migrations SET rolled_back_at = now(), logs = $1 WHERE migration_name = $2`,
+          ['Marked as rolled back by Zipline auto-resolve', mig.migration_name],
+        );
+        logger.info(`rolled back migration: ${mig.migration_name}`);
+      }
+    }
+  } catch (resolveErr) {
+    logger.error('Failed to resolve migration state:', String(resolveErr));
+    throw resolveErr;
+  }
+
+  // Retry with fresh migrate instance
+  await migrate.stop();
+  const migrate2 = await Migrate.setup({
+    schemaEngineConfig: config,
+    baseDir,
+    migrationsDirPath,
+    schemaContext,
+  });
+
+  const retryResult = await migrate2.applyMigrations();
+  await migrate2.stop();
+  return retryResult.appliedMigrationNames;
+}
 
 export async function runMigrations() {
   const baseDir = process.cwd();
@@ -76,26 +122,19 @@ export async function runMigrations() {
       e?.message?.includes('Migration failed to apply') ||
       e?.message?.includes('already exists')
     ) {
-      logger.warn('migration failed, attempting to resolve...');
-      await migrate.stop();
-      const { resolveMigrationState } = await import('@prisma/migrate');
-      const result = await resolveMigrationState(validatedConfig);
-      if (result?.errors) {
-        logger.error('migration resolution failed:', result.errors);
-        process.exit(1);
-      }
-      logger.info('migration state resolved, retrying...');
-      const migrate2 = await Migrate.setup({
-        schemaEngineConfig: config,
-        baseDir,
-        migrationsDirPath,
-        schemaContext,
-      });
+      logger.warn('migration failed, attempting to auto-resolve...');
       try {
-        const retryResult = await migrate2.applyMigrations();
-        migrationIds = retryResult.appliedMigrationNames;
-      } finally {
-        await migrate2.stop();
+        migrationIds = await resolveFailedMigrations(
+          migrate,
+          config,
+          baseDir,
+          migrationsDirPath,
+          schemaContext,
+        );
+      } catch (resolveErr) {
+        logger.error('Auto-resolve failed:', String(resolveErr));
+        await migrate.stop();
+        process.exit(1);
       }
     } else {
       logger.error('Failed to apply migrations:');
