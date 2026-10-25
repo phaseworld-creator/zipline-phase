@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db';
 import { LimitedUser, limitedUserSchema, limitedUserSelect } from '@/lib/db/models/user';
 import { log } from '@/lib/logger';
 import { secondlyRatelimit } from '@/lib/ratelimits';
-import { canInteract, interactableRoles } from '@/lib/role';
+import { interactableRoles, canAssignRole } from '@/lib/role';
 import { zQsBoolean, zStringTrimmed } from '@/lib/validation';
 import { Role } from '@/prisma/client';
 import { administratorMiddleware } from '@/server/middleware/administrator';
@@ -40,7 +40,7 @@ export default typedPlugin(
         preHandler: [userMiddleware, administratorMiddleware],
       },
       async (req, res) => {
-        const roles = interactableRoles(req.user.role);
+        const roles = interactableRoles(req.user.role, req.user.super_administrator);
 
         const users = await prisma.user.findMany({
           select: {
@@ -99,7 +99,7 @@ export default typedPlugin(
           logger.debug('failed to read default avatar', { path: config.website.defaultAvatar });
         }
 
-        if (role && !canInteract(req.user.role, role)) throw new ApiError(3008);
+        if (role && !canAssignRole(req.user, role)) throw new ApiError(3008);
 
         const user = await prisma.user.create({
           data: {

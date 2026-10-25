@@ -293,10 +293,7 @@ function isValidBuiltPayload(payload: BuiltChild[]) {
   return galleryItems <= 10;
 }
 
-export function buildDiscordComponentEmbed(
-  config: unknown,
-  parseValue: ParseValue,
-): BuiltChild[] | null {
+export function buildDiscordComponentEmbed(config: unknown, parseValue: ParseValue): BuiltChild[] | null {
   const result = discordComponentEmbedSchema.safeParse(config);
   if (
     !result.success ||

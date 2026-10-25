@@ -6,10 +6,7 @@ import { User } from '../db/models/user';
 import { log } from '../logger';
 import { Url } from '../db/models/url';
 import { parserMetrics } from '../parser/metrics';
-import {
-  serializeDiscordComponentEmbed,
-  type DiscordComponentEmbed,
-} from '../discord/component-embed';
+import { serializeDiscordComponentEmbed, type DiscordComponentEmbed } from '../discord/component-embed';
 
 const logger = log('webhooks').c('discord');
 
@@ -83,7 +80,10 @@ export function parseContent(
   };
 }
 
-function buildComponents(componentEmbed: DiscordComponentEmbed | null, value: ParseValue): unknown[] | undefined {
+function buildComponents(
+  componentEmbed: DiscordComponentEmbed | null,
+  value: ParseValue,
+): unknown[] | undefined {
   if (!componentEmbed || !componentEmbed.enabled) return undefined;
 
   const payload = serializeDiscordComponentEmbed(componentEmbed, value);
@@ -123,7 +123,9 @@ export function buildResponse(
             title: content.embed.title,
             description: content.embed.description,
             color: content.embed.color ? parseInt(content.embed.color.replace(/^#/, ''), 16) : null,
-            timestamp: content.embed.timestamp ? new Date((file! || url!).createdAt as Date).toISOString() : null,
+            timestamp: content.embed.timestamp
+              ? new Date((file! || url!).createdAt as Date).toISOString()
+              : null,
             footer: content.embed.footer ? { text: content.embed.footer } : null,
             thumbnail: image && content.embed.thumbnail ? { url: content.raw } : null,
             image: image && content.embed.imageOrVideo ? { url: content.raw } : null,
@@ -235,13 +237,17 @@ export async function onDelete(
     config.discord?.onDelete?.avatarUrl ||
     config.discord?.avatarUrl ||
     'https://raw.githubusercontent.com/diced/zipline/9b60147e112ec5b70170500b85c75ea621f41d03/public/zipline.png';
-  const fallbackContent =
-    config.discord?.onDelete?.content
-      ? String(config.discord.onDelete.content).replace('{filename}', file.name).replace('{user}', user.username)
-      : `File \`${file.name}\` was deleted by **${user.username}**.`;
+  const fallbackContent = config.discord?.onDelete?.content
+    ? String(config.discord.onDelete.content)
+        .replace('{filename}', file.name)
+        .replace('{user}', user.username)
+    : `File \`${file.name}\` was deleted by **${user.username}**.`;
 
   const parseValue: ParseValue = {
-    user: { ...user, oauthProviders: undefined, passkeys: undefined } as unknown as Omit<User, 'oauthProviders' | 'passkeys'>,
+    user: { ...user, oauthProviders: undefined, passkeys: undefined } as unknown as Omit<
+      User,
+      'oauthProviders' | 'passkeys'
+    >,
     file: {
       ...file,
       originalName: file.name,
@@ -300,13 +306,15 @@ export async function onSignup(
     config.discord?.onSignup?.avatarUrl ||
     config.discord?.avatarUrl ||
     'https://raw.githubusercontent.com/diced/zipline/9b60147e112ec5b70170500b85c75ea621f41d03/public/zipline.png';
-  const fallbackContent =
-    config.discord?.onSignup?.content
-      ? String(config.discord.onSignup.content).replace('{user}', user.username)
-      : `New user **${user.username}** just registered.`;
+  const fallbackContent = config.discord?.onSignup?.content
+    ? String(config.discord.onSignup.content).replace('{user}', user.username)
+    : `New user **${user.username}** just registered.`;
 
   const parseValue: ParseValue = {
-    user: { ...user, oauthProviders: undefined, passkeys: undefined } as unknown as Omit<User, 'oauthProviders' | 'passkeys'>,
+    user: { ...user, oauthProviders: undefined, passkeys: undefined } as unknown as Omit<
+      User,
+      'oauthProviders' | 'passkeys'
+    >,
   };
 
   const parsed = parseContent(config, config.discord?.onSignup, parseValue);

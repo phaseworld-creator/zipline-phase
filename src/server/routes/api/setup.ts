@@ -80,6 +80,7 @@ export default typedPlugin(
               username,
               password: hashed,
               role: 'ADMIN',
+              super_administrator: true,
               token,
             },
             select: userSelect,

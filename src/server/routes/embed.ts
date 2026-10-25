@@ -51,9 +51,7 @@ function buildEmbedHtml(d: EmbedData, pageUrl: string): string {
   const color = d.color && /^#[0-9a-fA-F]{3,8}$/.test(d.color) ? d.color : '#6366f1';
   const cardType = d.cardType || 'website';
 
-  const builtComponents = d.componentEmbed
-    ? buildDiscordComponentEmbed(d.componentEmbed, {})
-    : null;
+  const builtComponents = d.componentEmbed ? buildDiscordComponentEmbed(d.componentEmbed, {}) : null;
   const componentHtml = builtComponents ? renderComponentsToHtml(builtComponents) : '';
 
   const ogMeta = [
@@ -151,12 +149,16 @@ function buildEmbedHtml(d: EmbedData, pageUrl: string): string {
 </head>
 <body>
   ${redirectBanner}
-  ${componentHtml ? `<div class="embed-card">${componentHtml}</div>` : `<div class="card">
+  ${
+    componentHtml
+      ? `<div class="embed-card">${componentHtml}</div>`
+      : `<div class="card">
     ${siteNameHtml}
     ${titleHtml}
     ${descHtml}
     ${imageHtml}
-  </div>`}
+  </div>`
+  }
   ${redirectScript}
 </body>
 </html>`;

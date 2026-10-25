@@ -12,9 +12,7 @@ function escapeHtml(text: string): string {
 
 function renderButton(button: BuiltButton): string {
   const label = button.label ?? button.url;
-  const emoji = button.emoji?.name
-    ? `<span class="emoji">${button.emoji.name}</span> `
-    : '';
+  const emoji = button.emoji?.name ? `<span class="emoji">${button.emoji.name}</span> ` : '';
 
   return `
     <a href="${escapeHtml(button.url)}" target="_blank" rel="noopener noreferrer" class="discord-button" style="--button-style: ${button.style}; ${button.disabled ? 'opacity: 0.5; pointer-events: none;' : ''}">
@@ -49,12 +47,14 @@ function renderSection(section: BuiltChild & { type: 9 }): string {
 
 function renderMediaGallery(gallery: BuiltChild & { type: 12 }): string {
   const items = gallery.items
-    .map((item) => `
+    .map(
+      (item) => `
       <div class="gallery-item"${item.spoiler ? ' style="filter: blur(10px);"' : ''}>
         <img src="${escapeHtml(item.media.url)}" alt="" loading="lazy" />
         ${item.description ? `<div class="gallery-caption">${escapeHtml(item.description)}</div>` : ''}
       </div>
-    `)
+    `,
+    )
     .join('');
 
   return `<div class="media-gallery">${items}</div>`;

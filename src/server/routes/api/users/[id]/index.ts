@@ -6,7 +6,7 @@ import { datasource } from '@/lib/datasource';
 import { prisma } from '@/lib/db';
 import { LimitedUser, limitedUserSchema, limitedUserSelect } from '@/lib/db/models/user';
 import { log } from '@/lib/logger';
-import { canInteract } from '@/lib/role';
+import { canManage, canAssignRole } from '@/lib/role';
 import { zStringTrimmed } from '@/lib/validation';
 import { Role, UserFilesQuota } from '@/prisma/client';
 import { administratorMiddleware } from '@/server/middleware/administrator';
@@ -47,7 +47,7 @@ export default typedPlugin(
         });
 
         if (!user) throw new ApiError(4009);
-        if (!canInteract(req.user.role, user.role)) throw new ApiError(4009);
+        if (!canManage(req.user, user)) throw new ApiError(4009);
 
         return res.send(user);
       },
@@ -92,10 +92,10 @@ export default typedPlugin(
           },
         });
         if (!user) throw new ApiError(4009);
-        if (!canInteract(req.user.role, user.role)) throw new ApiError(3019);
+        if (!canManage(req.user, user)) throw new ApiError(3019);
 
         const { username, password, avatar, role, quota } = req.body;
-        if (role && !canInteract(req.user.role, role)) throw new ApiError(3007);
+        if (role && !canAssignRole(req.user, role)) throw new ApiError(3007);
 
         let finalQuota:
           | {
@@ -220,7 +220,7 @@ export default typedPlugin(
 
         if (!user) throw new ApiError(4009);
         if (user.id === req.user.id) throw new ApiError(3010);
-        if (!canInteract(req.user.role, user.role)) throw new ApiError(3009);
+        if (!canManage(req.user, user)) throw new ApiError(3009);
 
         if (req.body.delete) {
           const files = await prisma.file.findMany({

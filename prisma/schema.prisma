@@ -191,6 +191,7 @@ model User {
   avatar   String?
   token    String  @unique
   role     Role    @default(USER)
+  super_administrator Boolean @default(false)
   view     Json    @default("{}")
 
   totpSecret    String?

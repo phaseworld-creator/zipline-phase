@@ -16,6 +16,7 @@ export const userSelect = {
   createdAt: true,
   updatedAt: true,
   role: true,
+  super_administrator: true,
   view: true,
   oauthProviders: {
     select: oauthProviderSelect,
@@ -38,6 +39,7 @@ export const limitedUserSelect = {
   createdAt: true,
   updatedAt: true,
   role: true,
+  super_administrator: true,
   view: true,
   quota: true,
 };
@@ -57,9 +59,7 @@ export const userViewSchema = z
     embedDescription: z.string().nullish(),
     embedColor: z.string().nullish(),
     embedSiteName: z.string().nullish(),
-    componentEmbed: z
-      .unknown()
-      .default(null),
+    componentEmbed: z.unknown().default(null),
   })
   .partial();
 
@@ -120,6 +120,7 @@ export const userSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   role: z.enum(['USER', 'ADMIN']),
+  super_administrator: z.boolean(),
   view: userViewSchema,
 
   sessions: z.array(userSessionSchema),

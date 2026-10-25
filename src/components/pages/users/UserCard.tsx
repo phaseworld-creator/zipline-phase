@@ -6,7 +6,7 @@ import EditUserModal from './EditUserModal';
 import { useState } from 'react';
 import { deleteUser } from './actions';
 import RelativeDate from '@/components/RelativeDate';
-import { canInteract, isAdministrator, roleName } from '@/lib/role';
+import { canManage, isAdministrator, roleName } from '@/lib/role';
 import { Link } from 'react-router-dom';
 
 export default function UserCard({ user }: { user: LimitedUser }) {
@@ -36,10 +36,10 @@ export default function UserCard({ user }: { user: LimitedUser }) {
 
             <Group gap='xs'>
               <ActionIcon
-                variant={canInteract(currentUser?.role, user?.role) ? 'subtle' : 'transparent'}
+                variant={canManage(currentUser, user) ? 'subtle' : 'transparent'}
                 component={Link}
                 to={`/dashboard/admin/users/${user.id}/files`}
-                disabled={!canInteract(currentUser?.role, user?.role)}
+                disabled={!canManage(currentUser, user)}
               >
                 <IconFiles size='1rem' />
               </ActionIcon>
@@ -52,14 +52,14 @@ export default function UserCard({ user }: { user: LimitedUser }) {
 
                 <Menu.Dropdown>
                   <Menu.Item
-                    disabled={!canInteract(currentUser?.role, user?.role)}
+                    disabled={!canManage(currentUser, user)}
                     leftSection={<IconUserEdit size='1rem' />}
                     onClick={() => setOpen(true)}
                   >
                     Edit
                   </Menu.Item>
                   <Menu.Item
-                    disabled={!canInteract(currentUser?.role, user?.role)}
+                    disabled={!canManage(currentUser, user)}
                     leftSection={<IconTrashFilled size='1rem' />}
                     color='red'
                     onClick={() => deleteUser(user)}

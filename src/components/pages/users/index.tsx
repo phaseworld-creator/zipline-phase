@@ -2,7 +2,7 @@ import GridTableSwitcher from '@/components/GridTableSwitcher';
 import { readToDataURL } from '@/lib/base64';
 import { LimitedUser } from '@/lib/db/models/user';
 import { fetchApi } from '@/lib/fetchApi';
-import { canInteract } from '@/lib/role';
+import { canAssignRole } from '@/lib/role';
 import { useUserStore } from '@/lib/client/store/user';
 import { useViewStore } from '@/lib/client/store/view';
 import {
@@ -137,7 +137,7 @@ export default function DashboardUsers() {
                 {
                   value: 'ADMIN',
                   label: 'Administrator',
-                  disabled: !canInteract(currentUser?.role, 'ADMIN'),
+                  disabled: !canAssignRole(currentUser, 'ADMIN'),
                 },
               ]}
               {...form.getInputProps('role')}

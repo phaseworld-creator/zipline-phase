@@ -36,8 +36,15 @@ function DiscordButton({ button }: { button: BuiltButton }) {
 }
 
 function TextDisplay({ content }: { content: string }) {
-  const cleanContent = content.replace(/^#+\s*/gm, '').replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1');
-  return <Text size='sm' c='dimmed' style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{cleanContent}</Text>;
+  const cleanContent = content
+    .replace(/^#+\s*/gm, '')
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1');
+  return (
+    <Text size='sm' c='dimmed' style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+      {cleanContent}
+    </Text>
+  );
 }
 
 function Section({ section }: { section: Extract<BuiltChild, { type: 9 }> }) {
@@ -46,7 +53,9 @@ function Section({ section }: { section: Extract<BuiltChild, { type: 9 }> }) {
   let accessory: React.ReactNode = null;
   if (section.accessory.type === 2) {
     accessory = (
-      <Box style={{ flexShrink: 0, width: 80, height: 80, borderRadius: 8, overflow: 'hidden', marginLeft: 16 }}>
+      <Box
+        style={{ flexShrink: 0, width: 80, height: 80, borderRadius: 8, overflow: 'hidden', marginLeft: 16 }}
+      >
         <DiscordButton button={section.accessory as BuiltButton & { disabled?: boolean }} />
       </Box>
     );
@@ -86,7 +95,12 @@ function MediaGallery({ gallery }: { gallery: Extract<BuiltChild, { type: 12 }> 
             src={item.media.url}
             alt=''
             loading='lazy'
-            style={{ width: '100%', height: '100%', objectFit: 'cover', ...(item.spoiler ? { filter: 'blur(10px)' } : {}) }}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              ...(item.spoiler ? { filter: 'blur(10px)' } : {}),
+            }}
           />
           {item.description && (
             <Box

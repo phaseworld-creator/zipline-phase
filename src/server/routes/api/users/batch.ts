@@ -2,7 +2,7 @@ import { ApiError } from '@/lib/api/errors';
 import { writeAuditLog } from '@/lib/audit';
 import { prisma } from '@/lib/db';
 import { log } from '@/lib/logger';
-import { canInteract } from '@/lib/role';
+import { canManage } from '@/lib/role';
 import { administratorMiddleware } from '@/server/middleware/administrator';
 import { userMiddleware } from '@/server/middleware/user';
 import typedPlugin from '@/server/typedPlugin';
@@ -39,12 +39,12 @@ export default typedPlugin(
         // Validate targets are interactable
         const targets = await prisma.user.findMany({
           where: { id: { in: userIds } },
-          select: { id: true, role: true, username: true },
+          select: { id: true, role: true, super_administrator: true, username: true },
         });
         if (!targets.length) throw new ApiError(4009);
 
         for (const t of targets) {
-          if (!canInteract(req.user.role, t.role)) throw new ApiError(3019);
+          if (!canManage(req.user, t)) throw new ApiError(3019);
           if (t.id === req.user.id) throw new ApiError(3010);
         }
 
