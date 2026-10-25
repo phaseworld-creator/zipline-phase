@@ -34,9 +34,9 @@ export function canManage(current?: RoleIdentity | null, target?: RoleIdentity |
   return current.id === target.id || canInteract(current.role, target.role);
 }
 
-export function interactableRoles(current?: Role, superAdmin?: boolean) {
-  if (superAdmin) return ['USER', 'ADMIN'];
-  if (current === 'ADMIN') return ['USER'];
+export function interactableRoles(current?: Role, superAdmin?: boolean): Role[] {
+  if (superAdmin) return ['USER', 'ADMIN'] as Role[];
+  if (current === 'ADMIN') return ['USER'] as Role[];
   return [];
 }
 

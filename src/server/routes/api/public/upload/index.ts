@@ -149,6 +149,7 @@ export default typedPlugin(
             createdAt: new Date(),
             updatedAt: new Date(),
             role: 'USER',
+            super_administrator: false,
             view: {},
             sessions: [],
             oauthProviders: [],
