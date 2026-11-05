@@ -27,7 +27,7 @@ import {
 import { Dropzone } from '@mantine/dropzone';
 import { notifications } from '@mantine/notifications';
 import { IconFolder, IconLock, IconUpload, IconX } from '@tabler/icons-react';
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { Link, Params, useLoaderData, useNavigate, useSearchParams } from 'react-router-dom';
 import { useShallow } from 'zustand/shallow';
 import { useQueryState, parseAsInteger } from 'nuqs';

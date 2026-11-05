@@ -10,7 +10,6 @@ import {
   Grid,
   Group,
   Progress,
-  RingProgress,
   SimpleGrid,
   Skeleton,
   Stack,
@@ -23,7 +22,6 @@ import {
   IconEyeFilled,
   IconFiles,
   IconLink,
-  IconStarFilled,
 } from '@tabler/icons-react';
 import useSWR from 'swr';
 import useUser from '@/lib/client/hooks/useUser';

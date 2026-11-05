@@ -7,7 +7,6 @@ import {
   Container,
   Group,
   Modal,
-  SimpleGrid,
   Stack,
   Text,
   TextInput,
