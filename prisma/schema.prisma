@@ -149,27 +149,31 @@ model Zipline {
   discordUsername   String?
   discordAvatarUrl  String?
 
-  discordOnUploadWebhookUrl String?
-  discordOnUploadUsername   String?
-  discordOnUploadAvatarUrl  String?
-  discordOnUploadContent    String?
-  discordOnUploadEmbed      Json?
+  discordOnUploadWebhookUrl    String?
+  discordOnUploadUsername      String?
+  discordOnUploadAvatarUrl     String?
+  discordOnUploadContent       String?
+  discordOnUploadEmbed         Json?
+  discordOnUploadComponentEmbed Json?
 
-  discordOnShortenWebhookUrl String?
-  discordOnShortenUsername   String?
-  discordOnShortenAvatarUrl  String?
-  discordOnShortenContent    String?
-  discordOnShortenEmbed      Json?
+  discordOnShortenWebhookUrl    String?
+  discordOnShortenUsername      String?
+  discordOnShortenAvatarUrl     String?
+  discordOnShortenContent       String?
+  discordOnShortenEmbed         Json?
+  discordOnShortenComponentEmbed Json?
 
-  discordOnDeleteWebhookUrl  String?
-  discordOnDeleteUsername    String?
-  discordOnDeleteAvatarUrl   String?
-  discordOnDeleteContent     String?
+  discordOnDeleteWebhookUrl    String?
+  discordOnDeleteUsername      String?
+  discordOnDeleteAvatarUrl     String?
+  discordOnDeleteContent       String?
+  discordOnDeleteComponentEmbed Json?
 
-  discordOnSignupWebhookUrl  String?
-  discordOnSignupUsername    String?
-  discordOnSignupAvatarUrl   String?
-  discordOnSignupContent     String?
+  discordOnSignupWebhookUrl    String?
+  discordOnSignupUsername      String?
+  discordOnSignupAvatarUrl     String?
+  discordOnSignupContent       String?
+  discordOnSignupComponentEmbed Json?
 
   pwaEnabled         Boolean @default(false)
   pwaTitle           String  @default("Zipline")

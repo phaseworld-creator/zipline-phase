@@ -80,6 +80,65 @@ export function parseContent(
   };
 }
 
+/**
+ * Like parseContent but does NOT require value.link — used for onDelete and onSignup
+ * which have no associated URL. Only builds componentEmbed / plain content, no classic embeds.
+ */
+export function parseContentNoLink(
+  config: Config,
+  content: DiscordContent | null | undefined,
+  value: ParseValue,
+): { username: string; avatarUrl: string; content: string | null; componentEmbed: DiscordComponentEmbed | null; value: ParseValue } | null {
+  if (!content) return null;
+
+  return {
+    username: (config.discord?.username ?? content.username) || 'Zipline',
+    avatarUrl:
+      (config.discord?.avatarUrl ?? content.avatarUrl) ||
+      'https://raw.githubusercontent.com/diced/zipline/9b60147e112ec5b70170500b85c75ea621f41d03/public/zipline.png',
+    content: content.content ? parseString(content.content, value) : null,
+    componentEmbed: content.componentEmbed ?? null,
+    value,
+  };
+}
+
+/**
+ * Build a Components V2 response body for events that have no file link (delete, signup).
+ * Falls back to plain content if componentEmbed is not enabled or fails to build.
+ */
+export function buildComponentsV2Response(
+  parsed: ReturnType<typeof parseContentNoLink>,
+  fallback: { username: string; avatarUrl: string; content: string },
+): WebhooksExecuteBody {
+  if (!parsed) return { username: fallback.username, avatar_url: fallback.avatarUrl, content: fallback.content };
+
+  const hasComponents = !!parsed.componentEmbed?.enabled;
+  if (!hasComponents) {
+    return {
+      username: parsed.username,
+      avatar_url: parsed.avatarUrl,
+      content: parsed.content ?? fallback.content,
+    };
+  }
+
+  const components = buildComponents(parsed.componentEmbed, parsed.value);
+  if (!components) {
+    return {
+      username: parsed.username,
+      avatar_url: parsed.avatarUrl,
+      content: parsed.content ?? fallback.content,
+    };
+  }
+
+  return {
+    username: parsed.username,
+    avatar_url: parsed.avatarUrl,
+    content: parsed.content ?? null,
+    components,
+    flags: 32768,
+  };
+}
+
 function buildComponents(
   componentEmbed: DiscordComponentEmbed | null,
   value: ParseValue,
@@ -255,36 +314,12 @@ export async function onDelete(
     } as unknown as File,
   };
 
-  const parsed = parseContent(config, config.discord?.onDelete, parseValue);
+  const parsed = parseContentNoLink(config, config.discord?.onDelete, parseValue);
+  const response = buildComponentsV2Response(parsed, { username, avatarUrl, content: fallbackContent });
 
-  if (!parsed) {
-    const body: WebhooksExecuteBody = {
-      username,
-      avatar_url: avatarUrl,
-      content: fallbackContent,
-    };
+  logger.c('onDelete').debug('sending webhook', { response: JSON.stringify(response) });
 
-    const res = await fetch(webhookUrl, {
-      method: 'POST',
-      body: JSON.stringify(body),
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-    if (!res.ok) logger.c('onDelete').error('webhook failed', { status: res.status });
-    return;
-  }
-
-  let response = buildResponse(parsed, file as unknown as File);
-
-  if (!response) {
-    response = {
-      username,
-      avatar_url: avatarUrl,
-      content: fallbackContent,
-    };
-  }
-
-  const fetchUrl = response?.flags ? withComponents(webhookUrl) : webhookUrl;
+  const fetchUrl = response.flags ? withComponents(webhookUrl) : webhookUrl;
   const res = await fetch(fetchUrl, {
     method: 'POST',
     body: JSON.stringify(response),
@@ -317,36 +352,12 @@ export async function onSignup(
     >,
   };
 
-  const parsed = parseContent(config, config.discord?.onSignup, parseValue);
+  const parsed = parseContentNoLink(config, config.discord?.onSignup, parseValue);
+  const response = buildComponentsV2Response(parsed, { username, avatarUrl, content: fallbackContent });
 
-  if (!parsed) {
-    const body: WebhooksExecuteBody = {
-      username,
-      avatar_url: avatarUrl,
-      content: fallbackContent,
-    };
+  logger.c('onSignup').debug('sending webhook', { response: JSON.stringify(response) });
 
-    const res = await fetch(webhookUrl, {
-      method: 'POST',
-      body: JSON.stringify(body),
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-    if (!res.ok) logger.c('onSignup').error('webhook failed', { status: res.status });
-    return;
-  }
-
-  let response = buildResponse(parsed);
-
-  if (!response) {
-    response = {
-      username,
-      avatar_url: avatarUrl,
-      content: fallbackContent,
-    };
-  }
-
-  const fetchUrl = response?.flags ? withComponents(webhookUrl) : webhookUrl;
+  const fetchUrl = response.flags ? withComponents(webhookUrl) : webhookUrl;
   const res = await fetch(fetchUrl, {
     method: 'POST',
     body: JSON.stringify(response),

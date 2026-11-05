@@ -200,21 +200,43 @@ export async function render(
         )
       : null;
 
+  // CV2 component embed: extract accentColor and first text display for OG fallback
+  const cv2Config = (user?.view as Record<string, unknown> | undefined)?.componentEmbed as
+    | { enabled?: boolean; accentColor?: string; components?: { type: number; content?: string }[] }
+    | null
+    | undefined;
+  const cv2Enabled = !!cv2Config?.enabled;
+  const cv2AccentColor =
+    cv2Enabled && cv2Config?.accentColor && /^#[0-9a-fA-F]{3,8}$/.test(cv2Config.accentColor)
+      ? cv2Config.accentColor
+      : null;
+  // Extract first text-display (type 10) content as OG description fallback
+  const cv2FirstText = cv2Enabled
+    ? stripHtml(
+        cv2Config?.components?.find((c) => c.type === 10)?.content?.replace(/\{[^}]+\}/g, '').trim() ?? '',
+      ) || null
+    : null;
+
   const ogTitle = showRichOg
     ? resolveField(user?.view?.embedTitle) || safeOriginalName || safeFilename
     : safeOriginalName || safeFilename;
 
-  const ogDescription = showRichOg ? resolveField(user?.view?.embedDescription) : null;
+  const ogDescription = showRichOg
+    ? resolveField(user?.view?.embedDescription)
+    : cv2Enabled
+      ? cv2FirstText
+      : null;
   const ogSiteName = showRichOg ? resolveField(user?.view?.embedSiteName) : null;
-  const ogColor = showRichOg ? resolveField(user?.view?.embedColor) : null;
+  // CV2 accentColor takes priority over classic embed color for theme-color
+  const ogColor = cv2Enabled && cv2AccentColor ? cv2AccentColor : showRichOg ? resolveField(user?.view?.embedColor) : null;
 
   const richMeta = [
-    showMediaOg ? `<meta property="og:title" content="${ogTitle}" />` : '',
+    showMediaOg || cv2Enabled ? `<meta property="og:title" content="${ogTitle}" />` : '',
     ogDescription ? `<meta property="og:description" content="${ogDescription}" />` : '',
     ogSiteName ? `<meta property="og:site_name"    content="${ogSiteName}" />` : '',
     ogColor ? `<meta name="theme-color"          content="${ogColor}" />` : '',
-    showMediaOg ? `<meta name="twitter:card" content="summary_large_image" />` : '',
-    showMediaOg ? `<meta property="og:url"  content="${pageUrl}" />` : '',
+    showMediaOg || cv2Enabled ? `<meta name="twitter:card" content="summary_large_image" />` : '',
+    showMediaOg || cv2Enabled ? `<meta property="og:url"  content="${pageUrl}" />` : '',
   ]
     .filter(Boolean)
     .join('\n  ');
@@ -267,7 +289,7 @@ export async function render(
 
   const docTitle = `<title>${file.originalName ? safeOriginalName : safeFilename}</title>`;
 
-  const headMeta = showMediaOg
+  const headMeta = showMediaOg || cv2Enabled
     ? [docTitle, richMeta, imageOg, videoOg, audioOg, otherOg].filter(Boolean).join('\n')
     : docTitle;
 
