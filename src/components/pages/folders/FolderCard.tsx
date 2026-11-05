@@ -1,7 +1,7 @@
 import RelativeDate from '@/components/RelativeDate';
 import { Folder } from '@/lib/db/models/folder';
-import { ActionIcon, Anchor, Card, Group, Menu, Stack, Text } from '@mantine/core';
-import { useClipboard } from '@mantine/hooks';
+import { ActionIcon, Anchor, Card, Group, Menu, Modal, PasswordInput, Button, Stack, Text } from '@mantine/core';
+import { useClipboard, useDisclosure } from '@mantine/hooks';
 import {
   IconCopy,
   IconDots,
@@ -9,6 +9,7 @@ import {
   IconFolder,
   IconFolderOpen,
   IconFolderSymlink,
+  IconKey,
   IconLock,
   IconLockOpen,
   IconPencil,
@@ -17,7 +18,7 @@ import {
   IconTrashFilled,
 } from '@tabler/icons-react';
 import { useState } from 'react';
-import { copyFolderUrl, editFolderUploads, editFolderVisibility } from './actions';
+import { copyFolderUrl, editFolderUploads, editFolderVisibility, setFolderPassword } from './actions';
 import DeleteFolderModal from './modals/DeleteFolderModal';
 import EditFolderNameModal from './modals/EditFolderNameModal';
 import MoveFolderModal from './modals/MoveFolderModal';
@@ -37,6 +38,17 @@ export default function FolderCard({
   const [editOpen, setEditOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [pwModalOpen, { open: openPwModal, close: closePwModal }] = useDisclosure(false);
+  const [pwValue, setPwValue] = useState('');
+  const [pwSaving, setPwSaving] = useState(false);
+
+  const handleSetPassword = async () => {
+    setPwSaving(true);
+    await setFolderPassword(folder, pwValue.trim() || null);
+    setPwSaving(false);
+    closePwModal();
+    setPwValue('');
+  };
 
   const childrenCount = folder._count?.children ?? 0;
   const filesCount = folder._count?.files ?? folder.files?.length ?? 0;
@@ -47,6 +59,27 @@ export default function FolderCard({
       <EditFolderNameModal folder={folder} opened={editOpen} onClose={() => setEditOpen(false)} />
       <MoveFolderModal folder={folder} opened={moveOpen} onClose={() => setMoveOpen(false)} />
       <DeleteFolderModal opened={deleteOpen} folder={folder} onClose={() => setDeleteOpen(false)} />
+
+      <Modal
+        opened={pwModalOpen}
+        onClose={closePwModal}
+        title={folder.password ? 'Change or Remove Password' : 'Set Folder Password'}
+        size='sm'
+        centered
+      >
+        <Stack gap='sm'>
+          <PasswordInput
+            label='Password'
+            description='Leave blank to remove the password'
+            placeholder='Enter new password…'
+            value={pwValue}
+            onChange={(e) => setPwValue(e.currentTarget.value)}
+          />
+          <Button loading={pwSaving} onClick={handleSetPassword}>
+            {pwValue.trim() ? 'Set Password' : 'Remove Password'}
+          </Button>
+        </Stack>
+      </Modal>
 
       <Card withBorder shadow='sm' style={{ cursor: onNavigate ? 'pointer' : 'default' }}>
         <Card.Section withBorder inheritPadding py='xs' onClick={() => onNavigate?.(folder.id)}>
@@ -102,6 +135,13 @@ export default function FolderCard({
                   onClick={withoutPropagation(() => editFolderVisibility(folder, !folder.public))}
                 >
                   {folder.public ? 'Make Private' : 'Make Public'}
+                </Menu.Item>
+                <Menu.Item
+                  leftSection={<IconKey size='1rem' />}
+                  onClick={withoutPropagation(() => { setPwValue(''); openPwModal(); })}
+                  disabled={!folder.public}
+                >
+                  {folder.password ? 'Change / Remove Password' : 'Set Password'}
                 </Menu.Item>
                 <Menu.Item
                   leftSection={folder.public ? <IconShareOff size='1rem' /> : <IconShare size='1rem' />}

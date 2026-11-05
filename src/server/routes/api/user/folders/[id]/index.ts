@@ -173,6 +173,7 @@ export default typedPlugin(
             name: zStringTrimmed.optional(),
             allowUploads: z.boolean().optional(),
             parentId: z.string().nullish(),
+            password: z.string().nullable().optional(),
           }),
           params: paramsSchema,
           response: {
@@ -184,7 +185,7 @@ export default typedPlugin(
       },
       async (req, res) => {
         const { id: folderId } = req.params;
-        const { isPublic, name, allowUploads, parentId } = req.body;
+        const { isPublic, name, allowUploads, parentId, password } = req.body;
 
         if (parentId !== undefined) {
           if (parentId === folderId) throw new ApiError(1015);
@@ -220,6 +221,7 @@ export default typedPlugin(
               ...(name && { name }),
               ...(allowUploads !== undefined && { allowUploads }),
               ...(parentId !== undefined && { parentId }),
+              ...(password !== undefined && { password: password || null }),
             },
             include: folderMutationInclude,
           });

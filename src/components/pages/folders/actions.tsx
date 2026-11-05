@@ -74,3 +74,32 @@ export async function mutateFolder(folderId?: string) {
 
   return mutate((key) => typeof key === 'string' && key.startsWith('/api/user/folders'));
 }
+
+export async function setFolderPassword(folder: Folder, password: string | null) {
+  const { data, error } = await fetchApi<Response['/api/user/folders/[id]']>(
+    `/api/user/folders/${folder.id}`,
+    'PATCH',
+    { password },
+  );
+
+  if (error) {
+    notifications.show({
+      title: 'Failed to update folder password',
+      message: error.error,
+      color: 'red',
+      icon: <IconFolderOff size='1rem' />,
+    });
+  } else {
+    notifications.show({
+      title: password ? 'Password set' : 'Password removed',
+      message: password
+        ? `${data?.name} is now password protected`
+        : `${data?.name} no longer requires a password`,
+      color: 'green',
+      icon: <IconCheck size='1rem' />,
+    });
+  }
+
+  mutateFolder();
+  return { data, error };
+}

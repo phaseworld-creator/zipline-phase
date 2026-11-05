@@ -7,11 +7,14 @@ import { FolderBreadcrumb } from '@/lib/folderHierarchy';
 import {
   ActionIcon,
   Anchor,
+  Box,
   Breadcrumbs,
+  Button,
   Card,
   Container,
   Group,
   Pagination,
+  PasswordInput,
   Select,
   SimpleGrid,
   Skeleton,
@@ -19,8 +22,8 @@ import {
   Text,
   Title,
 } from '@mantine/core';
-import { IconFolder, IconUpload } from '@tabler/icons-react';
-import { lazy, Suspense, useEffect, useMemo } from 'react';
+import { IconFolder, IconLock, IconUpload } from '@tabler/icons-react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { Link, Params, useLoaderData, useNavigate, useSearchParams } from 'react-router-dom';
 import { useShallow } from 'zustand/shallow';
 import { useQueryState, parseAsInteger } from 'nuqs';
@@ -32,15 +35,18 @@ export async function loader({ params, request }: { params: Params<string>; requ
   const url = new URL(request.url);
   const page = url.searchParams.get('page') ?? '1';
   const perpage = url.searchParams.get('perpage') ?? '15';
+  const token = url.searchParams.get('token') ?? '';
 
   const res = await fetch(
-    `/api/server/folder/${params.id}?page=${encodeURIComponent(page)}&perpage=${encodeURIComponent(perpage)}`,
+    `/api/server/folder/${params.id}?page=${encodeURIComponent(page)}&perpage=${encodeURIComponent(perpage)}${token ? `&token=${encodeURIComponent(token)}` : ''}`,
   );
   if (!res.ok) {
     throw new Response('Folder not found', { status: 404 });
   }
   return {
-    initial: (await res.json()) as Response['/api/server/folder/[id]'],
+    initial: (await res.json()) as Response['/api/server/folder/[id]'] & { passwordRequired?: boolean },
+    folderId: params.id!,
+    token,
   };
 }
 
@@ -74,8 +80,62 @@ function PublicFolderCard({ folder }: { folder: Partial<Folder> }) {
 const PER_PAGE_OPTIONS = [9, 12, 15, 30, 45];
 
 export function Component() {
-  const { initial } = useLoaderData<typeof loader>();
+  const { initial, folderId, token } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+
+  // Password gate
+  const [pwValue, setPwValue] = useState('');
+  const [pwError, setPwError] = useState('');
+  const [unlocking, setUnlocking] = useState(false);
+
+  if ((initial as any).passwordRequired) {
+    return (
+      <Container size='xs' my='xl'>
+        <Stack align='center' gap='md'>
+          <IconLock size='2.5rem' />
+          <Title order={3}>Password required</Title>
+          <Text c='dimmed' ta='center'>
+            This folder is password protected.
+          </Text>
+          <Box w='100%'>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setUnlocking(true);
+                setPwError('');
+                try {
+                  const res = await fetch(`/api/server/folder/${folderId}/password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: pwValue }),
+                  });
+                  if (res.ok) {
+                    const { token: t } = await res.json();
+                    navigate(`/folder/${folderId}?token=${encodeURIComponent(t)}`, { replace: true });
+                  } else {
+                    setPwError('Incorrect password');
+                  }
+                } finally {
+                  setUnlocking(false);
+                }
+              }}
+            >
+              <PasswordInput
+                placeholder='Enter password'
+                value={pwValue}
+                onChange={(e) => setPwValue(e.currentTarget.value)}
+                error={pwError}
+                mb='sm'
+              />
+              <Button fullWidth type='submit' loading={unlocking} disabled={!pwValue.trim()}>
+                Unlock
+              </Button>
+            </form>
+          </Box>
+        </Stack>
+      </Container>
+    );
+  }
 
   const [, setSearchParams] = useSearchParams();
   const [page, setPage] = useQueryState('page', parseAsInteger.withDefault(1));
@@ -88,6 +148,7 @@ export function Component() {
       perpage,
       sort: 'createdAt',
       order: 'desc',
+      ...(token ? { token } : {}),
     },
     { fallbackData: initial, keepPreviousData: true, revalidateOnFocus: false },
   );

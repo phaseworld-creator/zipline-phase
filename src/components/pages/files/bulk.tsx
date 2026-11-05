@@ -8,6 +8,7 @@ import { notifications } from '@mantine/notifications';
 import {
   IconClipboardListFilled,
   IconFilesOff,
+  IconFileZip,
   IconStarsFilled,
   IconStarsOff,
   IconTrashFilled,
@@ -163,4 +164,68 @@ export async function bulkCopyLinks(urls: string[]) {
     icon: <IconClipboardListFilled size='1rem' />,
     autoClose: true,
   });
+}
+
+export async function bulkDownloadZip(ids: string[]) {
+  const notifId = 'bulk-zip';
+  notifications.show({
+    id: notifId,
+    title: 'Preparing ZIP',
+    message: `Packaging ${ids.length} file${ids.length === 1 ? '' : 's'}…`,
+    color: 'blue',
+    loading: true,
+    autoClose: false,
+    icon: <IconFileZip size='1rem' />,
+  });
+
+  try {
+    const response = await fetch('/api/user/files/zip', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ files: ids }),
+    });
+
+    if (!response.ok) {
+      const text = await response.text().catch(() => 'unknown error');
+      notifications.update({
+        id: notifId,
+        title: 'ZIP failed',
+        message: text.slice(0, 200),
+        color: 'red',
+        loading: false,
+        autoClose: true,
+      });
+      return;
+    }
+
+    // Stream the response into a blob and trigger a browser download
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `zipline-files-${Date.now()}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    notifications.update({
+      id: notifId,
+      title: 'ZIP ready',
+      message: `Downloaded ${ids.length} file${ids.length === 1 ? '' : 's'} as ZIP`,
+      color: 'teal',
+      loading: false,
+      autoClose: true,
+      icon: <IconFileZip size='1rem' />,
+    });
+  } catch (err) {
+    notifications.update({
+      id: notifId,
+      title: 'ZIP failed',
+      message: err instanceof Error ? err.message : 'Network error',
+      color: 'red',
+      loading: false,
+      autoClose: true,
+    });
+  }
 }

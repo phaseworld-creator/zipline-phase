@@ -1,4 +1,5 @@
 import { ApiError } from '@/lib/api/errors';
+import { verifyAccessToken, createAccessToken } from '@/lib/accessToken';
 import { prisma } from '@/lib/db';
 import { File, cleanFiles, fileSchema, fileSelect } from '@/lib/db/models/file';
 import { buildPublicParentChain, cleanFolder, Folder, folderSchema } from '@/lib/db/models/folder';
@@ -31,19 +32,22 @@ export default typedPlugin(
               sortBy: true,
               order: true,
             })
-            .partial({ page: true }),
+            .partial({ page: true })
+            .extend({ token: z.string().optional() }),
           response: {
             200: z.object({
               folder: folderSchema.partial(),
               page: z.array(fileSchema),
               total: z.number(),
               pages: z.number(),
+              passwordRequired: z.boolean().optional(),
             }),
           },
         },
       },
       async (req, res) => {
         const { id } = req.params;
+        const { token } = req.query;
 
         const folder = await prisma.folder.findFirst({
           where: {
@@ -70,6 +74,20 @@ export default typedPlugin(
 
         if (!folder) throw new ApiError(9002);
         if (!folder.public && !folder.allowUploads) throw new ApiError(9002);
+
+        // Password gate: if the folder has a password, verify the token
+        if (folder.password) {
+          const validToken = verifyAccessToken(token, 'folder', folder.id);
+          if (!validToken) {
+            return res.send({
+              folder: { id: folder.id, name: folder.name, public: folder.public },
+              page: [],
+              total: 0,
+              pages: 0,
+              passwordRequired: true,
+            });
+          }
+        }
 
         const { page, perpage, sortBy, order } = req.query;
         if ((!page && folder.allowUploads) || !folder.public) {
@@ -115,6 +133,32 @@ export default typedPlugin(
           total,
           pages,
         });
+      },
+    );
+
+    // POST /api/server/folder/:id/password — verify password, return access token
+    server.post(
+      `${PATH}/password`,
+      {
+        schema: {
+          params: z.object({ id: z.string() }),
+          body: z.object({ password: z.string() }),
+          response: { 200: z.object({ token: z.string() }) },
+        },
+      },
+      async (req, res) => {
+        const folder = await prisma.folder.findFirst({
+          where: { OR: [{ id: req.params.id }, { name: req.params.id }] },
+          select: { id: true, password: true, public: true, allowUploads: true },
+        });
+
+        if (!folder) throw new ApiError(9002);
+        if (!folder.password) throw new ApiError(9000); // no password set
+
+        if (req.body.password !== folder.password) throw new ApiError(9001); // wrong password
+
+        const token = createAccessToken({ type: 'folder', id: folder.id });
+        return res.send({ token });
       },
     );
   },

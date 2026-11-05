@@ -413,6 +413,7 @@ model Folder {
   name         String
   public       Boolean @default(false)
   allowUploads Boolean @default(false)
+  password     String?
 
   files File[]
 

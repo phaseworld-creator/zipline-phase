@@ -36,6 +36,7 @@ import {
   IconDownload,
   IconExternalLink,
   IconFile,
+  IconFileZip,
   IconStar,
   IconTrashFilled,
 } from '@tabler/icons-react';
@@ -46,7 +47,7 @@ import useSWR from 'swr';
 import { useShallow } from 'zustand/shallow';
 import { DashboardFilesModals, DashboardFilesModalsUpdate } from '..';
 import TableEditModal from '../TableEditModal';
-import { bulkCopyLinks, bulkDelete, bulkFavorite } from '../bulk';
+import { bulkCopyLinks, bulkDelete, bulkDownloadZip, bulkFavorite } from '../bulk';
 import TagPill from '../tags/TagPill';
 import { useApiPagination } from '../useApiPagination';
 
@@ -438,6 +439,15 @@ export default function FileTable({
                   onClick={() => bulkCopyLinks(selectedFiles.map((x) => `/view/${x.name}`))}
                 >
                   Copy file links
+                </Button>
+
+                <Button
+                  variant='outline'
+                  color='teal'
+                  leftSection={<IconFileZip size='1rem' />}
+                  onClick={() => bulkDownloadZip(selectedFiles.map((x) => x.id))}
+                >
+                  Download as ZIP
                 </Button>
 
                 {!id && (

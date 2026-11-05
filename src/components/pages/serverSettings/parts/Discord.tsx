@@ -1,4 +1,5 @@
 import type { Response } from '@/lib/api/response';
+import { fetchApi } from '@/lib/fetchApi';
 import {
   Alert,
   Badge,
@@ -16,15 +17,93 @@ import {
   Textarea,
   TextInput,
   Title,
+  Tooltip,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconBrandDiscord, IconDeviceFloppy, IconInfoCircle } from '@tabler/icons-react';
-import { useState } from 'react';
+import { notifications } from '@mantine/notifications';
+import { IconBrandDiscord, IconDeviceFloppy, IconInfoCircle, IconSend } from '@tabler/icons-react';
+import { lazy, Suspense, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { settingsOnSubmit } from '../settingsOnSubmit';
 import useServerSettings from '../useServerSettings';
 
+const ComponentEmbedViewImport = lazy(() => import('@/components/ComponentEmbedView'));
+function ComponentEmbedViewLazy({ config }: { config: unknown }) {
+  return (
+    <Suspense fallback={<Text size='xs' c='dimmed'>Loading preview...</Text>}>
+      <ComponentEmbedViewImport config={config} />
+    </Suspense>
+  );
+}
+
 type DiscordEmbed = Record<string, any>;
+
+/* ─── Webhook test button ───────────────────────────────────────── */
+
+function TestWebhookButton({
+  getWebhookUrl,
+  getUsername,
+  getAvatarUrl,
+  useComponentsV2 = false,
+}: {
+  getWebhookUrl: () => string | null | undefined;
+  getUsername?: () => string | null | undefined;
+  getAvatarUrl?: () => string | null | undefined;
+  useComponentsV2?: boolean;
+}) {
+  const [testing, setTesting] = useState(false);
+
+  const handleTest = async () => {
+    const url = getWebhookUrl();
+    if (!url?.trim()) {
+      notifications.show({ message: 'Enter a webhook URL first', color: 'orange' });
+      return;
+    }
+
+    setTesting(true);
+    try {
+      const { data, error } = await fetchApi<{ ok: boolean; status?: number; error?: string }>(
+        '/api/server/settings/test-webhook',
+        'POST',
+        {
+          webhookUrl: url.trim(),
+          ...(getUsername?.()?.trim() && { username: getUsername!()!.trim() }),
+          ...(getAvatarUrl?.()?.trim() && { avatarUrl: getAvatarUrl!()!.trim() }),
+          useComponentsV2,
+        },
+      );
+
+      if (error) {
+        notifications.show({ title: 'Test failed', message: error.error, color: 'red' });
+      } else if (data?.ok) {
+        notifications.show({ title: 'Test sent!', message: 'Check your Discord channel.', color: 'teal' });
+      } else {
+        notifications.show({
+          title: `Test failed (${data?.status ?? '?'})`,
+          message: data?.error ?? 'Unknown error',
+          color: 'red',
+        });
+      }
+    } finally {
+      setTesting(false);
+    }
+  };
+
+  return (
+    <Tooltip label={useComponentsV2 ? 'Send a CV2 test message' : 'Send a test embed'}>
+      <Button
+        size='compact-sm'
+        variant='light'
+        color='indigo'
+        leftSection={<IconSend size='0.8rem' />}
+        loading={testing}
+        onClick={handleTest}
+      >
+        Test
+      </Button>
+    </Tooltip>
+  );
+}
 
 /* ─── Component Embed (CV2) JSON editor ────────────────────────── */
 
@@ -69,6 +148,7 @@ function ComponentEmbedEditor({
   noLink?: boolean;
 }) {
   const [jsonError, setJsonError] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   const handleChange = (raw: string) => {
     onChange(raw);
@@ -84,20 +164,42 @@ function ComponentEmbedEditor({
     }
   };
 
+  // Parse JSON for live preview — only when preview is open and JSON is valid
+  const previewConfig = (() => {
+    if (!showPreview || !value.trim() || jsonError) return null;
+    try {
+      return JSON.parse(value);
+    } catch {
+      return null;
+    }
+  })();
+
   return (
     <Stack gap='xs'>
-      <Group gap='xs' align='center'>
-        <Text size='sm' fw={600}>
-          Component Embed (V2)
-        </Text>
-        <Badge
-          size='xs'
-          color='indigo'
-          variant='light'
-          leftSection={<IconBrandDiscord size='0.65rem' />}
-        >
-          CV2
-        </Badge>
+      <Group gap='xs' align='center' justify='space-between'>
+        <Group gap='xs' align='center'>
+          <Text size='sm' fw={600}>
+            Component Embed (V2)
+          </Text>
+          <Badge
+            size='xs'
+            color='indigo'
+            variant='light'
+            leftSection={<IconBrandDiscord size='0.65rem' />}
+          >
+            CV2
+          </Badge>
+        </Group>
+        {value.trim() && !jsonError && (
+          <Button
+            size='compact-xs'
+            variant='subtle'
+            color='indigo'
+            onClick={() => setShowPreview((p) => !p)}
+          >
+            {showPreview ? 'Hide preview' : 'Show preview'}
+          </Button>
+        )}
       </Group>
 
       <Alert icon={<IconInfoCircle size='1rem' />} color='indigo' variant='light' p='xs'>
@@ -134,6 +236,16 @@ function ComponentEmbedEditor({
         </Text>
       )}
 
+      {/* Live preview */}
+      {showPreview && previewConfig && (
+        <Paper withBorder p='sm' style={{ background: '#313338', borderRadius: 8 }}>
+          <Text size='xs' c='dimmed' mb='xs'>
+            Preview (template variables not resolved)
+          </Text>
+          <ComponentEmbedViewLazy config={previewConfig} />
+        </Paper>
+      )}
+
       {value.trim() && (
         <Button
           size='compact-xs'
@@ -142,6 +254,7 @@ function ComponentEmbedEditor({
           onClick={() => {
             onChange('');
             setJsonError(null);
+            setShowPreview(false);
           }}
         >
           Clear
@@ -564,14 +677,21 @@ function Form({ data, isLoading }: { data: Response['/api/server/settings']; isL
               </Paper>
             </Collapse>
 
-            <Button
-              type='submit'
-              mt='md'
-              loading={isLoading}
-              leftSection={<IconDeviceFloppy size='1rem' />}
-            >
-              Save
-            </Button>
+            <Group mt='md' gap='xs'>
+              <Button
+                type='submit'
+                loading={isLoading}
+                leftSection={<IconDeviceFloppy size='1rem' />}
+              >
+                Save
+              </Button>
+              <TestWebhookButton
+                getWebhookUrl={() => formOnUpload.values.discordOnUploadWebhookUrl || formMain.values.discordWebhookUrl}
+                getUsername={() => formOnUpload.values.discordOnUploadUsername || formMain.values.discordUsername}
+                getAvatarUrl={() => formOnUpload.values.discordOnUploadAvatarUrl || formMain.values.discordAvatarUrl}
+                useComponentsV2={formOnUpload.values.discordOnUploadComponentEmbedEnabled}
+              />
+            </Group>
           </form>
         </Paper>
 
@@ -678,14 +798,21 @@ function Form({ data, isLoading }: { data: Response['/api/server/settings']; isL
               </Paper>
             </Collapse>
 
-            <Button
-              type='submit'
-              mt='md'
-              loading={isLoading}
-              leftSection={<IconDeviceFloppy size='1rem' />}
-            >
-              Save
-            </Button>
+            <Group mt='md' gap='xs'>
+              <Button
+                type='submit'
+                loading={isLoading}
+                leftSection={<IconDeviceFloppy size='1rem' />}
+              >
+                Save
+              </Button>
+              <TestWebhookButton
+                getWebhookUrl={() => formOnShorten.values.discordOnShortenWebhookUrl || formMain.values.discordWebhookUrl}
+                getUsername={() => formOnShorten.values.discordOnShortenUsername || formMain.values.discordUsername}
+                getAvatarUrl={() => formOnShorten.values.discordOnShortenAvatarUrl || formMain.values.discordAvatarUrl}
+                useComponentsV2={formOnShorten.values.discordOnShortenComponentEmbedEnabled}
+              />
+            </Group>
           </form>
         </Paper>
       </SimpleGrid>
@@ -754,14 +881,21 @@ function Form({ data, isLoading }: { data: Response['/api/server/settings']; isL
               </Paper>
             </Collapse>
 
-            <Button
-              type='submit'
-              mt='md'
-              loading={isLoading}
-              leftSection={<IconDeviceFloppy size='1rem' />}
-            >
-              Save
-            </Button>
+            <Group mt='md' gap='xs'>
+              <Button
+                type='submit'
+                loading={isLoading}
+                leftSection={<IconDeviceFloppy size='1rem' />}
+              >
+                Save
+              </Button>
+              <TestWebhookButton
+                getWebhookUrl={() => formOnDelete.values.discordOnDeleteWebhookUrl || formMain.values.discordWebhookUrl}
+                getUsername={() => formOnDelete.values.discordOnDeleteUsername || formMain.values.discordUsername}
+                getAvatarUrl={() => formOnDelete.values.discordOnDeleteAvatarUrl || formMain.values.discordAvatarUrl}
+                useComponentsV2={formOnDelete.values.discordOnDeleteComponentEmbedEnabled}
+              />
+            </Group>
           </form>
         </Paper>
 
@@ -827,14 +961,21 @@ function Form({ data, isLoading }: { data: Response['/api/server/settings']; isL
               </Paper>
             </Collapse>
 
-            <Button
-              type='submit'
-              mt='md'
-              loading={isLoading}
-              leftSection={<IconDeviceFloppy size='1rem' />}
-            >
-              Save
-            </Button>
+            <Group mt='md' gap='xs'>
+              <Button
+                type='submit'
+                loading={isLoading}
+                leftSection={<IconDeviceFloppy size='1rem' />}
+              >
+                Save
+              </Button>
+              <TestWebhookButton
+                getWebhookUrl={() => formOnSignup.values.discordOnSignupWebhookUrl || formMain.values.discordWebhookUrl}
+                getUsername={() => formOnSignup.values.discordOnSignupUsername || formMain.values.discordUsername}
+                getAvatarUrl={() => formOnSignup.values.discordOnSignupAvatarUrl || formMain.values.discordAvatarUrl}
+                useComponentsV2={formOnSignup.values.discordOnSignupComponentEmbedEnabled}
+              />
+            </Group>
           </form>
         </Paper>
       </SimpleGrid>
