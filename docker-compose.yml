@@ -10,8 +10,14 @@ services:
       POSTGRES_DB: ${POSTGRESQL_DB:-zipline}
     volumes:
       - './data/postgres:/var/lib/postgresql/data'
+      # Mount old named volume read-only so the entrypoint wrapper can migrate it.
+      # Once ./data/postgres is populated this mount is a no-op (volume stays empty).
+      - 'pgdata:/old-pgdata:ro'
+      - './docker/pg-entrypoint.sh:/pg-entrypoint.sh:ro'
+    entrypoint: ['/bin/sh', '/pg-entrypoint.sh']
+    command: postgres
     healthcheck:
-      test: ['CMD', 'pg_isready', '-U', 'zipline']
+      test: ['CMD', 'pg_isready', '-U', '${POSTGRESQL_USER:-zipline}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -38,37 +44,7 @@ services:
       timeout: 2s
       retries: 2
 
-# No named volumes — all data lives in local bind-mount folders.
-# This means `docker compose down -v` cannot wipe your database.
-#
-# Data layout:
-#   ./data/postgres  — PostgreSQL database files (was: pgdata named volume)
-#   ./uploads        — uploaded files
-#   ./public         — public static assets
-#   ./themes         — custom themes
-#
-# Existing installs upgrading from the named volume:
-# The migrate-data service below runs once on `docker compose up` and copies
-# the old pgdata named volume into ./data/postgres automatically, then exits.
-
-  migrate-data:
-    image: alpine:3
-    restart: 'no'
-    volumes:
-      - 'pgdata:/old-pgdata:ro'
-      - './data/postgres:/new-pgdata'
-    command: >
-      sh -c "
-        if [ -n \"$$(ls -A /old-pgdata 2>/dev/null)\" ] && [ -z \"$$(ls -A /new-pgdata 2>/dev/null)\" ]; then
-          echo '[migrate-data] Copying old named volume to ./data/postgres...';
-          cp -a /old-pgdata/. /new-pgdata/;
-          echo '[migrate-data] Done. Your data has been migrated to the bind mount.';
-        else
-          echo '[migrate-data] Nothing to migrate (already done or no old data).';
-        fi
-      "
-
 volumes:
-  # Keep pgdata declared so migrate-data can mount it. Once migration is done
-  # (./data/postgres is populated), this volume is no longer used.
+  # Kept so existing installs can still mount it for the one-time auto-migration.
+  # Safe to remove from here once ./data/postgres is populated.
   pgdata:
