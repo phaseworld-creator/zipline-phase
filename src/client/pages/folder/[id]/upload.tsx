@@ -35,7 +35,13 @@ export function Component() {
     <>
       <Container my='lg'>
         <ConfigProvider data={{ config: config as unknown as SafeConfig, codeMap: [] }}>
-          <UploadFile title={`Upload files to ${folder.name}`} folder={folder.id} />
+          {config ? (
+            <UploadFile title={`Upload files to ${folder.name}`} folder={folder.id} />
+          ) : (
+            <Center py='xl'>
+              <Text c='dimmed'>Loading…</Text>
+            </Center>
+          )}
           <Center>
             <Text c='dimmed' ta='center'>
               {folder.public ? (
