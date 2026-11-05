@@ -82,13 +82,68 @@ const PER_PAGE_OPTIONS = [9, 12, 15, 30, 45];
 export function Component() {
   const { initial, folderId, token } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const [, setSearchParams] = useSearchParams();
+  const [page, setPage] = useQueryState('page', parseAsInteger.withDefault(1));
+  const [perpage] = useQueryState('perpage', parseAsInteger.withDefault(15));
 
-  // Password gate
+  // Password gate state — always declared regardless of passwordRequired
   const [pwValue, setPwValue] = useState('');
   const [pwError, setPwError] = useState('');
   const [unlocking, setUnlocking] = useState(false);
 
-  if ((initial as any).passwordRequired) {
+  const passwordRequired = !!(initial as any).passwordRequired;
+
+  const { data, isLoading } = useApiPagination<Response['/api/server/folder/[id]']>(
+    {
+      route: `/api/server/folder/${initial.folder.id}`,
+      page,
+      perpage,
+      sort: 'createdAt',
+      order: 'desc',
+      ...(token ? { token } : {}),
+    },
+    {
+      fallbackData: passwordRequired ? undefined : initial,
+      keepPreviousData: true,
+      revalidateOnFocus: false,
+    },
+  );
+
+  const folder = data?.folder ?? initial.folder;
+  const files = data?.page ?? [];
+  const totalRecords = data?.total ?? 0;
+  const cachedPages = data?.pages ?? 0;
+
+  useTitle(folder.name ?? 'Folder');
+
+  const buildBreadcrumbs = () => {
+    const items: FolderBreadcrumb[] = [];
+    let current = folder.parent as Partial<Folder> | undefined;
+    while (current && current.public) {
+      items.unshift({ id: current.id!, name: current.name!, public: true });
+      current = current.parent as Partial<Folder> | undefined;
+    }
+    items.push({ id: folder.id!, name: folder.name!, public: true });
+    return items;
+  };
+
+  const breadcrumbs = buildBreadcrumbs();
+  const children = (folder.children ?? []) as Partial<Folder>[];
+  const from = totalRecords === 0 ? 0 : (page - 1) * perpage + 1;
+  const to = Math.min(page * perpage, totalRecords);
+
+  const [current, setCurrent, setFiles] = useFileNavStore(
+    useShallow((state) => [state.current, state.setCurrent, state.setFiles]),
+  );
+  const currentFile = current ? (files.find((file) => file.id === current) ?? null) : null;
+  const ids = useMemo(() => files.map((file) => file.id), [files]);
+
+  useEffect(() => {
+    setFiles(ids);
+  }, [ids]);
+
+  // Render password gate after all hooks
+  if (passwordRequired) {
     return (
       <Container size='xs' my='xl'>
         <Stack align='center' gap='md'>
@@ -136,58 +191,6 @@ export function Component() {
       </Container>
     );
   }
-
-  const [, setSearchParams] = useSearchParams();
-  const [page, setPage] = useQueryState('page', parseAsInteger.withDefault(1));
-  const [perpage] = useQueryState('perpage', parseAsInteger.withDefault(15));
-
-  const { data, isLoading } = useApiPagination<Response['/api/server/folder/[id]']>(
-    {
-      route: `/api/server/folder/${initial.folder.id}`,
-      page,
-      perpage,
-      sort: 'createdAt',
-      order: 'desc',
-      ...(token ? { token } : {}),
-    },
-    { fallbackData: initial, keepPreviousData: true, revalidateOnFocus: false },
-  );
-
-  const folder = data?.folder ?? initial.folder;
-  const files = data?.page ?? [];
-  const totalRecords = data?.total ?? 0;
-  const cachedPages = data?.pages ?? 0;
-
-  useTitle(folder.name ?? 'Folder');
-
-  const buildBreadcrumbs = () => {
-    const items: FolderBreadcrumb[] = [];
-
-    let current = folder.parent as Partial<Folder> | undefined;
-    while (current && current.public) {
-      items.unshift({ id: current.id!, name: current.name!, public: true });
-      current = current.parent as Partial<Folder> | undefined;
-    }
-
-    items.push({ id: folder.id!, name: folder.name!, public: true });
-
-    return items;
-  };
-
-  const breadcrumbs = buildBreadcrumbs();
-  const children = (folder.children ?? []) as Partial<Folder>[];
-  const from = totalRecords === 0 ? 0 : (page - 1) * perpage + 1;
-  const to = Math.min(page * perpage, totalRecords);
-
-  const [current, setCurrent, setFiles] = useFileNavStore(
-    useShallow((state) => [state.current, state.setCurrent, state.setFiles]),
-  );
-  const currentFile = current ? (files.find((file) => file.id === current) ?? null) : null;
-  const ids = useMemo(() => files.map((file) => file.id), [files]);
-
-  useEffect(() => {
-    setFiles(ids);
-  }, [ids]);
 
   return (
     <>
