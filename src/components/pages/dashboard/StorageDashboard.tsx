@@ -243,7 +243,7 @@ export default function StorageDashboard() {
 
       {/* ── Charts ── */}
       {!isLoading && donutData.length > 0 && (
-        <Grid gutter='md' mb='lg'>
+        <Grid gap='md' mb='lg'>
           <Grid.Col span={{ base: 12, md: 5 }}>
             <Card withBorder radius='md' p='md' h='100%'>
               <Title order={4} mb='md'>
@@ -299,7 +299,7 @@ export default function StorageDashboard() {
       )}
 
       {isLoading && (
-        <Grid gutter='md'>
+        <Grid gap='md'>
           <Grid.Col span={{ base: 12, md: 5 }}>
             <Skeleton height={340} radius='md' />
           </Grid.Col>

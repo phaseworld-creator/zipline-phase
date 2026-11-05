@@ -75,7 +75,7 @@ export default function UploadTokensManager() {
     if (error) {
       notifications.show({ title: 'Failed to delete', message: error.error, color: 'red' });
     } else {
-      notifications.show({ title: 'Token revoked', color: 'green' });
+      notifications.show({ title: 'Token revoked', message: 'Token has been deleted', color: 'green' });
       mutate('/api/user/upload-tokens');
     }
   };
