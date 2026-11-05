@@ -1,6 +1,38 @@
 # Docker Helper Commands for Zipline
 
-## Quick Start with Docker
+## ⚠️ Safe Update (Do This Every Time)
+
+**Never run `docker compose down -v`** — the `-v` flag deletes volumes and will wipe your database.
+
+Use the safe update script instead:
+
+```bash
+sh update.sh
+```
+
+This script:
+1. Backs up your database to `./backups/` before doing anything
+2. Pulls the new image
+3. Restarts only the zipline container (database keeps running)
+4. Migrations run automatically on startup
+
+If something goes wrong, restore from backup:
+```bash
+gunzip -c backups/zipline_db_XXXX.sql.gz | docker compose exec -T postgresql psql -U zipline zipline
+```
+
+### Manual update (if you don't use the script)
+
+```bash
+# ✅ Safe — keeps volumes
+docker compose pull
+docker compose up -d
+
+# ❌ NEVER DO THIS — destroys your database
+docker compose down -v   # <-- the -v flag deletes ALL volumes
+```
+
+
 
 ```bash
 # Start Zipline containers (will auto-migrate on startup)

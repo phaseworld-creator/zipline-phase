@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD:-zipline}
       POSTGRES_DB: ${POSTGRESQL_DB:-zipline}
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - './data/postgres:/var/lib/postgresql/data'
     healthcheck:
       test: ['CMD', 'pg_isready', '-U', 'zipline']
       interval: 10s
@@ -38,5 +38,9 @@ services:
       timeout: 2s
       retries: 2
 
-volumes:
-  pgdata:
+# No named volumes — all data is in local folders so `docker compose down -v` can never wipe it.
+# Data layout:
+#   ./data/postgres  — PostgreSQL database files
+#   ./uploads        — uploaded files
+#   ./public         — public static assets
+#   ./themes         — custom themes
