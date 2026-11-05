@@ -10,8 +10,6 @@ services:
       POSTGRES_DB: ${POSTGRESQL_DB:-zipline}
     volumes:
       - './data/postgres:/var/lib/postgresql/data'
-      # Mount old named volume read-only so the entrypoint wrapper can migrate it.
-      # Once ./data/postgres is populated this mount is a no-op (volume stays empty).
       - 'pgdata:/old-pgdata:ro'
       - './docker/pg-entrypoint.sh:/pg-entrypoint.sh:ro'
     entrypoint: ['/bin/sh', '/pg-entrypoint.sh']
@@ -43,6 +41,22 @@ services:
       interval: 15s
       timeout: 2s
       retries: 2
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    # Option A — Named tunnel (recommended, token stored in .env as CLOUDFLARE_TUNNEL_TOKEN)
+    # Get your token from: https://one.dash.cloudflare.com/ → Networks → Tunnels → Create tunnel
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      zipline:
+        condition: service_healthy
+    # Option B — Config-file tunnel (comment out command/environment above and uncomment below)
+    # volumes:
+    #   - './cloudflared:/etc/cloudflared'
+    # command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run
 
 volumes:
   # Kept so existing installs can still mount it for the one-time auto-migration.
