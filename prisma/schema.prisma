@@ -214,6 +214,7 @@ model User {
   IncompleteFile IncompleteFile[]
   exports        Export[]
   fileComments   FileComment[]
+  uploadTokens   UploadToken[]
 }
 
 model Export {
@@ -500,4 +501,20 @@ model Invite {
 
   inviter   User   @relation(fields: [inviterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   inviterId String
+}
+
+model UploadToken {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name      String
+  token     String   @unique
+  expiresAt DateTime?
+  maxUses   Int?
+  uses      Int      @default(0)
+  folderId  String?
+
+  User   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
 }

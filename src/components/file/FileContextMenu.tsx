@@ -15,6 +15,7 @@ import {
   IconFolderMinus,
   IconFolderSymlink,
   IconPencil,
+  IconQrcode,
   IconStar,
   IconStarFilled,
   IconTrashFilled,
@@ -31,6 +32,7 @@ import {
   viewFile,
 } from './actions';
 import EditFileDetailsModal from './DashboardFile/EditFileDetailsModal';
+import QRCodeModal from '@/components/QRCodeModal';
 
 const stop = (fn: () => void) => (event: React.MouseEvent) => {
   event.stopPropagation();
@@ -82,6 +84,7 @@ export default function FileContextMenu({
   const [opened, setOpened] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [editOpen, setEditOpen] = useState(false);
+  const [qrOpen, setQrOpen] = useState(false);
 
   const clipboard = useClipboard();
   const warnDeletion = useSettingsStore((state) => state.settings.warnDeletion);
@@ -147,6 +150,7 @@ export default function FileContextMenu({
   return (
     <>
       <EditFileDetailsModal open={editOpen} onClose={() => setEditOpen(false)} file={file} />
+      <QRCodeModal opened={qrOpen} onClose={() => setQrOpen(false)} url={`/view/${file.name}`} />
 
       <Box onContextMenu={handleContextMenu} style={{ display: 'contents' }}>
         {children}
@@ -215,6 +219,9 @@ export default function FileContextMenu({
           </Menu.Item>
           <Menu.Item leftSection={<IconDownload size='1rem' />} onClick={stop(run(() => downloadFile(file)))}>
             Download
+          </Menu.Item>
+          <Menu.Item leftSection={<IconQrcode size='1rem' />} onClick={stop(run(() => setQrOpen(true)))}>
+            Show QR code
           </Menu.Item>
 
           {!reduce && (

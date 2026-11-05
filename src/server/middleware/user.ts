@@ -53,6 +53,35 @@ export async function userMiddleware(req: FastifyRequest, res: FastifyReply) {
     !req.cookies['zipline_session'];
   if (anonFolderUpload) return;
 
+  // shareable upload token auth
+  const uploadTokenHeader = req.headers['x-zipline-upload-token'] as string | undefined;
+  if (uploadTokenHeader && upload) {
+    const uploadToken = await prisma.uploadToken.findFirst({
+      where: { token: uploadTokenHeader },
+      include: {
+        User: { select: userSelect },
+      },
+    });
+
+    if (!uploadToken) throw new ApiError(2001);
+    if (uploadToken.expiresAt && uploadToken.expiresAt < new Date()) throw new ApiError(2005);
+    if (uploadToken.maxUses !== null && uploadToken.uses >= uploadToken.maxUses) throw new ApiError(2005);
+
+    // Increment use count (fire-and-forget)
+    void prisma.uploadToken.update({
+      where: { id: uploadToken.id },
+      data: { uses: { increment: 1 } },
+    });
+
+    // Auto-set folder from token if not already specified
+    if (uploadToken.folderId && !req.headers['x-zipline-folder']) {
+      (req.headers as any)['x-zipline-folder'] = uploadToken.folderId;
+    }
+
+    req.user = uploadToken.User as User;
+    return;
+  }
+
   const authorization = req.headers.authorization;
 
   if (authorization) {

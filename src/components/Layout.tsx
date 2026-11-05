@@ -56,6 +56,8 @@ import {
   IconUpload,
   IconUsersGroup,
   IconChartBar,
+  IconDeviceSdCard,
+  IconKey,
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { Link, NavigateFunction, Outlet, useLoaderData, useLocation, useNavigate } from 'react-router-dom';
@@ -96,6 +98,18 @@ const navLinks: NavLinks[] = [
     icon: <IconChartBar size='1rem' />,
     active: (path: string) => path === '/dashboard/analytics',
     href: '/dashboard/analytics',
+  },
+  {
+    label: 'Storage',
+    icon: <IconDeviceSdCard size='1rem' />,
+    active: (path: string) => path === '/dashboard/storage',
+    href: '/dashboard/storage',
+  },
+  {
+    label: 'Upload Tokens',
+    icon: <IconKey size='1rem' />,
+    active: (path: string) => path === '/dashboard/upload-tokens',
+    href: '/dashboard/upload-tokens',
   },
   {
     label: 'Files',
